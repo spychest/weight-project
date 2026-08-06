@@ -58,12 +58,19 @@ class Profile
     #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'profile', orphanRemoval: true)]
     private Collection $activities;
 
+    /**
+     * @var Collection<int, Victory>
+     */
+    #[ORM\OneToMany(targetEntity: Victory::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $victories;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
         $this->dailyCheckins = new ArrayCollection();
         $this->foodEvents = new ArrayCollection();
         $this->activities = new ArrayCollection();
+        $this->victories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -257,6 +264,36 @@ class Profile
             // set the owning side to null (unless already changed)
             if ($activity->getProfile() === $this) {
                 $activity->setProfile(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Victory>
+     */
+    public function getVictories(): Collection
+    {
+        return $this->victories;
+    }
+
+    public function addVictory(Victory $victory): static
+    {
+        if (!$this->victories->contains($victory)) {
+            $this->victories->add($victory);
+            $victory->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVictory(Victory $victory): static
+    {
+        if ($this->victories->removeElement($victory)) {
+            // set the owning side to null (unless already changed)
+            if ($victory->getProfile() === $this) {
+                $victory->setProfile(null);
             }
         }
 
