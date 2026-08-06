@@ -29,6 +29,10 @@ class DailyCheckin
     #[ORM\Column(nullable: true)]
     private ?int $painLevel = null;
 
+    #[ORM\ManyToOne(inversedBy: 'dailyCheckins')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Profile $profile = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +94,18 @@ class DailyCheckin
     public function setPainLevel(?int $painLevel): static
     {
         $this->painLevel = $painLevel;
+
+        return $this;
+    }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?Profile $profile): static
+    {
+        $this->profile = $profile;
 
         return $this;
     }

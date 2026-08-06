@@ -40,9 +40,16 @@ class Profile
     #[ORM\Column(length: 255)]
     private ?string $biologicalGender = null;
 
+    /**
+     * @var Collection<int, DailyCheckin>
+     */
+    #[ORM\OneToMany(targetEntity: DailyCheckin::class, mappedBy: 'profile')]
+    private Collection $dailyCheckins;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
+        $this->dailyCheckins = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -148,6 +155,36 @@ class Profile
     public function setBiologicalGender(string $biologicalGender): static
     {
         $this->biologicalGender = $biologicalGender;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DailyCheckin>
+     */
+    public function getDailyCheckins(): Collection
+    {
+        return $this->dailyCheckins;
+    }
+
+    public function addDailyCheckin(DailyCheckin $dailyCheckin): static
+    {
+        if (!$this->dailyCheckins->contains($dailyCheckin)) {
+            $this->dailyCheckins->add($dailyCheckin);
+            $dailyCheckin->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDailyCheckin(DailyCheckin $dailyCheckin): static
+    {
+        if ($this->dailyCheckins->removeElement($dailyCheckin)) {
+            // set the owning side to null (unless already changed)
+            if ($dailyCheckin->getProfile() === $this) {
+                $dailyCheckin->setProfile(null);
+            }
+        }
 
         return $this;
     }
