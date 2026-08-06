@@ -46,10 +46,17 @@ class Profile
     #[ORM\OneToMany(targetEntity: DailyCheckin::class, mappedBy: 'profile')]
     private Collection $dailyCheckins;
 
+    /**
+     * @var Collection<int, FoodEvent>
+     */
+    #[ORM\OneToMany(targetEntity: FoodEvent::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $foodEvents;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
         $this->dailyCheckins = new ArrayCollection();
+        $this->foodEvents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -183,6 +190,36 @@ class Profile
             // set the owning side to null (unless already changed)
             if ($dailyCheckin->getProfile() === $this) {
                 $dailyCheckin->setProfile(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FoodEvent>
+     */
+    public function getFoodEvents(): Collection
+    {
+        return $this->foodEvents;
+    }
+
+    public function addFoodEvent(FoodEvent $foodEvent): static
+    {
+        if (!$this->foodEvents->contains($foodEvent)) {
+            $this->foodEvents->add($foodEvent);
+            $foodEvent->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFoodEvent(FoodEvent $foodEvent): static
+    {
+        if ($this->foodEvents->removeElement($foodEvent)) {
+            // set the owning side to null (unless already changed)
+            if ($foodEvent->getProfile() === $this) {
+                $foodEvent->setProfile(null);
             }
         }
 
