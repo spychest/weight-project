@@ -26,6 +26,9 @@ class DailyCheckin
     #[ORM\Column]
     private ?int $frustration = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $painLevel = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class DailyCheckin
     public function setFrustration(int $frustration): static
     {
         $this->frustration = $frustration;
+
+        return $this;
+    }
+
+    public function getPainLevel(): ?int
+    {
+        return $this->painLevel;
+    }
+
+    public function setPainLevel(?int $painLevel): static
+    {
+        $this->painLevel = $painLevel;
 
         return $this;
     }

@@ -37,6 +37,9 @@ class Profile
     #[ORM\OneToMany(targetEntity: WeightEntry::class, mappedBy: 'profile', orphanRemoval: true)]
     private Collection $weightEntries;
 
+    #[ORM\Column(length: 255)]
+    private ?string $biologicalGender = null;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
@@ -133,6 +136,18 @@ class Profile
                 $weightEntry->setProfile(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBiologicalGender(): ?string
+    {
+        return $this->biologicalGender;
+    }
+
+    public function setBiologicalGender(string $biologicalGender): static
+    {
+        $this->biologicalGender = $biologicalGender;
 
         return $this;
     }
