@@ -64,6 +64,12 @@ class Profile
     #[ORM\OneToMany(targetEntity: Victory::class, mappedBy: 'profile')]
     private Collection $victories;
 
+    /**
+     * @var Collection<int, Milestone>
+     */
+    #[ORM\OneToMany(targetEntity: Milestone::class, mappedBy: 'profile')]
+    private Collection $milestones;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
@@ -72,6 +78,7 @@ class Profile
         $this->activities = new ArrayCollection();
         $this->victories = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
+        $this->milestones = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -272,6 +279,36 @@ class Profile
     public function removeVictory(Victory $victory): static
     {
         $this->victories->removeElement($victory);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Milestone>
+     */
+    public function getMilestones(): Collection
+    {
+        return $this->milestones;
+    }
+
+    public function addMilestone(Milestone $milestone): static
+    {
+        if (!$this->milestones->contains($milestone)) {
+            $this->milestones->add($milestone);
+            $milestone->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMilestone(Milestone $milestone): static
+    {
+        if ($this->milestones->removeElement($milestone)) {
+            // set the owning side to null (unless already changed)
+            if ($milestone->getProfile() === $this) {
+                $milestone->setProfile(null);
+            }
+        }
 
         return $this;
     }

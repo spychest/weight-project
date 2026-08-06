@@ -29,6 +29,10 @@ class Milestone
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $achievedAt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'milestones')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Profile $profile = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +94,18 @@ class Milestone
     public function setAchievedAt(?\DateTimeImmutable $achievedAt): static
     {
         $this->achievedAt = $achievedAt;
+
+        return $this;
+    }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?Profile $profile): static
+    {
+        $this->profile = $profile;
 
         return $this;
     }
