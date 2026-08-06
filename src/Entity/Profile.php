@@ -52,11 +52,18 @@ class Profile
     #[ORM\OneToMany(targetEntity: FoodEvent::class, mappedBy: 'profile', orphanRemoval: true)]
     private Collection $foodEvents;
 
+    /**
+     * @var Collection<int, Activity>
+     */
+    #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $activities;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
         $this->dailyCheckins = new ArrayCollection();
         $this->foodEvents = new ArrayCollection();
+        $this->activities = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -220,6 +227,36 @@ class Profile
             // set the owning side to null (unless already changed)
             if ($foodEvent->getProfile() === $this) {
                 $foodEvent->setProfile(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Activity>
+     */
+    public function getActivities(): Collection
+    {
+        return $this->activities;
+    }
+
+    public function addActivity(Activity $activity): static
+    {
+        if (!$this->activities->contains($activity)) {
+            $this->activities->add($activity);
+            $activity->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivity(Activity $activity): static
+    {
+        if ($this->activities->removeElement($activity)) {
+            // set the owning side to null (unless already changed)
+            if ($activity->getProfile() === $this) {
+                $activity->setProfile(null);
             }
         }
 
