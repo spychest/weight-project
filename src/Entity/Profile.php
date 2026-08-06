@@ -17,10 +17,10 @@ class Profile
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?float $height = null;
+    private float $height;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $birthDate = null;
+    private \DateTimeImmutable $birthDate;
 
     #[ORM\Column(nullable: true)]
     private ?float $startingWeight = null;
@@ -29,16 +29,16 @@ class Profile
     private ?float $targetWeight = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @var Collection<int, WeightEntry>
      */
-    #[ORM\OneToMany(targetEntity: WeightEntry::class, mappedBy: 'profile', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: WeightEntry::class, mappedBy: 'profile')]
     private Collection $weightEntries;
 
     #[ORM\Column(length: 255)]
-    private ?string $biologicalGender = null;
+    private string $biologicalGender;
 
     /**
      * @var Collection<int, DailyCheckin>
@@ -49,19 +49,19 @@ class Profile
     /**
      * @var Collection<int, FoodEvent>
      */
-    #[ORM\OneToMany(targetEntity: FoodEvent::class, mappedBy: 'profile', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: FoodEvent::class, mappedBy: 'profile')]
     private Collection $foodEvents;
 
     /**
      * @var Collection<int, Activity>
      */
-    #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'profile', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'profile')]
     private Collection $activities;
 
     /**
      * @var Collection<int, Victory>
      */
-    #[ORM\OneToMany(targetEntity: Victory::class, mappedBy: 'profile', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Victory::class, mappedBy: 'profile')]
     private Collection $victories;
 
     public function __construct()
@@ -71,6 +71,7 @@ class Profile
         $this->foodEvents = new ArrayCollection();
         $this->activities = new ArrayCollection();
         $this->victories = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -78,7 +79,7 @@ class Profile
         return $this->id;
     }
 
-    public function getHeight(): ?float
+    public function getHeight(): float
     {
         return $this->height;
     }
@@ -90,7 +91,7 @@ class Profile
         return $this;
     }
 
-    public function getBirthDate(): ?\DateTimeImmutable
+    public function getBirthDate(): \DateTimeImmutable
     {
         return $this->birthDate;
     }
@@ -126,7 +127,7 @@ class Profile
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -158,17 +159,12 @@ class Profile
 
     public function removeWeightEntry(WeightEntry $weightEntry): static
     {
-        if ($this->weightEntries->removeElement($weightEntry)) {
-            // set the owning side to null (unless already changed)
-            if ($weightEntry->getProfile() === $this) {
-                $weightEntry->setProfile(null);
-            }
-        }
+        $this->weightEntries->removeElement($weightEntry);
 
         return $this;
     }
 
-    public function getBiologicalGender(): ?string
+    public function getBiologicalGender(): string
     {
         return $this->biologicalGender;
     }
@@ -200,12 +196,7 @@ class Profile
 
     public function removeDailyCheckin(DailyCheckin $dailyCheckin): static
     {
-        if ($this->dailyCheckins->removeElement($dailyCheckin)) {
-            // set the owning side to null (unless already changed)
-            if ($dailyCheckin->getProfile() === $this) {
-                $dailyCheckin->setProfile(null);
-            }
-        }
+        $this->dailyCheckins->removeElement($dailyCheckin);
 
         return $this;
     }
@@ -230,12 +221,7 @@ class Profile
 
     public function removeFoodEvent(FoodEvent $foodEvent): static
     {
-        if ($this->foodEvents->removeElement($foodEvent)) {
-            // set the owning side to null (unless already changed)
-            if ($foodEvent->getProfile() === $this) {
-                $foodEvent->setProfile(null);
-            }
-        }
+        $this->foodEvents->removeElement($foodEvent);
 
         return $this;
     }
@@ -260,12 +246,7 @@ class Profile
 
     public function removeActivity(Activity $activity): static
     {
-        if ($this->activities->removeElement($activity)) {
-            // set the owning side to null (unless already changed)
-            if ($activity->getProfile() === $this) {
-                $activity->setProfile(null);
-            }
-        }
+        $this->activities->removeElement($activity);
 
         return $this;
     }
@@ -290,12 +271,7 @@ class Profile
 
     public function removeVictory(Victory $victory): static
     {
-        if ($this->victories->removeElement($victory)) {
-            // set the owning side to null (unless already changed)
-            if ($victory->getProfile() === $this) {
-                $victory->setProfile(null);
-            }
-        }
+        $this->victories->removeElement($victory);
 
         return $this;
     }
