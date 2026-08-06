@@ -22,5 +22,7 @@ class ProfileFixture extends Fixture
         $manager->persist($profile);
 
         $manager->flush();
+
+        $this->addReference('main_profile', $profile);
     }
 }

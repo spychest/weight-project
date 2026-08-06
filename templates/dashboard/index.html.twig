@@ -4,4 +4,15 @@
 
 {% block body %}
     {% include 'dashboard/_profile_card.html.twig' %}
+    <h1>Suivi poids</h1>
+
+    <ul>
+        <li>Taille : {{ dashboard.height }} m</li>
+        <li>Poids départ : {{ dashboard.startingWeight }} kg</li>
+        <li>Poids actuel : {{ dashboard.currentWeight }} kg</li>
+        <li>Objectif : {{ dashboard.targetWeight }} kg</li>
+        <li>Perdu : {{ dashboard.lostWeight }} kg</li>
+        <li>Restant : {{ dashboard.remainingWeight }} kg</li>
+        <li>Progression : {{ dashboard.formattedProgressPercentage }}</li>
+    </ul>
 {% endblock %}

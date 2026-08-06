@@ -18,7 +18,7 @@ class WeightEntry
     private ?float $weight = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $measuredAt = null;
+    private \DateTimeImmutable $measuredAt;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $note = null;
@@ -26,6 +26,11 @@ class WeightEntry
     #[ORM\ManyToOne(inversedBy: 'weightEntries')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Profile $profile = null;
+
+    public function __construct()
+    {
+        $this->measuredAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -44,7 +49,7 @@ class WeightEntry
         return $this;
     }
 
-    public function getMeasuredAt(): ?\DateTimeImmutable
+    public function getMeasuredAt(): \DateTimeImmutable
     {
         return $this->measuredAt;
     }
