@@ -3,14 +3,17 @@
 namespace App\Service\Dashboard;
 
 use App\DTO\DashboardData;
+use App\DTO\MilestoneData;
 use App\Repository\ProfileRepository;
 use App\Repository\WeightEntryRepository;
+use App\Service\Milestone\MilestoneService;
 
 final readonly class DashboardService
 {
     public function __construct(
         private ProfileRepository $profileRepository,
         private WeightEntryRepository $weightEntryRepository,
+        private MilestoneService $milestoneService,
     )
     {
     }
@@ -45,6 +48,24 @@ final readonly class DashboardService
             $progressPercentage = ($lostWeight / $totalToLose) * 100;
         }
 
+        $nextMilestone = null;
+
+        if ($currentWeight !== null) {
+            $milestone = $this->milestoneService->findNextMilestone(
+                $profile,
+                $currentWeight
+            );
+
+            if ($milestone !== null) {
+                $nextMilestone = new MilestoneData(
+                    title: $milestone->getTitle(),
+                    description: $milestone->getDescription(),
+                    targetValue: $milestone->getTargetValue(),
+                    remainingWeight: $currentWeight - $milestone->getTargetValue(),
+                );
+            }
+        }
+
         return new DashboardData(
             height: $profile->getHeight(),
             startingWeight: $profile->getStartingWeight(),
@@ -54,6 +75,7 @@ final readonly class DashboardService
             lostWeight: $lostWeight,
             remainingWeight: $remainingWeight,
             progressPercentage: $progressPercentage,
+            nextMilestone: $nextMilestone,
         );
     }
 }

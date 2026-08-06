@@ -15,4 +15,17 @@
         <li>Restant : {{ dashboard.remainingWeight }} kg</li>
         <li>Progression : {{ dashboard.formattedProgressPercentage }}</li>
     </ul>
+
+    <h2>Prochain jalon</h2>
+
+    {% if dashboard.nextMilestone %}
+        <ul>
+            <li>Titre : {{ dashboard.nextMilestone.title }}</li>
+            <li>Description : {{ dashboard.nextMilestone.description }}</li>
+            <li>Objectif : {{ dashboard.nextMilestone.targetValue }} kg</li>
+            <li>Encore : {{ dashboard.nextMilestone.remainingWeight }} kg</li>
+        </ul>
+    {% else %}
+        <p>Aucun jalon restant 🎉</p>
+    {% endif %}
 {% endblock %}
