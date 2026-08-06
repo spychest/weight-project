@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\WeightEntryRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: WeightEntryRepository::class)]
 class WeightEntry
@@ -15,6 +16,11 @@ class WeightEntry
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\Range(
+        notInRangeMessage: 'Le poids doit être compris entre {{ min }} et {{ max }} kg.',
+        min: 30,
+        max: 300
+    )]
     private ?float $weight = null;
 
     #[ORM\Column]
