@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProfileRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +30,17 @@ class Profile
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    /**
+     * @var Collection<int, WeightEntry>
+     */
+    #[ORM\OneToMany(targetEntity: WeightEntry::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $weightEntries;
+
+    public function __construct()
+    {
+        $this->weightEntries = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -90,6 +103,36 @@ class Profile
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, WeightEntry>
+     */
+    public function getWeightEntries(): Collection
+    {
+        return $this->weightEntries;
+    }
+
+    public function addWeightEntry(WeightEntry $weightEntry): static
+    {
+        if (!$this->weightEntries->contains($weightEntry)) {
+            $this->weightEntries->add($weightEntry);
+            $weightEntry->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWeightEntry(WeightEntry $weightEntry): static
+    {
+        if ($this->weightEntries->removeElement($weightEntry)) {
+            // set the owning side to null (unless already changed)
+            if ($weightEntry->getProfile() === $this) {
+                $weightEntry->setProfile(null);
+            }
+        }
 
         return $this;
     }
