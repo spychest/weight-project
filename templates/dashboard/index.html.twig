@@ -32,4 +32,22 @@
     {% else %}
         <p>Aucun jalon restant 🎉</p>
     {% endif %}
+
+    <h2>Derniers repas</h2>
+
+    {% for meal in dashboard.recentMeals %}
+
+        <div>
+            <strong>{{ meal.mealType.value }}</strong>
+            <br>
+            {{ meal.description }}
+            <br>
+            {{ meal.eatenAt|date('d/m/Y H:i') }}
+        </div>
+
+    {% else %}
+
+        <p>Aucun repas enregistré.</p>
+
+    {% endfor %}
 {% endblock %}

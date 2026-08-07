@@ -3,7 +3,9 @@
 namespace App\Service\Dashboard;
 
 use App\DTO\DashboardData;
+use App\DTO\FoodEventData;
 use App\DTO\MilestoneData;
+use App\Repository\FoodEventRepository;
 use App\Repository\ProfileRepository;
 use App\Repository\WeightEntryRepository;
 use App\Service\Milestone\MilestoneService;
@@ -14,6 +16,7 @@ final readonly class DashboardService
         private ProfileRepository $profileRepository,
         private WeightEntryRepository $weightEntryRepository,
         private MilestoneService $milestoneService,
+        private FoodEventRepository $foodEventRepository,
     )
     {
     }
@@ -66,6 +69,24 @@ final readonly class DashboardService
             }
         }
 
+        $recentMeals = $this->foodEventRepository
+            ->findBy(
+                [],
+                ['eatenAt' => 'DESC'],
+                5
+            );
+
+        $recentMeals = array_map(
+            fn ($foodEvent) => new FoodEventData(
+                $foodEvent->getMealType(),
+                $foodEvent->getEatenAt(),
+                $foodEvent->getDescription(),
+                $foodEvent->getHungerLevel(),
+                $foodEvent->getPleasureLevel(),
+            ),
+            $recentMeals
+        );
+
         return new DashboardData(
             height: $profile->getHeight(),
             startingWeight: $profile->getStartingWeight(),
@@ -76,6 +97,7 @@ final readonly class DashboardService
             remainingWeight: $remainingWeight,
             progressPercentage: $progressPercentage,
             nextMilestone: $nextMilestone,
+            recentMeals: $recentMeals,
         );
     }
 }
