@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\DailyCheckinRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DailyCheckinRepository::class)]
 class DailyCheckin
@@ -18,20 +19,35 @@ class DailyCheckin
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column]
-    private ?int $mood = null;
+    #[Assert\Range(min: 1, max: 10)]
+    private ?int $moodLevel = null;
 
     #[ORM\Column]
-    private ?int $energy = null;
+    #[Assert\Range(min: 1, max: 10)]
+    private ?int $energyLevel = null;
 
     #[ORM\Column]
-    private ?int $frustration = null;
+    #[Assert\Range(min: 1, max: 10)]
+    private ?int $frustrationLevel = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 1, max: 10)]
     private ?int $painLevel = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $note = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'dailyCheckins')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Profile $profile = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -50,38 +66,38 @@ class DailyCheckin
         return $this;
     }
 
-    public function getMood(): ?int
+    public function getMoodLevel(): ?int
     {
-        return $this->mood;
+        return $this->moodLevel;
     }
 
-    public function setMood(int $mood): static
+    public function setMoodLevel(int $mood): static
     {
-        $this->mood = $mood;
+        $this->moodLevel = $mood;
 
         return $this;
     }
 
-    public function getEnergy(): ?int
+    public function getEnergyLevel(): ?int
     {
-        return $this->energy;
+        return $this->energyLevel;
     }
 
-    public function setEnergy(int $energy): static
+    public function setEnergyLevel(int $energy): static
     {
-        $this->energy = $energy;
+        $this->energyLevel = $energy;
 
         return $this;
     }
 
-    public function getFrustration(): ?int
+    public function getFrustrationLevel(): ?int
     {
-        return $this->frustration;
+        return $this->frustrationLevel;
     }
 
-    public function setFrustration(int $frustration): static
+    public function setFrustrationLevel(int $frustration): static
     {
-        $this->frustration = $frustration;
+        $this->frustrationLevel = $frustration;
 
         return $this;
     }
@@ -94,6 +110,30 @@ class DailyCheckin
     public function setPainLevel(?int $painLevel): static
     {
         $this->painLevel = $painLevel;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): static
+    {
+        $this->note = $note;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

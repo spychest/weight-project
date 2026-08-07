@@ -2,10 +2,12 @@
 
 namespace App\Service\Dashboard;
 
+use App\DTO\DailyCheckinData;
 use App\DTO\DashboardData;
 use App\DTO\DrinkEntryData;
 use App\DTO\FoodEventData;
 use App\DTO\MilestoneData;
+use App\Repository\DailyCheckinRepository;
 use App\Repository\DrinkEntryRepository;
 use App\Repository\FoodEventRepository;
 use App\Repository\ProfileRepository;
@@ -19,7 +21,8 @@ final readonly class DashboardService
         private WeightEntryRepository $weightEntryRepository,
         private MilestoneService $milestoneService,
         private FoodEventRepository $foodEventRepository,
-        private DrinkEntryRepository $drinkEntryRepository
+        private DrinkEntryRepository $drinkEntryRepository,
+        private DailyCheckinRepository $dailyCheckinRepository,
     )
     {
     }
@@ -107,6 +110,27 @@ final readonly class DashboardService
             $recentDrinks
         );
 
+        $dailyCheckin = $this->dailyCheckinRepository
+            ->findOneBy(
+                [],
+                [
+                    'date' => 'DESC'
+                ]
+            );
+
+        $dailyCheckinData = null;
+
+        if ($dailyCheckin) {
+            $dailyCheckinData = new DailyCheckinData(
+                $dailyCheckin->getDate(),
+                $dailyCheckin->getMoodLevel(),
+                $dailyCheckin->getEnergyLevel(),
+                $dailyCheckin->getFrustrationLevel(),
+                $dailyCheckin->getPainLevel(),
+                $dailyCheckin->getNote(),
+            );
+        }
+
         return new DashboardData(
             height: $profile->getHeight(),
             startingWeight: $profile->getStartingWeight(),
@@ -119,6 +143,7 @@ final readonly class DashboardService
             nextMilestone: $nextMilestone,
             recentMeals: $recentMeals,
             recentDrinks: $recentDrinks,
+            dailyCheckin: $dailyCheckinData,
         );
     }
 }
