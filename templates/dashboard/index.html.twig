@@ -10,6 +10,10 @@
         Ajouter un repas
     </a>
 
+    <a href="{{ path('app_drink_new') }}">
+        Ajouter hydratation
+    </a>
+
     <ul>
         <li>Taille : {{ dashboard.height }} m</li>
         <li>Poids départ : {{ dashboard.startingWeight }} kg</li>
@@ -48,6 +52,27 @@
     {% else %}
 
         <p>Aucun repas enregistré.</p>
+
+    {% endfor %}
+
+    <h2>Hydratation</h2>
+
+    {% for drink in dashboard.recentDrinks %}
+
+        <div>
+            {{ drink.drinkType.value }}
+            -
+            {{ drink.quantity }} ml
+
+            {% if drink.description %}
+                <br>
+                {{ drink.description }}
+            {% endif %}
+        </div>
+
+    {% else %}
+
+        <p>Aucune boisson enregistrée.</p>
 
     {% endfor %}
 {% endblock %}

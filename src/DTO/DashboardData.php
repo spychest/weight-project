@@ -15,6 +15,7 @@ final readonly class DashboardData
         public ?float $progressPercentage,
         public ?MilestoneData $nextMilestone,
         public array $recentMeals,
+        public array $recentDrinks,
     ) {
     }
 

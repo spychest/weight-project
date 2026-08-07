@@ -3,8 +3,10 @@
 namespace App\Service\Dashboard;
 
 use App\DTO\DashboardData;
+use App\DTO\DrinkEntryData;
 use App\DTO\FoodEventData;
 use App\DTO\MilestoneData;
+use App\Repository\DrinkEntryRepository;
 use App\Repository\FoodEventRepository;
 use App\Repository\ProfileRepository;
 use App\Repository\WeightEntryRepository;
@@ -17,6 +19,7 @@ final readonly class DashboardService
         private WeightEntryRepository $weightEntryRepository,
         private MilestoneService $milestoneService,
         private FoodEventRepository $foodEventRepository,
+        private DrinkEntryRepository $drinkEntryRepository
     )
     {
     }
@@ -87,6 +90,23 @@ final readonly class DashboardService
             $recentMeals
         );
 
+        $recentDrinks = $this->drinkEntryRepository
+            ->findBy(
+                [],
+                ['date' => 'DESC'],
+                5
+            );
+
+        $recentDrinks = array_map(
+            fn ($drink) => new DrinkEntryData(
+                $drink->getDrinkType(),
+                $drink->getQuantity(),
+                $drink->getDate(),
+                $drink->getDescription(),
+            ),
+            $recentDrinks
+        );
+
         return new DashboardData(
             height: $profile->getHeight(),
             startingWeight: $profile->getStartingWeight(),
@@ -98,6 +118,7 @@ final readonly class DashboardService
             progressPercentage: $progressPercentage,
             nextMilestone: $nextMilestone,
             recentMeals: $recentMeals,
+            recentDrinks: $recentDrinks,
         );
     }
 }
