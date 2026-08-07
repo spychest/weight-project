@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use App\Enum\MealType;
 use App\Repository\FoodEventRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FoodEventRepository::class)]
 class FoodEvent
@@ -14,19 +16,27 @@ class FoodEvent
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $date = null;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $eatenAt = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $type = null;
+    #[ORM\Column(enumType: MealType::class)]
+    private ?MealType $mealType = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(
+        min: 1,
+        max: 10
+    )]
     private ?int $hungerLevel = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(
+        min: 1,
+        max: 10
+    )]
     private ?int $pleasureLevel = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -42,34 +52,40 @@ class FoodEvent
     #[ORM\JoinColumn(nullable: false)]
     private ?Profile $profile = null;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeImmutable
+    public function getEatenAt(): ?\DateTimeImmutable
     {
-        return $this->date;
+        return $this->eatenAt;
     }
 
-    public function setDate(\DateTimeImmutable $date): static
+    public function setEatenAt(\DateTimeImmutable $eatenAt): static
     {
-        $this->date = $date;
+        $this->eatenAt = $eatenAt;
 
         return $this;
     }
 
-    public function getType(): ?string
+    public function getMealType(): ?MealType
     {
-        return $this->type;
+        return $this->mealType;
     }
 
-    public function setType(string $type): static
+    public function setMealType(?MealType $mealType): static
     {
-        $this->type = $type;
+        $this->mealType = $mealType;
 
         return $this;
     }
+
 
     public function getDescription(): ?string
     {

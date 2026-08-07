@@ -6,6 +6,10 @@
     {% include 'dashboard/_profile_card.html.twig' %}
     <h1>Suivi poids</h1>
 
+    <a href="{{ path('app_food_new') }}">
+        Ajouter un repas
+    </a>
+
     <ul>
         <li>Taille : {{ dashboard.height }} m</li>
         <li>Poids départ : {{ dashboard.startingWeight }} kg</li>

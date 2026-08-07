@@ -19,10 +19,10 @@ class WeightEntryRepository extends ServiceEntityRepository
 
     public function findLatestForProfile(Profile $profile): ?WeightEntry
     {
-        return $this->createQueryBuilder('weightEntry')
-            ->andWhere('weightEntry.profile = :profile')
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.profile = :profile')
             ->setParameter('profile', $profile)
-            ->orderBy('weightEntry.measuredAt', 'DESC')
+            ->orderBy('w.measuredAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
