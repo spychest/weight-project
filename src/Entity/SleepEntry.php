@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\ActivityRepository;
+use App\Repository\SleepEntryRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: ActivityRepository::class)]
-class Activity
+#[ORM\Entity(repositoryClass: SleepEntryRepository::class)]
+class SleepEntry
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,20 +18,23 @@ class Activity
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private ?\DateTimeImmutable $date = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $bedTime = null;
+
+    #[ORM\Column(type: Types::TIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $wakeUpTime = null;
+
+    #[ORM\Column]
     #[Assert\Range(min: 1, max: 10)]
-    private ?int $painLevel = null;
+    private ?int $quality = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $note = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
-
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'activities')]
+    #[ORM\ManyToOne(inversedBy: 'sleepEntries')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Profile $profile = null;
 
@@ -57,29 +60,38 @@ class Activity
         return $this;
     }
 
-    public function getDescription(): string
+    public function getBedTime(): \DateTimeImmutable
     {
-        return $this->description;
+        return $this->bedTime;
     }
 
-    public function setDescription(?string $description): static
+    public function setBedTime(\DateTimeImmutable $bedTime): static
     {
-        $this->description = $description;
+        $this->bedTime = $bedTime;
 
         return $this;
     }
 
-
-
-
-    public function getPainLevel(): ?int
+    public function getWakeUpTime(): \DateTimeImmutable
     {
-        return $this->painLevel;
+        return $this->wakeUpTime;
     }
 
-    public function setPainLevel(?int $painLevel): static
+    public function setWakeUpTime(\DateTimeImmutable $wakeUpTime): static
     {
-        $this->painLevel = $painLevel;
+        $this->wakeUpTime = $wakeUpTime;
+
+        return $this;
+    }
+
+    public function getQuality(): int
+    {
+        return $this->quality;
+    }
+
+    public function setQuality(int $quality): static
+    {
+        $this->quality = $quality;
 
         return $this;
     }

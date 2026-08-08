@@ -7,12 +7,17 @@ use App\DTO\DashboardData;
 use App\DTO\DrinkEntryData;
 use App\DTO\FoodEventData;
 use App\DTO\MilestoneData;
+use App\Entity\Activity;
 use App\Repository\DailyCheckinRepository;
 use App\Repository\DrinkEntryRepository;
 use App\Repository\FoodEventRepository;
 use App\Repository\ProfileRepository;
 use App\Repository\WeightEntryRepository;
 use App\Service\Milestone\MilestoneService;
+use App\DTO\SleepEntryData;
+use App\Repository\SleepEntryRepository;
+use App\DTO\ActivityData;
+use App\Repository\ActivityRepository;
 
 final readonly class DashboardService
 {
@@ -23,6 +28,8 @@ final readonly class DashboardService
         private FoodEventRepository $foodEventRepository,
         private DrinkEntryRepository $drinkEntryRepository,
         private DailyCheckinRepository $dailyCheckinRepository,
+        private SleepEntryRepository $sleepEntryRepository,
+        private ActivityRepository $activityRepository,
     )
     {
     }
@@ -131,6 +138,58 @@ final readonly class DashboardService
             );
         }
 
+        $sleepEntry = $this->sleepEntryRepository
+            ->findOneBy(
+                [],
+                ['date' => 'DESC']
+            );
+
+        $sleepEntryData = null;
+
+        if ($sleepEntry) {
+            $bedTime = $sleepEntry->getBedTime();
+            $wakeUpTime = $sleepEntry->getWakeUpTime();
+
+            $bedMinutes = ((int) $bedTime->format('H') * 60)
+                + (int) $bedTime->format('i');
+
+            $wakeUpMinutes = ((int) $wakeUpTime->format('H') * 60)
+                + (int) $wakeUpTime->format('i');
+
+            if ($wakeUpMinutes < $bedMinutes) {
+                $wakeUpMinutes += 24 * 60;
+            }
+
+            $durationMinutes = $wakeUpMinutes - $bedMinutes;
+
+            $sleepEntryData = new SleepEntryData(
+                $sleepEntry->getDate(),
+                $bedTime,
+                $wakeUpTime,
+                $sleepEntry->getQuality(),
+                $sleepEntry->getNote(),
+                $durationMinutes,
+            );
+        }
+
+        $activities = $this->activityRepository->findBy(
+            [],
+            ['date' => 'DESC'],
+            5
+        );
+
+        $recentActivities = array_map(
+            static function (Activity $activity): ActivityData {
+                return new ActivityData(
+                    $activity->getDate(),
+                    $activity->getDescription(),
+                    $activity->getPainLevel(),
+                    $activity->getNote(),
+                );
+            },
+            $activities
+        );
+
         return new DashboardData(
             height: $profile->getHeight(),
             startingWeight: $profile->getStartingWeight(),
@@ -144,6 +203,8 @@ final readonly class DashboardService
             recentMeals: $recentMeals,
             recentDrinks: $recentDrinks,
             dailyCheckin: $dailyCheckinData,
+            sleep: $sleepEntryData,
+            recentActivities: $recentActivities,
         );
     }
 }

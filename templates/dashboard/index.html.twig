@@ -117,4 +117,82 @@
         <p>Aucun bilan enregistré.</p>
 
     {% endif %}
+
+    <h2>Sommeil</h2>
+
+    {% if dashboard.sleep %}
+
+        <p>
+            📅 Nuit du {{ dashboard.sleep.date|date('d/m/Y') }}
+        </p>
+
+        <p>
+            🌙 Coucher :
+            {{ dashboard.sleep.bedTime|date('H:i') }}
+        </p>
+
+        <p>
+            🌅 Réveil :
+            {{ dashboard.sleep.wakeUpTime|date('H:i') }}
+        </p>
+
+        <p>
+            💤 Durée :
+            {{ dashboard.sleep.durationHours }}h
+            {{ '%02d'|format(dashboard.sleep.durationRemainingMinutes) }}min
+        </p>
+
+        <p>
+            ⭐ Qualité :
+            {{ dashboard.sleep.quality }}/10
+        </p>
+
+        {% if dashboard.sleep.note %}
+            <p>
+                📝 {{ dashboard.sleep.note }}
+            </p>
+        {% endif %}
+
+    {% else %}
+
+        <p>Aucune nuit enregistrée.</p>
+
+    {% endif %}
+
+    <h2>Activités récentes</h2>
+
+    {% if dashboard.recentActivities is not empty %}
+
+        {% for activity in dashboard.recentActivities %}
+
+            <div>
+                <p>
+                    📅 {{ activity.date|date('d/m/Y') }}
+                </p>
+
+                <p>
+                    🚶 {{ activity.description }}
+                </p>
+
+                {% if activity.painLevel %}
+                    <p>
+                        🦵 Douleur :
+                        {{ activity.painLevel }}/10
+                    </p>
+                {% endif %}
+
+                {% if activity.note %}
+                    <p>
+                        📝 {{ activity.note }}
+                    </p>
+                {% endif %}
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>Aucune activité enregistrée.</p>
+
+    {% endif %}
 {% endblock %}

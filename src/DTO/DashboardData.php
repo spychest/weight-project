@@ -17,6 +17,8 @@ final readonly class DashboardData
         public array $recentMeals,
         public array $recentDrinks,
         public ?DailyCheckinData $dailyCheckin,
+        public ?SleepEntryData $sleep,
+        public array $recentActivities,
     ) {
     }
 

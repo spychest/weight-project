@@ -76,6 +76,12 @@ class Profile
     #[ORM\OneToMany(targetEntity: DrinkEntry::class, mappedBy: 'profile')]
     private Collection $drinkEntries;
 
+    /**
+     * @var Collection<int, SleepEntry>
+     */
+    #[ORM\OneToMany(targetEntity: SleepEntry::class, mappedBy: 'profile')]
+    private Collection $sleepEntries;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
@@ -86,6 +92,7 @@ class Profile
         $this->createdAt = new \DateTimeImmutable();
         $this->milestones = new ArrayCollection();
         $this->drinkEntries = new ArrayCollection();
+        $this->sleepEntries = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -344,6 +351,36 @@ class Profile
             // set the owning side to null (unless already changed)
             if ($drinkEntry->getProfile() === $this) {
                 $drinkEntry->setProfile(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SleepEntry>
+     */
+    public function getSleepEntries(): Collection
+    {
+        return $this->sleepEntries;
+    }
+
+    public function addSleepEntry(SleepEntry $sleepEntry): static
+    {
+        if (!$this->sleepEntries->contains($sleepEntry)) {
+            $this->sleepEntries->add($sleepEntry);
+            $sleepEntry->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSleepEntry(SleepEntry $sleepEntry): static
+    {
+        if ($this->sleepEntries->removeElement($sleepEntry)) {
+            // set the owning side to null (unless already changed)
+            if ($sleepEntry->getProfile() === $this) {
+                $sleepEntry->setProfile(null);
             }
         }
 
