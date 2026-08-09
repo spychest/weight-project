@@ -9,6 +9,11 @@ final readonly class PeriodReportData
         public \DateTimeImmutable $endDate,
         public WeightReportData $weight,
         public HydrationReportData $hydration,
+        public FoodReportData $food,
+        public CheckinReportData $checkin,
+        public SleepReportData $sleep,
+        public ActivityReportData $activity,
+        public MilestoneReportData $milestone,
     ) {
     }
 }

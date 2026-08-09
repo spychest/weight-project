@@ -68,10 +68,6 @@ class Activity
 
         return $this;
     }
-
-
-
-
     public function getPainLevel(): ?int
     {
         return $this->painLevel;

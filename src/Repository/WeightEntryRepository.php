@@ -28,6 +28,28 @@ class WeightEntryRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * @return WeightEntry[]
+     */
+    public function findForPeriod(
+        Profile $profile,
+        \DateTimeImmutable $startDate,
+        \DateTimeImmutable $endDate,
+    ): array {
+        $endDateExclusive = $endDate->modify('+1 day');
+
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.profile = :profile')
+            ->andWhere('w.measuredAt >= :startDate')
+            ->andWhere('w.measuredAt < :endDateExclusive')
+            ->setParameter('profile', $profile)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDateExclusive', $endDateExclusive)
+            ->orderBy('w.measuredAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return WeightEntry[] Returns an array of WeightEntry objects
     //     */
