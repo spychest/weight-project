@@ -18,6 +18,16 @@
             <a href="{{ path('app_dashboard') }}" class="report-back-button">
                 ← Retour au dashboard
             </a>
+
+            <a
+                    href="{{ path('app_report_data', {
+                        startDate: report.startDate|date('Y-m-d'),
+                        endDate: report.endDate|date('Y-m-d')
+                    }) }}"
+                    class="report-back-button"
+            >
+                💾 Exporter les données
+            </a>
         </header>
 
         <section class="report-section report-summary">

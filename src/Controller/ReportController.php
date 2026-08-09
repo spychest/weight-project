@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\Report\ReportDataExporter;
 
 final class ReportController extends AbstractController
 {
@@ -43,5 +44,50 @@ final class ReportController extends AbstractController
         ]);
     }
 
+    #[Route('/report/data/{startDate}/{endDate}', name: 'app_report_data')]
+    public function exportData(
+        string $startDate,
+        string $endDate,
+        ProfileRepository $profileRepository,
+        PeriodReportService $periodReportService,
+        ReportDataExporter $reportDataExporter,
+    ): Response {
+        $profile = $profileRepository->findOneBy([]);
+
+        if ($profile === null) {
+            throw $this->createNotFoundException('Aucun profil trouvé.');
+        }
+
+        $startDateObject = \DateTimeImmutable::createFromFormat(
+            'Y-m-d',
+            $startDate,
+        );
+
+        $endDateObject = \DateTimeImmutable::createFromFormat(
+            'Y-m-d',
+            $endDate,
+        );
+
+        if ($startDateObject === false || $endDateObject === false) {
+            throw $this->createNotFoundException('Période invalide.');
+        }
+
+        $report = $periodReportService->generate(
+            $profile,
+            $startDateObject,
+            $endDateObject,
+        );
+
+        $json = $reportDataExporter->export($report);
+
+        return new Response(
+            $json,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/json; charset=utf-8',
+                'Content-Disposition' => 'attachment; filename="rapport.json"',
+            ],
+        );
+    }
 
 }
