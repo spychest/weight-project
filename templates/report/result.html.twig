@@ -1,0 +1,765 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compte-rendu{% endblock %}
+
+{% block body %}
+    <main class="report">
+
+        <header class="report-header">
+            <h1>Compte-rendu</h1>
+
+            <p class="report-period">
+                Du
+                <strong>{{ report.startDate|date('d/m/Y') }}</strong>
+                au
+                <strong>{{ report.endDate|date('d/m/Y') }}</strong>
+            </p>
+
+            <a href="{{ path('app_dashboard') }}" class="report-back-button">
+                ← Retour au dashboard
+            </a>
+        </header>
+
+        <section class="report-section report-summary">
+            <h2>Résumé</h2>
+
+            <div class="summary-grid">
+
+                <div class="summary-card">
+                    <span class="summary-card-label">Poids</span>
+                    <strong>{{ report.weight.entryCount }}</strong>
+                    <span>mesure(s)</span>
+                </div>
+
+                <div class="summary-card">
+                    <span class="summary-card-label">Hydratation</span>
+                    <strong>{{ report.hydration.totalQuantity }} ml</strong>
+                    <span>consommés</span>
+                </div>
+
+                <div class="summary-card">
+                    <span class="summary-card-label">Alimentation</span>
+                    <strong>{{ report.food.entryCount }}</strong>
+                    <span>repas</span>
+                </div>
+
+                <div class="summary-card">
+                    <span class="summary-card-label">Check-ins</span>
+                    <strong>{{ report.checkin.daysWithEntries }}</strong>
+                    <span>jour(s)</span>
+                </div>
+
+                <div class="summary-card">
+                    <span class="summary-card-label">Sommeil</span>
+                    <strong>{{ report.sleep.nightsWithEntries }}</strong>
+                    <span>nuit(s)</span>
+                </div>
+
+                <div class="summary-card">
+                    <span class="summary-card-label">Activité</span>
+                    <strong>{{ report.activity.entryCount }}</strong>
+                    <span>activité(s)</span>
+                </div>
+
+                <div class="summary-card">
+                    <span class="summary-card-label">Jalons</span>
+                    <strong>{{ report.milestone.totalCount }}</strong>
+                    <span>jalon(s)</span>
+                </div>
+
+            </div>
+        </section>
+
+
+        {# ==========================================================
+       POIDS
+       ========================================================== #}
+
+        <section class="report-section report-weight">
+
+            <h2>Poids</h2>
+
+            <div class="report-stats">
+
+                <div class="stat">
+                    <span>Nombre de mesures</span>
+                    <strong>{{ report.weight.entryCount }}</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Poids initial</span>
+
+                    <strong>
+                        {% if report.weight.initialWeight is not null %}
+                            {{ report.weight.initialWeight|number_format(1, ',', ' ') }} kg
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Poids final</span>
+
+                    <strong>
+                        {% if report.weight.finalWeight is not null %}
+                            {{ report.weight.finalWeight|number_format(1, ',', ' ') }} kg
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Évolution</span>
+
+                    <strong>
+                        {% if report.weight.change is not null %}
+                            {{ report.weight.change|number_format(1, ',', ' ') }} kg
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+            </div>
+
+            {% if report.weight.entries is not empty %}
+
+                <div class="report-table-wrapper">
+
+                    <h3>Mesures</h3>
+
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Poids</th>
+                            <th>Note</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for entry in report.weight.entries %}
+                            <tr>
+                                <td>{{ entry.measuredAt|date('d/m/Y') }}</td>
+                                <td>{{ entry.weight|number_format(1, ',', ' ') }} kg</td>
+                                <td>{{ entry.note ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="report-empty">
+                    Aucune mesure de poids sur cette période.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+
+        {# ==========================================================
+       HYDRATATION
+       ========================================================== #}
+
+        <section class="report-section report-hydration">
+
+            <h2>Hydratation</h2>
+
+            <div class="report-stats">
+
+                <div class="stat">
+                    <span>Quantité totale</span>
+                    <strong>{{ report.hydration.totalQuantity }} ml</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Moyenne quotidienne</span>
+                    <strong>
+                        {{ report.hydration.averageDailyQuantity|number_format(0, ',', ' ') }} ml
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Jours avec des entrées</span>
+                    <strong>
+                        {{ report.hydration.daysWithEntries }}
+                        / {{ report.hydration.totalDays }}
+                    </strong>
+                </div>
+
+            </div>
+
+            {% if report.hydration.entries is not empty %}
+
+                <div class="report-table-wrapper">
+
+                    <h3>Consommations</h3>
+
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Quantité</th>
+                            <th>Description</th>
+                            <th>Note</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for entry in report.hydration.entries %}
+                            <tr>
+                                <td>{{ entry.date|date('d/m/Y') }}</td>
+                                <td>{{ entry.drinkType.value }}</td>
+                                <td>{{ entry.quantity }} ml</td>
+                                <td>{{ entry.description ?? '—' }}</td>
+                                <td>{{ entry.note ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="report-empty">
+                    Aucune consommation enregistrée sur cette période.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+
+        {# ==========================================================
+       ALIMENTATION
+       ========================================================== #}
+
+        <section class="report-section report-food">
+
+            <h2>Alimentation</h2>
+
+            <div class="report-stats">
+
+                <div class="stat">
+                    <span>Nombre de repas</span>
+                    <strong>{{ report.food.entryCount }}</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Faim moyenne</span>
+
+                    <strong>
+                        {% if report.food.averageHungerLevel is not null %}
+                            {{ report.food.averageHungerLevel|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Plaisir moyen</span>
+
+                    <strong>
+                        {% if report.food.averagePleasureLevel is not null %}
+                            {{ report.food.averagePleasureLevel|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+            </div>
+
+            {% if report.food.mealTypeCounts is not empty %}
+
+                <div class="report-subsection">
+
+                    <h3>Répartition des repas</h3>
+
+                    <ul class="report-list">
+                        {% for mealType, count in report.food.mealTypeCounts %}
+                            <li>
+                                <span>{{ mealType }}</span>
+                                <strong>{{ count }}</strong>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                </div>
+
+            {% endif %}
+
+            {% if report.food.entries is not empty %}
+
+                <div class="report-table-wrapper">
+
+                    <h3>Repas enregistrés</h3>
+
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Faim</th>
+                            <th>Plaisir</th>
+                            <th>Cause</th>
+                            <th>Note</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for entry in report.food.entries %}
+                            <tr>
+                                <td>{{ entry.date|date('d/m/Y H:i') }}</td>
+                                <td>{{ entry.mealType }}</td>
+                                <td>{{ entry.description }}</td>
+
+                                <td>
+                                    {% if entry.hungerLevel is not null %}
+                                        {{ entry.hungerLevel }}/10
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if entry.pleasureLevel is not null %}
+                                        {{ entry.pleasureLevel }}/10
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ entry.cause ?? '—' }}</td>
+                                <td>{{ entry.note ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="report-empty">
+                    Aucun repas enregistré sur cette période.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+
+        {# ==========================================================
+       CHECK-INS
+       ========================================================== #}
+
+        <section class="report-section report-checkin">
+
+            <h2>Check-ins</h2>
+
+            <div class="report-stats">
+
+                <div class="stat">
+                    <span>Jours avec des entrées</span>
+                    <strong>
+                        {{ report.checkin.daysWithEntries }}
+                        / {{ report.checkin.totalDays }}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Humeur moyenne</span>
+
+                    <strong>
+                        {% if report.checkin.averageMoodLevel is not null %}
+                            {{ report.checkin.averageMoodLevel|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Énergie moyenne</span>
+
+                    <strong>
+                        {% if report.checkin.averageEnergyLevel is not null %}
+                            {{ report.checkin.averageEnergyLevel|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Frustration moyenne</span>
+
+                    <strong>
+                        {% if report.checkin.averageFrustrationLevel is not null %}
+                            {{ report.checkin.averageFrustrationLevel|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Douleur moyenne</span>
+
+                    <strong>
+                        {% if report.checkin.averagePainLevel is not null %}
+                            {{ report.checkin.averagePainLevel|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+            </div>
+
+            {% if report.checkin.entries is not empty %}
+
+                <div class="report-table-wrapper">
+
+                    <h3>Check-ins enregistrés</h3>
+
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Humeur</th>
+                            <th>Énergie</th>
+                            <th>Frustration</th>
+                            <th>Douleur</th>
+                            <th>Note</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for entry in report.checkin.entries %}
+                            <tr>
+                                <td>{{ entry.date|date('d/m/Y') }}</td>
+                                <td>{{ entry.moodLevel }}/10</td>
+                                <td>{{ entry.energyLevel }}/10</td>
+                                <td>{{ entry.frustrationLevel }}/10</td>
+
+                                <td>
+                                    {% if entry.painLevel is not null %}
+                                        {{ entry.painLevel }}/10
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ entry.note ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="report-empty">
+                    Aucun check-in enregistré sur cette période.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+
+        {# ==========================================================
+       SOMMEIL
+       ========================================================== #}
+
+        <section class="report-section report-sleep">
+
+            <h2>Sommeil</h2>
+
+            <div class="report-stats">
+
+                <div class="stat">
+                    <span>Nuits avec des entrées</span>
+                    <strong>
+                        {{ report.sleep.nightsWithEntries }}
+                        / {{ report.sleep.totalDays }}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Durée moyenne</span>
+
+                    <strong>
+                        {% if report.sleep.averageDurationInMinutes is not null %}
+                            {{ (report.sleep.averageDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Qualité moyenne</span>
+
+                    <strong>
+                        {% if report.sleep.averageQuality is not null %}
+                            {{ report.sleep.averageQuality|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Nuit la plus courte</span>
+
+                    <strong>
+                        {% if report.sleep.shortestDurationInMinutes is not null %}
+                            {{ (report.sleep.shortestDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="stat">
+                    <span>Nuit la plus longue</span>
+
+                    <strong>
+                        {% if report.sleep.longestDurationInMinutes is not null %}
+                            {{ (report.sleep.longestDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+            </div>
+
+            {% if report.sleep.entries is not empty %}
+
+                <div class="report-table-wrapper">
+
+                    <h3>Nuits enregistrées</h3>
+
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Coucher</th>
+                            <th>Réveil</th>
+                            <th>Durée</th>
+                            <th>Qualité</th>
+                            <th>Note</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for entry in report.sleep.entries %}
+                            <tr>
+                                <td>{{ entry.date|date('d/m/Y') }}</td>
+                                <td>{{ entry.bedTime|date('d/m/Y H:i') }}</td>
+                                <td>{{ entry.wakeUpTime|date('d/m/Y H:i') }}</td>
+                                <td>{{ (entry.durationInMinutes / 60)|number_format(1, ',', ' ') }} h</td>
+                                <td>{{ entry.quality }}/10</td>
+                                <td>{{ entry.note ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="report-empty">
+                    Aucune nuit enregistrée sur cette période.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+
+        {# ==========================================================
+       ACTIVITÉ
+       ========================================================== #}
+
+        <section class="report-section report-activity">
+
+            <h2>Activité</h2>
+
+            <div class="report-stats">
+
+                <div class="stat">
+                    <span>Nombre d'activités</span>
+                    <strong>{{ report.activity.entryCount }}</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Douleur moyenne</span>
+
+                    <strong>
+                        {% if report.activity.averagePainLevel is not null %}
+                            {{ report.activity.averagePainLevel|number_format(1, ',', ' ') }} / 10
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+            </div>
+
+            {% if report.activity.entries is not empty %}
+
+                <div class="report-table-wrapper">
+
+                    <h3>Activités enregistrées</h3>
+
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Douleur</th>
+                            <th>Note</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for entry in report.activity.entries %}
+                            <tr>
+                                <td>{{ entry.date|date('d/m/Y') }}</td>
+                                <td>{{ entry.description }}</td>
+
+                                <td>
+                                    {% if entry.painLevel is not null %}
+                                        {{ entry.painLevel }}/10
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ entry.note ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="report-empty">
+                    Aucune activité enregistrée sur cette période.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+
+        {# ==========================================================
+       JALONS
+       ========================================================== #}
+
+        <section class="report-section report-milestone">
+
+            <h2>Jalons</h2>
+
+            <div class="report-stats">
+
+                <div class="stat">
+                    <span>Nombre total</span>
+                    <strong>{{ report.milestone.totalCount }}</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Jalons atteints</span>
+                    <strong>{{ report.milestone.achievedCount }}</strong>
+                </div>
+
+                {% if report.milestone.totalCount > 0 %}
+                    <div class="stat">
+                        <span>Progression</span>
+                        <strong>
+                            {{ ((report.milestone.achievedCount / report.milestone.totalCount) * 100)|number_format(0) }} %
+                        </strong>
+                    </div>
+                {% endif %}
+
+            </div>
+
+            {% if report.milestone.entries is not empty %}
+
+                <div class="report-table-wrapper">
+
+                    <h3>Jalons</h3>
+
+                    <table class="report-table">
+                        <thead>
+                        <tr>
+                            <th>Jalon</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Objectif</th>
+                            <th>Statut</th>
+                            <th>Date d'accomplissement</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for entry in report.milestone.entries %}
+                            <tr>
+                                <td>{{ entry.title }}</td>
+                                <td>{{ entry.description ?? '—' }}</td>
+                                <td>{{ entry.type }}</td>
+                                <td>{{ entry.targetValue }}</td>
+
+                                <td>
+                                    {% if entry.achievedAt is not null %}
+                                        Atteint
+                                    {% else %}
+                                        En cours
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if entry.achievedAt is not null %}
+                                        {{ entry.achievedAt|date('d/m/Y') }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p class="report-empty">
+                    Aucun jalon enregistré.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+{% endblock %}

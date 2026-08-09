@@ -222,6 +222,13 @@ class PeriodReportService
             $pleasureLevel = $entry->getPleasureLevel();
             $mealType = $entry->getMealType();
 
+            if ($mealType !== null) {
+                $mealTypeValue = $mealType->value;
+
+                $mealTypeCounts[$mealTypeValue] =
+                    ($mealTypeCounts[$mealTypeValue] ?? 0) + 1;
+            }
+
             if ($hungerLevel !== null) {
                 $hungerTotal += $hungerLevel;
                 $hungerCount++;
@@ -232,15 +239,9 @@ class PeriodReportService
                 $pleasureCount++;
             }
 
-            if (!isset($mealTypeCounts[$mealType])) {
-                $mealTypeCounts[$mealType] = 0;
-            }
-
-            $mealTypeCounts[$mealType]++;
-
             $reportEntries[] = new FoodEntryReportData(
                 date: $entry->getEatenAt(),
-                mealType: $mealType,
+                mealType: $mealType->value,
                 description: $entry->getDescription(),
                 hungerLevel: $hungerLevel,
                 pleasureLevel: $pleasureLevel,
