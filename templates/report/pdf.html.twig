@@ -1,0 +1,794 @@
+<title>Compte-rendu</title>
+
+<style>
+    @page {
+        margin: 20mm 15mm 20mm 15mm;
+    }
+
+    body {
+        font-family: DejaVu Sans, sans-serif;
+        font-size: 10px;
+        line-height: 1.4;
+        color: #222;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin: 0 0 5px;
+    }
+
+    h2 {
+        font-size: 16px;
+        margin-top: 25px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #333;
+    }
+
+    h3 {
+        font-size: 12px;
+        margin-top: 15px;
+    }
+
+    p {
+        margin: 5px 0;
+    }
+
+    ul {
+        margin-top: 5px;
+        padding-left: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        margin-bottom: 15px;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 5px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        font-weight: bold;
+        background: #eee;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    .header {
+        margin-bottom: 20px;
+    }
+
+    .period {
+        font-size: 12px;
+        color: #555;
+    }
+
+    .summary {
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+
+    .summary ul {
+        margin-bottom: 0;
+    }
+
+    .section {
+        page-break-inside: avoid;
+    }
+
+    .muted {
+        color: #777;
+    }
+</style>
+
+<div class="header">
+    <h1>Compte-rendu</h1>
+
+    ```
+    <div class="period">
+        Période :
+        <strong>
+            {{ report.startDate|date('d/m/Y') }}
+            →
+            {{ report.endDate|date('d/m/Y') }}
+        </strong>
+    </div>
+    ```
+
+</div>
+
+<h2>Résumé</h2>
+
+<ul>
+    <li>
+        <strong>Poids :</strong>
+        {{ report.weight.entryCount }} mesure(s)
+    </li>
+
+    ```
+    <li>
+        <strong>Hydratation :</strong>
+        {{ report.hydration.totalQuantity|number_format(0, ',', ' ') }} ml
+    </li>
+
+    <li>
+        <strong>Alimentation :</strong>
+        {{ report.food.entryCount }} repas
+    </li>
+
+    <li>
+        <strong>Sommeil :</strong>
+        {{ report.sleep.nightsWithEntries }}
+        / {{ report.sleep.totalDays }} nuit(s)
+    </li>
+
+    <li>
+        <strong>Activité :</strong>
+        {{ report.activity.entryCount }} activité(s)
+    </li>
+
+    <li>
+        <strong>Bien-être :</strong>
+        {{ report.checkin.daysWithEntries }}
+        / {{ report.checkin.totalDays }} jour(s)
+    </li>
+    ```
+
+</ul>
+
+{# ============================================================
+POIDS
+============================================================ #}
+
+<h2>Poids</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Indicateur</th>
+        <th>Valeur</th>
+    </tr>
+    </thead>
+
+    ```
+    <tbody>
+    <tr>
+        <td>Nombre de mesures</td>
+        <td>{{ report.weight.entryCount }}</td>
+    </tr>
+
+    <tr>
+        <td>Poids initial</td>
+        <td>
+            {% if report.weight.initialWeight is not null %}
+                {{ report.weight.initialWeight|number_format(1, ',', ' ') }} kg
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Poids final</td>
+        <td>
+            {% if report.weight.finalWeight is not null %}
+                {{ report.weight.finalWeight|number_format(1, ',', ' ') }} kg
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Évolution</td>
+        <td>
+            {% if report.weight.change is not null %}
+                {{ report.weight.change|number_format(1, ',', ' ') }} kg
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+    </tbody>
+    ```
+
+</table>
+
+{% if report.weight.entries is not empty %}
+
+    ```
+    <h3>Mesures</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Poids</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for entry in report.weight.entries %}
+            <tr>
+                <td>{{ entry.measuredAt|date('d/m/Y') }}</td>
+
+                <td>
+                    {{ entry.weight|number_format(1, ',', ' ') }} kg
+                </td>
+
+                <td>{{ entry.note ?? '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    ```
+
+{% else %}
+
+    ```
+    <p class="muted">
+        Aucune mesure de poids sur cette période.
+    </p>
+    ```
+
+{% endif %}
+
+{# ============================================================
+HYDRATATION
+============================================================ #}
+
+<h2>Hydratation</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Indicateur</th>
+        <th>Valeur</th>
+    </tr>
+    </thead>
+
+    ```
+    <tbody>
+    <tr>
+        <td>Quantité totale</td>
+        <td>
+            {{ report.hydration.totalQuantity|number_format(0, ',', ' ') }} ml
+        </td>
+    </tr>
+
+    <tr>
+        <td>Moyenne quotidienne</td>
+        <td>
+            {{ report.hydration.averageDailyQuantity|number_format(0, ',', ' ') }} ml
+        </td>
+    </tr>
+
+    <tr>
+        <td>Jours avec des entrées</td>
+        <td>
+            {{ report.hydration.daysWithEntries }}
+            / {{ report.hydration.totalDays }}
+        </td>
+    </tr>
+    </tbody>
+    ```
+
+</table>
+
+{% if report.hydration.entries is not empty %}
+
+    ```
+    <h3>Consommations</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Quantité</th>
+            <th>Description</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for entry in report.hydration.entries %}
+            <tr>
+                <td>{{ entry.date|date('d/m/Y') }}</td>
+
+                <td>{{ entry.drinkType.value }}</td>
+
+                <td>{{ entry.quantity }} ml</td>
+
+                <td>{{ entry.description ?? '—' }}</td>
+
+                <td>{{ entry.note ?? '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    ```
+
+{% else %}
+
+    ```
+    <p class="muted">
+        Aucune consommation enregistrée sur cette période.
+    </p>
+    ```
+
+{% endif %}
+
+{# ============================================================
+ALIMENTATION
+============================================================ #}
+
+<h2>Alimentation</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Indicateur</th>
+        <th>Valeur</th>
+    </tr>
+    </thead>
+
+    ```
+    <tbody>
+    <tr>
+        <td>Nombre de repas</td>
+        <td>{{ report.food.entryCount }}</td>
+    </tr>
+
+    <tr>
+        <td>Faim moyenne</td>
+        <td>
+            {% if report.food.averageHungerLevel is not null %}
+                {{ report.food.averageHungerLevel|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Plaisir moyen</td>
+        <td>
+            {% if report.food.averagePleasureLevel is not null %}
+                {{ report.food.averagePleasureLevel|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+    </tbody>
+    ```
+
+</table>
+
+{% if report.food.mealTypeCounts is not empty %}
+
+    ```
+    <h3>Répartition des repas</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Type de repas</th>
+            <th>Nombre</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for mealType, count in report.food.mealTypeCounts %}
+            <tr>
+                <td>{{ mealType }}</td>
+                <td>{{ count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    ```
+
+{% endif %}
+
+{% if report.food.entries is not empty %}
+
+    ```
+    <h3>Repas enregistrés</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Faim</th>
+            <th>Plaisir</th>
+            <th>Cause</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for entry in report.food.entries %}
+            <tr>
+                <td>{{ entry.date|date('d/m/Y H:i') }}</td>
+
+                <td>{{ entry.mealType }}</td>
+
+                <td>{{ entry.description }}</td>
+
+                <td>
+                    {% if entry.hungerLevel is not null %}
+                        {{ entry.hungerLevel }}/10
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if entry.pleasureLevel is not null %}
+                        {{ entry.pleasureLevel }}/10
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>{{ entry.cause ?? '—' }}</td>
+
+                <td>{{ entry.note ?? '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    ```
+
+{% else %}
+
+    ```
+    <p class="muted">
+        Aucun repas enregistré sur cette période.
+    </p>
+    ```
+
+{% endif %}
+
+{# ============================================================
+SOMMEIL
+============================================================ #}
+
+<h2>Sommeil</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Indicateur</th>
+        <th>Valeur</th>
+    </tr>
+    </thead>
+
+    ```
+    <tbody>
+    <tr>
+        <td>Nuits avec des entrées</td>
+        <td>
+            {{ report.sleep.nightsWithEntries }}
+            / {{ report.sleep.totalDays }}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Durée moyenne</td>
+        <td>
+            {% if report.sleep.averageDurationInMinutes is not null %}
+                {{ (report.sleep.averageDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Qualité moyenne</td>
+        <td>
+            {% if report.sleep.averageQuality is not null %}
+                {{ report.sleep.averageQuality|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Nuit la plus courte</td>
+        <td>
+            {% if report.sleep.shortestDurationInMinutes is not null %}
+                {{ (report.sleep.shortestDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Nuit la plus longue</td>
+        <td>
+            {% if report.sleep.longestDurationInMinutes is not null %}
+                {{ (report.sleep.longestDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+    </tbody>
+    ```
+
+</table>
+
+{% if report.sleep.entries is not empty %}
+
+    ```
+    <h3>Nuits enregistrées</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Coucher</th>
+            <th>Réveil</th>
+            <th>Durée</th>
+            <th>Qualité</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for entry in report.sleep.entries %}
+            <tr>
+                <td>{{ entry.date|date('d/m/Y') }}</td>
+
+                <td>{{ entry.bedTime|date('d/m/Y H:i') }}</td>
+
+                <td>{{ entry.wakeUpTime|date('d/m/Y H:i') }}</td>
+
+                <td>
+                    {{ (entry.durationInMinutes / 60)|number_format(1, ',', ' ') }} h
+                </td>
+
+                <td>{{ entry.quality }}/10</td>
+
+                <td>{{ entry.note ?? '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    ```
+
+{% else %}
+
+    ```
+    <p class="muted">
+        Aucune nuit enregistrée sur cette période.
+    </p>
+    ```
+
+{% endif %}
+
+{# ============================================================
+ACTIVITÉ
+============================================================ #}
+
+<h2>Activité</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Indicateur</th>
+        <th>Valeur</th>
+    </tr>
+    </thead>
+
+    ```
+    <tbody>
+    <tr>
+        <td>Nombre d'activités</td>
+        <td>{{ report.activity.entryCount }}</td>
+    </tr>
+
+    <tr>
+        <td>Douleur moyenne</td>
+        <td>
+            {% if report.activity.averagePainLevel is not null %}
+                {{ report.activity.averagePainLevel|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+    </tbody>
+    ```
+
+</table>
+
+{% if report.activity.entries is not empty %}
+
+    ```
+    <h3>Activités enregistrées</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Douleur</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for entry in report.activity.entries %}
+            <tr>
+                <td>{{ entry.date|date('d/m/Y') }}</td>
+
+                <td>{{ entry.description }}</td>
+
+                <td>
+                    {% if entry.painLevel is not null %}
+                        {{ entry.painLevel }}/10
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>{{ entry.note ?? '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    ```
+
+{% else %}
+
+    ```
+    <p class="muted">
+        Aucune activité enregistrée sur cette période.
+    </p>
+    ```
+
+{% endif %}
+
+{# ============================================================
+BIEN-ÊTRE ET RESSENTI
+============================================================ #}
+
+<h2>Bien-être et ressenti</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Indicateur</th>
+        <th>Valeur</th>
+    </tr>
+    </thead>
+
+    ```
+    <tbody>
+    <tr>
+        <td>Jours avec un check-in</td>
+        <td>
+            {{ report.checkin.daysWithEntries }}
+            / {{ report.checkin.totalDays }}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Humeur moyenne</td>
+        <td>
+            {% if report.checkin.averageMoodLevel is not null %}
+                {{ report.checkin.averageMoodLevel|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Énergie moyenne</td>
+        <td>
+            {% if report.checkin.averageEnergyLevel is not null %}
+                {{ report.checkin.averageEnergyLevel|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Frustration moyenne</td>
+        <td>
+            {% if report.checkin.averageFrustrationLevel is not null %}
+                {{ report.checkin.averageFrustrationLevel|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Douleur moyenne</td>
+        <td>
+            {% if report.checkin.averagePainLevel is not null %}
+                {{ report.checkin.averagePainLevel|number_format(1, ',', ' ') }}/10
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+    </tbody>
+    ```
+
+</table>
+
+{% if report.checkin.entries is not empty %}
+
+    ```
+    <h3>Observations quotidiennes</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Humeur</th>
+            <th>Énergie</th>
+            <th>Frustration</th>
+            <th>Douleur</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for entry in report.checkin.entries %}
+            <tr>
+                <td>{{ entry.date|date('d/m/Y') }}</td>
+
+                <td>{{ entry.moodLevel }}/10</td>
+
+                <td>{{ entry.energyLevel }}/10</td>
+
+                <td>{{ entry.frustrationLevel }}/10</td>
+
+                <td>
+                    {% if entry.painLevel is not null %}
+                        {{ entry.painLevel }}/10
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>{{ entry.note ?? '—' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    ```
+
+{% else %}
+
+    ```
+    <p class="muted">
+        Aucun check-in enregistré sur cette période.
+    </p>
+    ```
+
+{% endif %}

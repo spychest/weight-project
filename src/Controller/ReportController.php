@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\Report\ReportDataExporter;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 final class ReportController extends AbstractController
 {
@@ -86,6 +88,62 @@ final class ReportController extends AbstractController
             [
                 'Content-Type' => 'application/json; charset=utf-8',
                 'Content-Disposition' => 'attachment; filename="rapport.json"',
+            ],
+        );
+    }
+
+    #[Route('/report/pdf/{startDate}/{endDate}', name: 'app_report_pdf')]
+    public function exportPdf(
+        string $startDate,
+        string $endDate,
+        ProfileRepository $profileRepository,
+        PeriodReportService $periodReportService,
+    ): Response {
+        $profile = $profileRepository->findOneBy([]);
+
+        if ($profile === null) {
+            throw $this->createNotFoundException('Aucun profil trouvé.');
+        }
+
+        $startDateObject = \DateTimeImmutable::createFromFormat(
+            'Y-m-d',
+            $startDate,
+        );
+
+        $endDateObject = \DateTimeImmutable::createFromFormat(
+            'Y-m-d',
+            $endDate,
+        );
+
+        if ($startDateObject === false || $endDateObject === false) {
+            throw $this->createNotFoundException('Période invalide.');
+        }
+
+        $report = $periodReportService->generate(
+            $profile,
+            $startDateObject,
+            $endDateObject,
+        );
+
+        $html = $this->renderView('report/pdf.html.twig', [
+            'report' => $report,
+        ]);
+
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+
+        $dompdf = new Dompdf($options);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="rapport.pdf"',
             ],
         );
     }

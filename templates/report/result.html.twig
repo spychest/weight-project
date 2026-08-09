@@ -28,6 +28,16 @@
             >
                 💾 Exporter les données
             </a>
+
+            <a
+                    href="{{ path('app_report_pdf', {
+                        startDate: report.startDate|date('Y-m-d'),
+                        endDate: report.endDate|date('Y-m-d')
+                    }) }}"
+                    class="report-back-button"
+            >
+                📄 Exporter en PDF
+            </a>
         </header>
 
         <section class="report-section report-summary">
