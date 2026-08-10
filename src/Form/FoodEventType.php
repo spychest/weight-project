@@ -23,6 +23,7 @@ class FoodEventType extends AbstractType
             ])
             ->add('eatenAt', null, [
                 'label' => 'Date et heure',
+                'widget' => 'single_text',
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Repas',

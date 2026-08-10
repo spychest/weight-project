@@ -3,196 +3,241 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block body %}
-    {% include 'dashboard/_profile_card.html.twig' %}
-    <h1>Suivi poids</h1>
-
-    <a href="{{ path('app_food_new') }}">
-        Ajouter un repas
-    </a>
-
-    <a href="{{ path('app_drink_new') }}">
-        Ajouter hydratation
-    </a>
-
-    <ul>
-        <li>Taille : {{ dashboard.height }} m</li>
-        <li>Poids départ : {{ dashboard.startingWeight }} kg</li>
-        <li>Poids actuel : {{ dashboard.currentWeight }} kg</li>
-        <li>Objectif : {{ dashboard.targetWeight }} kg</li>
-        <li>Perdu : {{ dashboard.lostWeight }} kg</li>
-        <li>Restant : {{ dashboard.remainingWeight }} kg</li>
-        <li>Progression : {{ dashboard.formattedProgressPercentage }}</li>
-    </ul>
-
-    <h2>Prochain jalon</h2>
-
-    {% if dashboard.nextMilestone %}
-        <ul>
-            <li>Titre : {{ dashboard.nextMilestone.title }}</li>
-            <li>Description : {{ dashboard.nextMilestone.description }}</li>
-            <li>Objectif : {{ dashboard.nextMilestone.targetValue }} kg</li>
-            <li>Encore : {{ dashboard.nextMilestone.remainingWeight }} kg</li>
-        </ul>
-    {% else %}
-        <p>Aucun jalon restant 🎉</p>
-    {% endif %}
-
-    <h2>Derniers repas</h2>
-
-    {% for meal in dashboard.recentMeals %}
-
-        <div>
-            <strong>{{ meal.mealType.value }}</strong>
-            <br>
-            {{ meal.description }}
-            <br>
-            {{ meal.eatenAt|date('d/m/Y H:i') }}
-        </div>
-
-    {% else %}
-
-        <p>Aucun repas enregistré.</p>
-
-    {% endfor %}
-
-    <h2>Hydratation</h2>
-
-    {% for drink in dashboard.recentDrinks %}
-
-        <div>
-            {{ drink.drinkType.value }}
-            -
-            {{ drink.quantity }} ml
-
-            {% if drink.description %}
-                <br>
-                {{ drink.description }}
-            {% endif %}
-        </div>
-
-    {% else %}
-
-        <p>Aucune boisson enregistrée.</p>
-
-    {% endfor %}
-
-    <h2>Dernier bilan</h2>
-
-    {% if dashboard.dailyCheckin %}
-
-        <p>
-            📅 {{ dashboard.dailyCheckin.date|date('d/m/Y') }}
-        </p>
-
-        <p>
-            🙂 Humeur :
-            {{ dashboard.dailyCheckin.moodLevel }}/10
-        </p>
-
-        <p>
-            ⚡ Énergie :
-            {{ dashboard.dailyCheckin.energyLevel }}/10
-        </p>
-
-        <p>
-            😤 Frustration :
-            {{ dashboard.dailyCheckin.frustrationLevel }}/10
-        </p>
-
-        {% if dashboard.dailyCheckin.painLevel %}
-            <p>
-                🦵 Douleur :
-                {{ dashboard.dailyCheckin.painLevel }}/10
-            </p>
-        {% endif %}
-
-        {% if dashboard.dailyCheckin.note %}
-            <p>
-                📝 {{ dashboard.dailyCheckin.note }}
-            </p>
-        {% endif %}
-
-    {% else %}
-
-        <p>Aucun bilan enregistré.</p>
-
-    {% endif %}
-
-    <h2>Sommeil</h2>
-
-    {% if dashboard.sleep %}
-
-        <p>
-            📅 Nuit du {{ dashboard.sleep.date|date('d/m/Y') }}
-        </p>
-
-        <p>
-            🌙 Coucher :
-            {{ dashboard.sleep.bedTime|date('H:i') }}
-        </p>
-
-        <p>
-            🌅 Réveil :
-            {{ dashboard.sleep.wakeUpTime|date('H:i') }}
-        </p>
-
-        <p>
-            💤 Durée :
-            {{ dashboard.sleep.durationHours }}h
-            {{ '%02d'|format(dashboard.sleep.durationRemainingMinutes) }}min
-        </p>
-
-        <p>
-            ⭐ Qualité :
-            {{ dashboard.sleep.quality }}/10
-        </p>
-
-        {% if dashboard.sleep.note %}
-            <p>
-                📝 {{ dashboard.sleep.note }}
-            </p>
-        {% endif %}
-
-    {% else %}
-
-        <p>Aucune nuit enregistrée.</p>
-
-    {% endif %}
-
-    <h2>Activités récentes</h2>
-
-    {% if dashboard.recentActivities is not empty %}
-
-        {% for activity in dashboard.recentActivities %}
-
+    <div class="dashboard">
+        <header class="dashboard-header">
             <div>
-                <p>
-                    📅 {{ activity.date|date('d/m/Y') }}
-                </p>
+                <h1>Suivi poids</h1>
+                <p>Bienvenue dans ton espace de suivi.</p>
+            </div>
+        </header>
 
-                <p>
-                    🚶 {{ activity.description }}
-                </p>
+        {% include 'dashboard/_profile_card.html.twig' %}
 
-                {% if activity.painLevel %}
-                    <p>
-                        🦵 Douleur :
-                        {{ activity.painLevel }}/10
-                    </p>
-                {% endif %}
+        <section class="dashboard-section">
+            <div class="dashboard-progress-card">
+                <div class="dashboard-progress-header">
+                    <div>
+                        <span class="dashboard-card-label">Progression</span>
+                        <strong class="dashboard-progress-value">{{ dashboard.formattedProgressPercentage }}</strong>
+                    </div> <div class="dashboard-progress-weight">
+                        <strong>{{ dashboard.currentWeight }} kg</strong>
+                        <span>objectif : {{ dashboard.targetWeight }} kg</span>
+                    </div>
+                </div>
+                <div class="dashboard-progress-bar">
+                    <div class="dashboard-progress-bar-fill" style="width: {{ dashboard.formattedProgressPercentage|replace({'%': ''}) }}%;">
 
-                {% if activity.note %}
-                    <p>
-                        📝 {{ activity.note }}
-                    </p>
-                {% endif %}
+                    </div>
+                </div>
+                <div class="dashboard-progress-footer">
+                    <span>Départ : {{ dashboard.startingWeight }} kg</span>
+                    <span>Perdu : {{ dashboard.lostWeight }} kg</span>
+                    <span>Restant : {{ dashboard.remainingWeight }} kg</span>
+                    <a href="{{ path('app_milestone_new') }}" class="dashboard-progress-action"> + Ajouter un jalon </a>
+                </div>
+            </div>
+        </section>
+
+        {% if dashboard.nextMilestone %}
+            <section class="dashboard-section">
+                <div class="dashboard-section-header">
+                    <h2>Prochain jalon</h2>
+                </div>
+
+                <div class="dashboard-milestone-card">
+                    <div class="dashboard-milestone-icon">🎯</div>
+
+                    <div class="dashboard-milestone-content">
+                        <strong>{{ dashboard.nextMilestone.title }}</strong>
+
+                        {% if dashboard.nextMilestone.description %}
+                            <p>{{ dashboard.nextMilestone.description }}</p>
+                        {% endif %}
+
+                        <span>Objectif : <strong>{{ dashboard.nextMilestone.targetValue }} kg</strong></span>
+                        <span>Encore : <strong>{{ dashboard.nextMilestone.remainingWeight }} kg</strong></span>
+                    </div>
+                </div>
+            </section>
+        {% endif %}
+
+        <section class="dashboard-section">
+            <div class="dashboard-section-header">
+                <h2>Dernières données</h2>
             </div>
 
-        {% endfor %}
+            <div class="dashboard-grid">
+                <article class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h3>🍽️ Derniers repas</h3>
+                        <a href="{{ path('app_food_new') }}">Ajouter</a>
+                    </div>
 
-    {% else %}
+                    {% for meal in dashboard.recentMeals %}
+                        <div class="dashboard-list-item">
+                            <div>
+                                <strong>{{ meal.mealType.value }}</strong>
+                                <p>{{ meal.description }}</p>
+                            </div>
+                            <time>{{ meal.eatenAt|date('d/m H:i') }}</time>
+                        </div>
+                    {% else %}
+                        <p class="dashboard-empty">Aucun repas enregistré.</p>
+                    {% endfor %}
+                </article>
 
-        <p>Aucune activité enregistrée.</p>
+                <article class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h3>💧 Hydratation</h3>
+                        <a href="{{ path('app_drink_new') }}">Ajouter</a>
+                    </div>
 
-    {% endif %}
+                    {% for drink in dashboard.recentDrinks %}
+                        <div class="dashboard-list-item">
+                            <div>
+                                <strong>{{ drink.drinkType.value }}</strong>
+
+                                {% if drink.description %}
+                                    <p>{{ drink.description }}</p>
+                                {% endif %}
+                            </div>
+
+                            <strong>{{ drink.quantity }} ml</strong>
+                        </div>
+                    {% else %}
+                        <p class="dashboard-empty">Aucune boisson enregistrée.</p>
+                    {% endfor %}
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h3>📋 Dernier bilan</h3>
+                        <a href="{{ path('app_daily_checkin_new') }}">Ajouter</a>
+                    </div>
+
+                    {% if dashboard.dailyCheckin %}
+                        <div class="dashboard-checkin-date">{{ dashboard.dailyCheckin.date|date('d/m/Y') }}</div>
+
+                        <div class="dashboard-metrics">
+                            <div>
+                                <span>🙂 Humeur</span>
+                                <strong>{{ dashboard.dailyCheckin.moodLevel }}/10</strong>
+                            </div>
+
+                            <div>
+                                <span>⚡ Énergie</span>
+                                <strong>{{ dashboard.dailyCheckin.energyLevel }}/10</strong>
+                            </div>
+
+                            <div>
+                                <span>😤 Frustration</span>
+                                <strong>{{ dashboard.dailyCheckin.frustrationLevel }}/10</strong>
+                            </div>
+
+                            {% if dashboard.dailyCheckin.painLevel is not null %}
+                                <div>
+                                    <span>🦵 Douleur</span>
+                                    <strong>{{ dashboard.dailyCheckin.painLevel }}/10</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if dashboard.dailyCheckin.note %}
+                            <p class="dashboard-note">📝 {{ dashboard.dailyCheckin.note }}</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="dashboard-empty">Aucun bilan enregistré.</p>
+                    {% endif %}
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h3>🌙 Sommeil</h3>
+                        <a href="{{ path('app_sleep_new') }}">Ajouter</a>
+                    </div>
+
+                    {% if dashboard.sleep %}
+                        <div class="dashboard-sleep-date">Nuit du {{ dashboard.sleep.date|date('d/m/Y') }}</div>
+
+                        <div class="dashboard-sleep-duration">
+                            <strong>
+                                {{ dashboard.sleep.durationHours }}h {{ '%02d'|format(dashboard.sleep.durationRemainingMinutes) }}min
+                            </strong>
+                            <span>{{ dashboard.sleep.quality }}/10</span>
+                        </div>
+
+                        <div class="dashboard-sleep-times">
+                            <div>
+                                <span>🌙 Coucher</span>
+                                <strong>{{ dashboard.sleep.bedTime|date('H:i') }}</strong>
+                            </div>
+
+                            <div>
+                                <span>🌅 Réveil</span>
+                                <strong>{{ dashboard.sleep.wakeUpTime|date('H:i') }}</strong>
+                            </div>
+                        </div>
+
+                        {% if dashboard.sleep.note %}
+                            <p class="dashboard-note">📝 {{ dashboard.sleep.note }}</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="dashboard-empty">Aucune nuit enregistrée.</p>
+                    {% endif %}
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h3>🚶 Activités récentes</h3>
+                        <a href="{{ path('app_activity_new') }}">Ajouter</a>
+                    </div>
+
+                    {% if dashboard.recentActivities is not empty %}
+                        {% for activity in dashboard.recentActivities %}
+                            <div class="dashboard-list-item dashboard-activity">
+                                <div>
+                                    <time>{{ activity.date|date('d/m/Y') }}</time>
+                                    <strong>{{ activity.description }}</strong>
+
+                                    {% if activity.note %}
+                                        <p>📝 {{ activity.note }}</p>
+                                    {% endif %}
+                                </div>
+
+                                {% if activity.painLevel is not null %}
+                                    <span class="dashboard-pain">🦵 {{ activity.painLevel }}/10</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="dashboard-empty">Aucune activité enregistrée.</p>
+                    {% endif %}
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h3>⚖️ Poids</h3>
+                        <a href="{{ path('app_weight_new') }}">Ajouter</a>
+                    </div>
+
+                    <div class="dashboard-metrics">
+                        <div>
+                            <span>Départ</span>
+                            <strong>{{ dashboard.startingWeight }} kg</strong>
+                        </div>
+
+                        <div>
+                            <span>Actuel</span>
+                            <strong>{{ dashboard.currentWeight }} kg</strong>
+                        </div>
+
+                        <div>
+                            <span>Objectif</span>
+                            <strong>{{ dashboard.targetWeight }} kg</strong>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
 {% endblock %}

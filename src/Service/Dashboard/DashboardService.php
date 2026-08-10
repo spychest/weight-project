@@ -44,9 +44,9 @@ final readonly class DashboardService
 
         $latestWeightEntry = $this->weightEntryRepository->findLatestForProfile($profile);
 
-        $lostWeight = null;
-        $remainingWeight = null;
-        $progressPercentage = null;
+        $lostWeight = 0;
+        $remainingWeight = $profile->getStartingWeight() - $profile->getTargetWeight();
+        $progressPercentage = 0;
 
         $currentWeight = $latestWeightEntry?->getWeight();
 
@@ -194,7 +194,7 @@ final readonly class DashboardService
             height: $profile->getHeight(),
             startingWeight: $profile->getStartingWeight(),
             targetWeight: $profile->getTargetWeight(),
-            currentWeight: $currentWeight,
+            currentWeight: $currentWeight ?? $profile->getStartingWeight(),
             biologicalGender: $profile->getBiologicalGender(),
             lostWeight: $lostWeight,
             remainingWeight: $remainingWeight,

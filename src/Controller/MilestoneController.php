@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Milestone;
+use App\Form\MilestoneType;
+use App\Repository\ProfileRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+final class MilestoneController extends AbstractController
+{
+    #[Route('/milestone/new', name: 'app_milestone_new')]
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ProfileRepository $profileRepository,
+    ): Response {
+        $profile = $profileRepository->findFirstProfile();
+
+        if (!$profile) {
+            return $this->redirectToRoute('app_profile_new');
+        }
+
+        $milestone = new Milestone();
+        $milestone->setProfile($profile);
+
+        $form = $this->createForm(MilestoneType::class, $milestone);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($milestone);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('milestone/new.html.twig', [
+            'form' => $form,
+        ]);
+    }
+}

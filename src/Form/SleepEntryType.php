@@ -16,12 +16,15 @@ class SleepEntryType extends AbstractType
         $builder
             ->add('date', null, [
                 'label' => 'Date du réveil',
+                'widget' => 'single_text',
             ])
             ->add('bedTime', null, [
                 'label' => 'Heure du coucher',
+                'widget' => 'single_text',
             ])
             ->add('wakeUpTime', null, [
                 'label' => 'Heure du réveil',
+                'widget' => 'single_text',
             ])
             ->add('quality', IntegerType::class, [
                 'label' => 'Qualité du sommeil (1-10)',

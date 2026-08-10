@@ -22,6 +22,7 @@ class WeightEntryType extends AbstractType
             ])
             ->add('measuredAt', DateTimeType::class, [
                 'label' => 'Date de mesure',
+                'widget' => 'single_text',
             ])
             ->add('note', TextareaType::class, [
                 'label' => 'Note',

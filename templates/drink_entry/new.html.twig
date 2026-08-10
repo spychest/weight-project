@@ -1,17 +1,30 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <div class="form-page">
+        <div class="form-card">
+            <header class="form-header">
+                <h1>Ajouter une boisson</h1>
+            </header>
 
-    <h1>Ajouter une boisson</h1>
+            {{ form_start(form) }}
 
-    {{ form_start(form) }}
+            <div class="form-grid">
+                {{ form_row(form.date) }}
+                {{ form_row(form.drinkType) }}
+                {{ form_row(form.quantity) }}
+                {{ form_row(form.description) }}
+                {{ form_row(form.note) }}
+            </div>
 
-    {{ form_widget(form) }}
+            <div class="form-actions">
+                <button type="submit" class="form-button form-button-primary">
+                    Ajouter la pesée
+                </button>
+            </div>
 
-    <button type="submit">
-        Enregistrer
-    </button>
-
-    {{ form_end(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
 
 {% endblock %}

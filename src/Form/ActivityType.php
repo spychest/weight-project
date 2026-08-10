@@ -16,6 +16,7 @@ class ActivityType extends AbstractType
         $builder
             ->add('date', null, [
                 'label' => 'Date',
+                'widget' => 'single_text',
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Activité',

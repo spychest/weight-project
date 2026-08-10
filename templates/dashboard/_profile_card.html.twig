@@ -1,7 +1,27 @@
-<div>
-    <h2>Profil</h2>
 
-    <p>Taille : {{ dashboard.height }} m</p>
-
-    <p>Objectif : {{ dashboard.targetWeight }} kg</p>
+<div class="dashboard-profile-card">
+    <div class="dashboard-profile-icon">
+        👤
+    </div>
+    <div class="dashboard-profile-content">
+        <span class="dashboard-card-label">Profil</span>
+        <div class="dashboard-profile-values">
+            <div>
+                <span>Taille</span>
+                <strong>{{ dashboard.height }} m</strong>
+            </div>
+            <div>
+                <span>Objectif</span>
+                <strong>{{ dashboard.targetWeight }} kg</strong>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard-profile-actions">
+        <a
+                href="{{ path('app_report') }}"
+                class="dashboard-profile-button"
+        >
+            📋 Comptes-rendus
+        </a>
+    </div>
 </div>

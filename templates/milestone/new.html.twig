@@ -1,26 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello WeightEntryController!{% endblock %}
+{% block title %}Ajouter un jalon{% endblock %}
 
 {% block body %}
     <div class="form-page">
         <div class="form-card">
             <header class="form-header">
-                <h1>Ajouter une pesée</h1>
+                <h1>Ajouter un jalon 🎯</h1>
                 <p>Définis un objectif intermédiaire pour suivre ta progression.</p>
             </header>
 
             {{ form_start(form) }}
 
             <div class="form-grid">
-                {{ form_row(form.weight) }}
-                {{ form_row(form.measuredAt) }}
-                {{ form_row(form.note) }}
+                {{ form_row(form.title) }}
+                {{ form_row(form.type) }}
+                {{ form_row(form.targetValue) }}
+                {{ form_row(form.description) }}
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="form-button form-button-primary">
-                    Ajouter la pesée
+                    Ajouter le jalon
                 </button>
             </div>
 

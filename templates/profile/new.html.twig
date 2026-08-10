@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer mon profil{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <div class="form-card">
+            <header class="form-header">
+                <h1>Bienvenue 👋</h1>
+                <p>Pour commencer ton suivi, renseigne quelques informations.</p>
+            </header>
+
+        {{ form_start(form) }}
+        <div class="form-grid">
+            {{ form_row(form.height) }}
+            {{ form_row(form.birthDate) }}
+            {{ form_row(form.biologicalGender) }}
+            {{ form_row(form.startingWeight) }}
+            {{ form_row(form.targetWeight) }}
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="form-button form-button-primary">
+                Commencer mon suivi
+            </button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

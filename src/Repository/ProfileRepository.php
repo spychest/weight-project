@@ -16,6 +16,15 @@ class ProfileRepository extends ServiceEntityRepository
         parent::__construct($registry, Profile::class);
     }
 
+    public function findFirstProfile(): ?Profile
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return Profile[] Returns an array of Profile objects
     //     */

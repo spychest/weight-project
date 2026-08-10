@@ -92,8 +92,6 @@
 
 <div class="header">
     <h1>Compte-rendu</h1>
-
-    ```
     <div class="period">
         Période :
         <strong>
@@ -102,7 +100,6 @@
             {{ report.endDate|date('d/m/Y') }}
         </strong>
     </div>
-    ```
 
 </div>
 
@@ -113,8 +110,6 @@
         <strong>Poids :</strong>
         {{ report.weight.entryCount }} mesure(s)
     </li>
-
-    ```
     <li>
         <strong>Hydratation :</strong>
         {{ report.hydration.totalQuantity|number_format(0, ',', ' ') }} ml
@@ -141,7 +136,6 @@
         {{ report.checkin.daysWithEntries }}
         / {{ report.checkin.totalDays }} jour(s)
     </li>
-    ```
 
 </ul>
 
@@ -158,8 +152,6 @@ POIDS
         <th>Valeur</th>
     </tr>
     </thead>
-
-    ```
     <tbody>
     <tr>
         <td>Nombre de mesures</td>
@@ -199,13 +191,10 @@ POIDS
         </td>
     </tr>
     </tbody>
-    ```
 
 </table>
 
 {% if report.weight.entries is not empty %}
-
-    ```
     <h3>Mesures</h3>
 
     <table>
@@ -231,16 +220,10 @@ POIDS
         {% endfor %}
         </tbody>
     </table>
-    ```
-
 {% else %}
-
-    ```
     <p class="muted">
         Aucune mesure de poids sur cette période.
     </p>
-    ```
-
 {% endif %}
 
 {# ============================================================
@@ -256,8 +239,6 @@ HYDRATATION
         <th>Valeur</th>
     </tr>
     </thead>
-
-    ```
     <tbody>
     <tr>
         <td>Quantité totale</td>
@@ -281,13 +262,9 @@ HYDRATATION
         </td>
     </tr>
     </tbody>
-    ```
-
 </table>
 
 {% if report.hydration.entries is not empty %}
-
-    ```
     <h3>Consommations</h3>
 
     <table>
@@ -317,21 +294,11 @@ HYDRATATION
         {% endfor %}
         </tbody>
     </table>
-    ```
-
 {% else %}
-
-    ```
     <p class="muted">
         Aucune consommation enregistrée sur cette période.
     </p>
-    ```
-
 {% endif %}
-
-{# ============================================================
-ALIMENTATION
-============================================================ #}
 
 <h2>Alimentation</h2>
 
@@ -343,7 +310,6 @@ ALIMENTATION
     </tr>
     </thead>
 
-    ```
     <tbody>
     <tr>
         <td>Nombre de repas</td>
@@ -372,13 +338,9 @@ ALIMENTATION
         </td>
     </tr>
     </tbody>
-    ```
-
 </table>
 
 {% if report.food.mealTypeCounts is not empty %}
-
-    ```
     <h3>Répartition des repas</h3>
 
     <table>
@@ -398,13 +360,10 @@ ALIMENTATION
         {% endfor %}
         </tbody>
     </table>
-    ```
 
 {% endif %}
 
 {% if report.food.entries is not empty %}
-
-    ```
     <h3>Repas enregistrés</h3>
 
     <table>
@@ -452,16 +411,11 @@ ALIMENTATION
         {% endfor %}
         </tbody>
     </table>
-    ```
 
 {% else %}
-
-    ```
     <p class="muted">
         Aucun repas enregistré sur cette période.
     </p>
-    ```
-
 {% endif %}
 
 {# ============================================================
@@ -477,8 +431,6 @@ SOMMEIL
         <th>Valeur</th>
     </tr>
     </thead>
-
-    ```
     <tbody>
     <tr>
         <td>Nuits avec des entrées</td>
@@ -532,13 +484,9 @@ SOMMEIL
         </td>
     </tr>
     </tbody>
-    ```
-
 </table>
 
 {% if report.sleep.entries is not empty %}
-
-    ```
     <h3>Nuits enregistrées</h3>
 
     <table>
@@ -573,16 +521,10 @@ SOMMEIL
         {% endfor %}
         </tbody>
     </table>
-    ```
-
 {% else %}
-
-    ```
     <p class="muted">
         Aucune nuit enregistrée sur cette période.
     </p>
-    ```
-
 {% endif %}
 
 {# ============================================================
@@ -598,8 +540,6 @@ ACTIVITÉ
         <th>Valeur</th>
     </tr>
     </thead>
-
-    ```
     <tbody>
     <tr>
         <td>Nombre d'activités</td>
@@ -617,13 +557,9 @@ ACTIVITÉ
         </td>
     </tr>
     </tbody>
-    ```
-
 </table>
 
 {% if report.activity.entries is not empty %}
-
-    ```
     <h3>Activités enregistrées</h3>
 
     <table>
@@ -656,16 +592,10 @@ ACTIVITÉ
         {% endfor %}
         </tbody>
     </table>
-    ```
-
 {% else %}
-
-    ```
     <p class="muted">
         Aucune activité enregistrée sur cette période.
     </p>
-    ```
-
 {% endif %}
 
 {# ============================================================
@@ -681,8 +611,6 @@ BIEN-ÊTRE ET RESSENTI
         <th>Valeur</th>
     </tr>
     </thead>
-
-    ```
     <tbody>
     <tr>
         <td>Jours avec un check-in</td>
@@ -736,13 +664,10 @@ BIEN-ÊTRE ET RESSENTI
         </td>
     </tr>
     </tbody>
-    ```
-
 </table>
 
 {% if report.checkin.entries is not empty %}
 
-    ```
     <h3>Observations quotidiennes</h3>
 
     <table>
@@ -781,14 +706,8 @@ BIEN-ÊTRE ET RESSENTI
         {% endfor %}
         </tbody>
     </table>
-    ```
-
 {% else %}
-
-    ```
     <p class="muted">
         Aucun check-in enregistré sur cette période.
     </p>
-    ```
-
 {% endif %}

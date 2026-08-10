@@ -18,6 +18,7 @@ class DrinkEntryType extends AbstractType
         $builder
             ->add('date', null, [
                 'label' => 'Date',
+                'widget' => 'single_text',
             ])
             ->add('drinkType', EnumType::class, [
                 'class' => DrinkType::class,

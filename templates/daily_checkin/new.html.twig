@@ -1,17 +1,31 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <div class="form-page">
+        <div class="form-card">
+            <header class="form-header">
+                <h1>Bilan de la journée</h1>
+            </header>
 
-    <h1>Bilan de la journée</h1>
+            {{ form_start(form) }}
 
-    {{ form_start(form) }}
+            <div class="form-grid">
+                {{ form_row(form.date) }}
+                {{ form_row(form.moodLevel) }}
+                {{ form_row(form.energyLevel) }}
+                {{ form_row(form.frustrationLevel) }}
+                {{ form_row(form.painLevel) }}
+                {{ form_row(form.note) }}
+            </div>
 
-    {{ form_widget(form) }}
+            <div class="form-actions">
+                <button type="submit" class="form-button form-button-primary">
+                    Ajouter la pesée
+                </button>
+            </div>
 
-    <button type="submit">
-        Enregistrer
-    </button>
-
-    {{ form_end(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
 
 {% endblock %}
