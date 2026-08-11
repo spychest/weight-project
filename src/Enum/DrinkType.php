@@ -4,10 +4,10 @@ namespace App\Enum;
 
 enum DrinkType: string
 {
-    case WATER = 'water';
+    case WATER = 'eau';
     case SODA = 'soda';
-    case JUICE = 'juice';
-    case COFFEE = 'coffee';
-    case TEA = 'tea';
-    case OTHER = 'other';
+    case JUICE = 'jus';
+    case COFFEE = 'café';
+    case TEA = 'thé';
+    case OTHER = 'autre';
 }

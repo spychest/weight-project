@@ -3,14 +3,26 @@
 {% block title %}Hello ReportController!{% endblock %}
 
 {% block body %}
-    <h1>Générer compte-rendu</h1>
+    <div class="form-page">
+        <div class="form-card">
+            <header class="form-header">
+                <h1>Générer compte-rendu</h1>
+            </header>
 
-    {{ form_start(form) }}
-    {{ form_row(form.startDate) }}
-    {{ form_row(form.endDate) }}
+            {{ form_start(form) }}
 
-    <button type="submit">
-        Générer le compte-rendu
-    </button>
-    {{ form_end(form) }}
+            <div class="form-grid">
+                {{ form_row(form.startDate) }}
+                {{ form_row(form.endDate) }}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="form-button form-button-primary">
+                    Générer le compte-rendu
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
 {% endblock %}
