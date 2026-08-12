@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hydratation{% endblock %}
+
+{% block body %}
+    <div class="entry-show">
+        <header class="entry-show-header">
+            <div>
+                <span class="entry-show-label">💧 Hydratation</span>
+                <h1>{{ drinkEntry.drinkType.value }}</h1>
+                <p>{{ drinkEntry.date|date('d/m/Y') }}</p>
+            </div>
+
+            <div class="entry-show-actions">
+                <a href="{{ path('app_drink_edit', {id: drinkEntry.id}) }}" class="dashboard-button dashboard-button-primary">
+                    Modifier
+                </a>
+
+                <a href="{{ path('app_food_index') }}" class="dashboard-button">
+                    Retour
+                </a>
+            </div>
+        </header>
+
+        <section class="entry-show-card">
+            <div class="entry-show-section">
+                <span class="entry-show-section-label">Boisson</span>
+                <p class="entry-show-description">{{ drinkEntry.description }}</p>
+            </div>
+            <div class="entry-show-section">
+                <span class="entry-show-section-label">Quantité</span>
+                <p class="entry-show-description">{{ drinkEntry.quantity }}mL</p>
+            </div>
+
+            {% if drinkEntry.note is not null %}
+                <div class="entry-show-metrics">
+                    <div class="entry-show-metric">
+                        <span>Note</span>
+                        <strong>{{ drinkEntry.note }}</strong>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes repas{% endblock %}
+
+{% block body %}
+    <div class="entry-index">
+        <header class="entry-index-header">
+            <div>
+                <span class="entry-index-label">🍽️ Alimentation</span>
+                <h1>Mes repas</h1>
+                <p>Retrouve ici l'ensemble de tes repas enregistrés.</p>
+            </div>
+
+            <a href="{{ path('app_dashboard') }}" class="dashboard-button dashboard-button-primary">
+                Dashboard
+            </a>
+
+            <a href="{{ path('app_food_new') }}" class="dashboard-button dashboard-button-primary">
+                + Ajouter un repas
+            </a>
+        </header>
+
+        {% if foodEvents is not empty %}
+            <div class="entry-list">
+                {% for foodEvent in foodEvents %}
+                    <article class="entry-card">
+                        <a href="{{ path('app_food_show', {id: foodEvent.id}) }}" class="entry-card-link">
+                            <div class="entry-card-header">
+                                <div>
+                                <span class="entry-card-type">
+                                    {{ foodEvent.mealType.value }}
+                                </span>
+                                    <time>
+                                        {{ foodEvent.eatenAt|date('d/m/Y à H:i') }}
+                                    </time>
+                                </div>
+
+                                <span class="entry-card-arrow">→</span>
+                            </div>
+
+                            <p class="entry-card-description">
+                                {{ foodEvent.description }}
+                            </p>
+
+                            {% if foodEvent.hungerLevel is not null or foodEvent.pleasureLevel is not null %}
+                                <div class="entry-card-metrics">
+                                    {% if foodEvent.hungerLevel is not null %}
+                                        <span>
+                                        Faim <strong>{{ foodEvent.hungerLevel }}/10</strong>
+                                    </span>
+                                    {% endif %}
+
+                                    {% if foodEvent.pleasureLevel is not null %}
+                                        <span>
+                                        Plaisir <strong>{{ foodEvent.pleasureLevel }}/10</strong>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="entry-index-empty">
+                <span>🍽️</span>
+                <h2>Aucun repas enregistré</h2>
+                <p>Commence à renseigner tes repas pour retrouver ton historique ici.</p>
+
+                <a href="{{ path('app_food_new') }}" class="dashboard-button dashboard-button-primary">
+                    Ajouter mon premier repas
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

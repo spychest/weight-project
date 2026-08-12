@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     container_name: weight-project-php
+    environment:
+      TZ: Europe/Paris
     volumes:
       - ./:/var/www/html
     depends_on:
@@ -13,6 +15,8 @@ services:
   nginx:
     image: nginx:alpine
     container_name: weight-project-nginx
+    environment:
+      TZ: Europe/Paris
     ports:
       - "8080:80"
     volumes:
@@ -25,10 +29,12 @@ services:
     image: mariadb:10.11
     container_name: weight-project-db
     environment:
+      TZ: Europe/Paris
       MARIADB_DATABASE: weight_project
       MARIADB_USER: weight
       MARIADB_PASSWORD: weight
       MARIADB_ROOT_PASSWORD: root
+    command: --default-time-zone=Europe/Paris
     ports:
       - "3306:3306"
     volumes:
@@ -37,6 +43,8 @@ services:
   mailer:
     image: axllent/mailpit
     container_name: weight-project-mailpit
+    environment:
+      TZ: Europe/Paris
     ports:
       - "1025:1025"
       - "8025:8025"

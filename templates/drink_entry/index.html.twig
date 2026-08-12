@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon hydratation{% endblock %}
+
+{% block body %}
+    <div class="entry-index">
+        <header class="entry-index-header">
+            <div>
+                <span class="entry-index-label">💧 Hydratation</span>
+                <h1>Mon hydratation</h1>
+                <p>Retrouve ici l'ensemble de tes boissons enregistrées.</p>
+            </div>
+
+            <a href="{{ path('app_dashboard') }}" class="dashboard-button dashboard-button-primary">
+                Dashboard
+            </a>
+
+            <a href="{{ path('app_drink_new') }}" class="dashboard-button dashboard-button-primary">
+                + Ajouter une boisson
+            </a>
+        </header>
+
+        {% if drinkEntries is not empty %}
+            <div class="entry-list">
+                {% for drinkEntry in drinkEntries %}
+                    <article class="entry-card">
+                        <a href="{{ path('app_drink_show', {id: drinkEntry.id}) }}" class="entry-card-link">
+                            <div class="entry-card-header">
+                                <div>
+                                <span class="entry-card-type">
+                                    {{ drinkEntry.drinkType.value }}
+                                </span>
+                                    <time>
+                                        {{ drinkEntry.date|date('d/m/Y') }}
+                                    </time>
+                                </div>
+
+                                <span class="entry-card-arrow">→</span>
+                            </div>
+
+                            <p class="entry-card-description">
+                                {{ drinkEntry.description }}
+                            </p>
+
+                            <p class="entry-card-description">
+                                {{ drinkEntry.quantity }}mL
+                            </p>
+
+                            {% if drinkEntry.note is not null %}
+                                <div class="entry-card-metrics">
+                                    <span>
+                                        Note: <strong>{{ drinkEntry.note }}</strong>
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="entry-index-empty">
+                <span>🍽️</span>
+                <h2>Aucune boisson enregistrée</h2>
+                <p>Commence à renseigner tes boissons pour retrouver ton historique ici.</p>
+
+                <a href="{{ path('app_drink_new') }}" class="dashboard-button dashboard-button-primary">
+                    Ajouter ma première boisson
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

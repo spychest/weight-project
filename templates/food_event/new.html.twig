@@ -21,7 +21,11 @@
 
             <div class="form-actions">
                 <button type="submit" class="form-button form-button-primary">
-                    Ajouter le repas
+                    {% if editMod is true %}
+                        Modifier
+                    {% else %}
+                        Ajouter le repas
+                    {% endif %}
                 </button>
             </div>
 

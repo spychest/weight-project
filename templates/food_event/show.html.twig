@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Repas{% endblock %}
+
+{% block body %}
+    <div class="entry-show">
+        <header class="entry-show-header">
+            <div>
+                <span class="entry-show-label">🍽️ Repas</span>
+                <h1>{{ foodEvent.mealType.value }}</h1>
+                <p>{{ foodEvent.eatenAt|date('d/m/Y à H:i') }}</p>
+            </div>
+
+            <div class="entry-show-actions">
+                <a href="{{ path('app_food_edit', {id: foodEvent.id}) }}" class="dashboard-button dashboard-button-primary">
+                    Modifier
+                </a>
+
+                <a href="{{ path('app_food_index') }}" class="dashboard-button">
+                    Retour
+                </a>
+            </div>
+        </header>
+
+        <section class="entry-show-card">
+            <div class="entry-show-section">
+                <span class="entry-show-section-label">Repas</span>
+                <p class="entry-show-description">{{ foodEvent.description }}</p>
+            </div>
+
+            {% if foodEvent.hungerLevel is not null or foodEvent.pleasureLevel is not null %}
+                <div class="entry-show-metrics">
+                    {% if foodEvent.hungerLevel is not null %}
+                        <div class="entry-show-metric">
+                            <span>Faim</span>
+                            <strong>{{ foodEvent.hungerLevel }}/10</strong>
+                        </div>
+                    {% endif %}
+
+                    {% if foodEvent.pleasureLevel is not null %}
+                        <div class="entry-show-metric">
+                            <span>Plaisir</span>
+                            <strong>{{ foodEvent.pleasureLevel }}/10</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if foodEvent.cause %}
+                <div class="entry-show-section">
+                    <span class="entry-show-section-label">Cause</span>
+                    <p>{{ foodEvent.cause }}</p>
+                </div>
+            {% endif %}
+
+            {% if foodEvent.note %}
+                <div class="entry-show-section">
+                    <span class="entry-show-section-label">Note</span>
+                    <p>{{ foodEvent.note }}</p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}
