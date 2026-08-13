@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes bilans{% endblock %}
+
+{% block body %}
+    <div class="entry-index">
+        <header class="entry-index-header">
+            <div>
+                <span class="entry-index-label">📋 bilans</span>
+                <h1>Mes bilans</h1>
+                <p>Retrouve ici l'ensemble de tes bilans enregistrés.</p>
+            </div>
+
+            <a href="{{ path('app_dashboard') }}" class="dashboard-button dashboard-button-primary">
+                Dashboard
+            </a>
+
+            <a href="{{ path('app_daily_checkin_new') }}" class="dashboard-button dashboard-button-primary">
+                + Ajouter un bilan
+            </a>
+        </header>
+
+        {% if dailyCheckins is not empty %}
+            <div class="entry-list">
+                {% for dailyCheckin in dailyCheckins %}
+                    <article class="entry-card">
+                        <a href="{{ path('app_daily_checkin_show', {id: dailyCheckin.id}) }}" class="entry-card-link">
+                            <div class="entry-card-header">
+                                <div>
+                                    <time>
+                                        {{ dailyCheckin.date|date('d/m/Y') }}
+                                    </time>
+                                </div>
+
+                                <span class="entry-card-arrow">→</span>
+                            </div>
+
+                            <p class="entry-card-description">{{ dailyCheckin.note }}</p>
+
+                            <div class="entry-card-metrics">
+                                <span>
+                                    Niveau moral: <strong>{{ dailyCheckin.moodLevel }}</strong>
+                                </span>
+                                <span>
+                                    Niveau d'énergie: <strong>{{ dailyCheckin.energyLevel }}</strong>
+                                </span>
+                                <span>
+                                    Niveau de frustration: <strong>{{ dailyCheckin.frustrationLevel }}</strong>
+                                </span>
+                                <span>
+                                    Niveau de douleur: <strong>{{ dailyCheckin.painLevel }}</strong>
+                                </span>
+                            </div>
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="entry-index-empty">
+                <span>🍽️</span>
+                <h2>Aucun bilan enregistré</h2>
+                <p>Commence à renseigner tes bilans pour retrouver ton historique ici.</p>
+
+                <a href="{{ path('app_daily_checkin_new') }}" class="dashboard-button dashboard-button-primary">
+                    Ajouter mon premier bilan
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

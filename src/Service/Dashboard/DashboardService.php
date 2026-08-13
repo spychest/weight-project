@@ -190,6 +190,9 @@ final readonly class DashboardService
             $activities
         );
 
+        $imc = round($profile->getStartingWeight() / ($profile->getHeight() / 100) ** 2,2);
+        $targetImc = round($profile->getTargetWeight() / ($profile->getHeight() / 100) ** 2,2);
+
         return new DashboardData(
             height: $profile->getHeight(),
             startingWeight: $profile->getStartingWeight(),
@@ -205,6 +208,8 @@ final readonly class DashboardService
             dailyCheckin: $dailyCheckinData,
             sleep: $sleepEntryData,
             recentActivities: $recentActivities,
+            imc: $imc,
+            targetImc: $targetImc,
         );
     }
 }

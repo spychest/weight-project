@@ -19,6 +19,8 @@ final readonly class DashboardData
         public ?DailyCheckinData $dailyCheckin,
         public ?SleepEntryData $sleep,
         public array $recentActivities,
+        public float $imc,
+        public float $targetImc,
     ) {
     }
 
