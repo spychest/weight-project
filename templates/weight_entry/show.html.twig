@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sommeil{% endblock %}
+
+{% block body %}
+    {{ dump(weightEntry) }}
+{#    <div class="entry-show">#}
+{#        <header class="entry-show-header">#}
+{#            <div>#}
+{#                <span class="entry-show-label">🌙 Sommeil</span>#}
+{#                <h1>{{ sleepEntry.date|date('d/m/Y à H:i') }}</h1>#}
+{#            </div>#}
+
+{#            <div class="entry-show-actions">#}
+{#                <a href="{{ path('app_sleep_edit', {id: sleepEntry.id}) }}" class="dashboard-button dashboard-button-primary">#}
+{#                    Modifier#}
+{#                </a>#}
+
+{#                <a href="{{ path('app_sleep_index') }}" class="dashboard-button">#}
+{#                    Retour#}
+{#                </a>#}
+{#            </div>#}
+{#        </header>#}
+
+{#        <section class="entry-show-card">#}
+{#            <div class="entry-show-section">#}
+{#                <span class="entry-show-section-label">Sommeil</span>#}
+{#            </div>#}
+
+{#            <div class="entry-show-metrics">#}
+{#                <div class="entry-show-metric">#}
+{#                    <span>🌑 Couché</span>#}
+{#                    <strong>{{ sleepEntry.bedTime | date('h:i') }}</strong>#}
+{#                </div>#}
+{#                <div class="entry-show-metric">#}
+{#                    <span>☀️ Réveil</span>#}
+{#                    <strong>{{ sleepEntry.wakeUpTime | date('h:i') }}</strong>#}
+{#                </div>#}
+{#                <div class="entry-show-metric">#}
+{#                    <span>Qualité</span>#}
+{#                    <strong>{{ sleepEntry.quality }}/10</strong>#}
+{#                </div>#}
+{#            </div>#}
+{#            {% if sleepEntry.note %}#}
+{#                <div class="entry-show-section">#}
+{#                    <span class="entry-show-section-label">Note</span>#}
+{#                    <p>{{ sleepEntry.note }}</p>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#        </section>#}
+{#    </div>#}
+{% endblock %}
