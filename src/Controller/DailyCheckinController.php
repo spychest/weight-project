@@ -59,7 +59,9 @@ final class DailyCheckinController extends AbstractController
     #[Route('/daily-checkin', name: 'app_daily_checkin_index')]
     public function index(DailyCheckinRepository $dailyCheckinRepository): Response
     {
-        $dailyCheckins = $dailyCheckinRepository->findBy([], []);
+        $dailyCheckins = $dailyCheckinRepository->findBy([], [
+            'date' => 'DESC',
+        ]);
         return $this->render('daily_checkin/index.html.twig', [
             'dailyCheckins' => $dailyCheckins,
         ]);

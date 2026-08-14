@@ -66,7 +66,9 @@ final class DrinkEntryController extends AbstractController
     #[Route('/drink/index', name: 'app_drink_index')]
     public function index(DrinkEntryRepository $drinkEntryRepository): Response
     {
-        $drinkEntries = $drinkEntryRepository->findBy([], []);
+        $drinkEntries = $drinkEntryRepository->findBy([], [
+            'date' => 'DESC',
+        ]);
 
         return $this->render('drink_entry/index.html.twig', [
             'controller_name' => 'DrinkEntryController',

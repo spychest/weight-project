@@ -63,7 +63,9 @@ final class WeightEntryController extends AbstractController
     #[Route('/weight', name: 'app_weight_index')]
     public function index(WeightEntryRepository $weightEntryRepository): Response
     {
-        $weightEntries = $weightEntryRepository->findBy([], []);
+        $weightEntries = $weightEntryRepository->findBy([], [
+            'date' => 'DESC',
+        ]);
         return $this->render('weight_entry/index.html.twig', [
             'controller_name' => 'WeightEntryController',
             'weightEntries' => $weightEntries,

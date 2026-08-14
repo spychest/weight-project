@@ -58,7 +58,9 @@ final class SleepEntryController extends AbstractController
     #[Route('/sleep', name: 'app_sleep_index')]
     public function index(SleepEntryRepository $sleepEntryRepository): Response
     {
-        $sleepEntries = $sleepEntryRepository->findBy([], []);
+        $sleepEntries = $sleepEntryRepository->findBy([], [
+            'date' => 'DESC',
+        ]);
         return $this->render('sleep_entry/index.html.twig', [
             'controller_name' => 'SleepEntryController',
             'sleepEntries' => $sleepEntries,
