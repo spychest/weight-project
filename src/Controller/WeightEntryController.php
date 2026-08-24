@@ -57,6 +57,7 @@ final class WeightEntryController extends AbstractController
 
         return $this->render('weight_entry/new.html.twig', [
             'form' => $form,
+            'editMod' => $editMod,
         ]);
     }
 
@@ -64,7 +65,7 @@ final class WeightEntryController extends AbstractController
     public function index(WeightEntryRepository $weightEntryRepository): Response
     {
         $weightEntries = $weightEntryRepository->findBy([], [
-            'date' => 'DESC',
+            'measuredAt' => 'DESC',
         ]);
         return $this->render('weight_entry/index.html.twig', [
             'controller_name' => 'WeightEntryController',

@@ -20,7 +20,11 @@
 
             <div class="form-actions">
                 <button type="submit" class="form-button form-button-primary">
-                    Ajouter la pesée
+                    {% if editMod is true %}
+                        Modifier
+                    {% else %}
+                        Ajouter la pesée
+                    {% endif %}
                 </button>
             </div>
 

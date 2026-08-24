@@ -1,80 +1,67 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon sommeil{% endblock %}
+{% block title %}Mes pesées{% endblock %}
 
 {% block body %}
-    {{ dump(weightEntries) }}
-{#    <div class="entry-index">#}
-{#        <header class="entry-index-header">#}
-{#            <div>#}
-{#                <span class="entry-index-label">🌙 Sommeil</span>#}
-{#                <h1>Mon sommeil</h1>#}
-{#                <p>Retrouve ici l'ensemble de ton sommeil enregistré.</p>#}
-{#            </div>#}
+    <div class="entry-index">
+        <header class="entry-index-header">
+            <div>
+                <span class="entry-index-label">⚖️ Poids</span>
+                <h1>Mes pesées</h1>
+                <p>Retrouve ici l'ensemble de tes pesées enregistrées.</p>
+            </div>
 
-{#            <a href="{{ path('app_dashboard') }}" class="dashboard-button dashboard-button-primary">#}
-{#                Dashboard#}
-{#            </a>#}
+            <a href="{{ path('app_dashboard') }}" class="dashboard-button dashboard-button-primary">
+                Dashboard
+            </a>
 
-{#            <a href="{{ path('app_sleep_new') }}" class="dashboard-button dashboard-button-primary">#}
-{#                + Ajouter une nuit#}
-{#            </a>#}
-{#        </header>#}
+            <a href="{{ path('app_weight_new') }}" class="dashboard-button dashboard-button-primary">
+                + Ajouter une pesé
+            </a>
+        </header>
 
-{#        {% if sleepEntries is not empty %}#}
-{#            <div class="entry-list">#}
-{#                {% for sleepEntry in sleepEntries %}#}
-{#                    <article class="entry-card">#}
-{#                        <a href="{{ path('app_sleep_show', {id: sleepEntry.id}) }}" class="entry-card-link">#}
-{#                            <div class="entry-card-header">#}
-{#                                <div>#}
-{#                                    <time>#}
-{#                                        {{ sleepEntry.date|date('d/m/Y') }}#}
-{#                                    </time>#}
-{#                                </div>#}
+        {% if weightEntries is not empty %}
+            <div class="entry-list">
+                {% for weightEntry in weightEntries %}
+                    <article class="entry-card">
+                        <a href="{{ path('app_weight_show', {id: weightEntry.id}) }}" class="entry-card-link">
+                            <div class="entry-card-header">
+                                <div>
+                                    <time>
+                                        {{ weightEntry.measuredAt|date('d/m/Y') }}
+                                    </time>
+                                </div>
 
-{#                                <span class="entry-card-arrow">→</span>#}
-{#                            </div>#}
-{#                            <div class="entry-card-metrics">#}
-{#                                <section class="entry-show-card">#}
-{#                                    <div class="entry-show-section">#}
-{#                                        <span class="entry-show-section-label">🌑 Couché</span>#}
-{#                                        <p class="entry-show-description">{{ sleepEntry.bedTime | date('h:i') }}</p>#}
-{#                                    </div>#}
-{#                                </section>#}
-{#                                <section class="entry-show-card">#}
-{#                                    <div class="entry-show-section">#}
-{#                                        <span class="entry-show-section-label">☀️ Réveil</span>#}
-{#                                        <p class="entry-show-description">{{ sleepEntry.wakeUpTime | date('h:i') }}</p>#}
-{#                                    </div>#}
-{#                                </section>#}
-{#                                <section class="entry-show-card">#}
-{#                                    <div class="entry-show-section">#}
-{#                                        <span class="entry-show-section-label">Qualité</span>#}
-{#                                        <p class="entry-show-description">{{ sleepEntry.quality }}/10</p>#}
-{#                                    </div>#}
-{#                                </section>#}
-{#                            </div>#}
+                                <span class="entry-card-arrow">→</span>
+                            </div>
+                            <div class="entry-card-metrics">
+                                <section class="entry-show-card">
+                                    <div class="entry-show-section">
+                                        <span class="entry-show-section-label">Poids mesuré</span>
+                                        <p class="entry-show-description">{{ weightEntry.weight }}kg</p>
+                                    </div>
+                                </section>
+                            </div>
 
-{#                            {% if sleepEntry.note is not null %}#}
-{#                                <p class="entry-card-description">#}
-{#                                    {{ sleepEntry.note }}#}
-{#                                </p>#}
-{#                            {% endif %}#}
-{#                        </a>#}
-{#                    </article>#}
-{#                {% endfor %}#}
-{#            </div>#}
-{#        {% else %}#}
-{#            <div class="entry-index-empty">#}
-{#                <span>🍽️</span>#}
-{#                <h2>Aucun sommeil enregistré</h2>#}
-{#                <p>Commence à renseigner ton sommeil pour retrouver ton historique ici.</p>#}
+                            {% if weightEntry.note is not null %}
+                                <p class="entry-card-description">
+                                    <span class="bold">Note: </span>{{ weightEntry.note }}
+                                </p>
+                            {% endif %}
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="entry-index-empty">
+                <span>⚖️ </span>
+                <h2>Aucune pesée enregistrée</h2>
+                <p>Commence à renseigner tes pesées pour retrouver ton historique ici.</p>
 
-{#                <a href="{{ path('app_sleep_new') }}" class="dashboard-button dashboard-button-primary">#}
-{#                    Ajouter mon premier sommeil#}
-{#                </a>#}
-{#            </div>#}
-{#        {% endif %}#}
-{#    </div>#}
+                <a href="{{ path('app_weight_new') }}" class="dashboard-button dashboard-button-primary">
+                    Ajouter ma première pesée
+                </a>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
