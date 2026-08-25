@@ -71,6 +71,11 @@ MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
 
 ### Démarrage
 
+Dans le dossier du projet, ouvrez un terminal.
+
+>Astuce : Sous windows, vous pouvez ouvrir un terminal en faisant un 
+> clic droit sur le dossier du projet et en choisissant "Ouvrir un terminal".
+
 Entrez la commande suivante :
 ```bash
 docker compose up -d \
