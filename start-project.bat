@@ -1,6 +1,8 @@
 @echo off
 title Weight Project
 
+set NGINX_PORT=8080
+
 echo Demarrage de Docker Desktop...
 
 start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
@@ -17,7 +19,13 @@ if errorlevel 1 (
 echo Docker est pret.
 echo Demarrage des containers...
 
-docker compose up -d
+if exist ".env.local" (
+    echo Utilisation de .env.local
+    docker compose --env-file .env.local up -d
+) else (
+    echo Utilisation de .env
+    docker compose up -d
+)
 
 if errorlevel 1 (
     echo.
@@ -30,6 +38,6 @@ echo.
 echo Projet demarre !
 echo.
 
-start "" "http://localhost:8080/dashboard"
+start "" "http://localhost:%NGINX_PORT%/dashboard"
 
 exit
