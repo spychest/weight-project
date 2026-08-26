@@ -15,8 +15,6 @@ Rendez-vous ensuite dans le dossier du projet.
 
 Le fichier `.env` contient la configuration par défaut du projet.
 
-Les principales variables sont :
-
 Rendez-vous ensuite dans le fichier `.env` et modifiez les variables d'environnement suivante:
 - `APP_ENV` ("dev" ou "prod")
 - `APP_SECRET` (Vous pouvez mettre ici une chaine de caractères)
