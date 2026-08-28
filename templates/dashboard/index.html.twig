@@ -9,6 +9,12 @@
                 <h1>Suivi poids</h1>
                 <p>Bienvenue dans ton espace de suivi.</p>
             </div>
+
+            <div class="dashboard-actions">
+                <a href="{{ path('app_graph') }}" class="dashboard-button">
+                    📊 Voir les graphiques
+                </a>
+            </div>
         </header>
 
         {% include 'dashboard/_profile_card.html.twig' %}

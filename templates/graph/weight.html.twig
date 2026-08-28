@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Évolution du poids{% endblock %}
+
+{% block body %}
+    <div class="graph-detail-page">
+        <header class="graph-header">
+            <div>
+                <h1>Évolution du poids</h1>
+                <p>Analyse tes pesées sur la période de ton choix.</p>
+            </div>
+
+            <a href="{{ path('app_graph') }}" class="dashboard-button">
+                ← Retour aux graphiques
+            </a>
+        </header>
+
+        <section class="graph-detail-card">
+            <div class="graph-period-form">
+                <div>
+                    <label for="weightStartDate">Du</label>
+                    <input type="date" id="weightStartDate">
+                </div>
+
+                <div>
+                    <label for="weightEndDate">Au</label>
+                    <input type="date" id="weightEndDate">
+                </div>
+            </div>
+
+            <div class="graph-detail-container">
+                <canvas id="weightDetailChart"></canvas>
+            </div>
+
+            <div class="graph-detail-stats">
+                <div>
+                    <span>Tendance</span>
+                    <strong id="weightTrend">—</strong>
+                </div>
+
+                <div>
+                    <span>Variation</span>
+                    <strong id="weightVariation">—</strong>
+                </div>
+
+                <div>
+                    <span>Pesées</span>
+                    <strong id="weightCount">—</strong>
+                </div>
+
+                <div>
+                    <span>Minimum</span>
+                    <strong id="weightMin">—</strong>
+                </div>
+
+                <div>
+                    <span>Maximum</span>
+                    <strong id="weightMax">—</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const weightData = {{ weightData|json_encode|raw }};
+
+        const startDateInput = document.getElementById('weightStartDate');
+        const endDateInput = document.getElementById('weightEndDate');
+
+        const trendElement = document.getElementById('weightTrend');
+        const variationElement = document.getElementById('weightVariation');
+        const countElement = document.getElementById('weightCount');
+        const minElement = document.getElementById('weightMin');
+        const maxElement = document.getElementById('weightMax');
+
+        let weightChart = null;
+
+        function calculateTrend(entries) {
+            if (entries.length < 2) {
+                return null;
+            }
+
+            const firstDate = new Date(entries[0].date);
+
+            const xValues = entries.map(entry => {
+                const date = new Date(entry.date);
+                const milliseconds = date - firstDate;
+
+                return milliseconds / (1000 * 60 * 60 * 24 * 7);
+            });
+
+            const yValues = entries.map(entry => entry.weight);
+
+            const count = entries.length;
+
+            const sumX = xValues.reduce((sum, value) => sum + value, 0);
+            const sumY = yValues.reduce((sum, value) => sum + value, 0);
+
+            let sumXY = 0;
+            let sumXSquared = 0;
+
+            for (let i = 0; i < count; i++) {
+                sumXY += xValues[i] * yValues[i];
+                sumXSquared += xValues[i] ** 2;
+            }
+
+            const denominator = (count * sumXSquared) - (sumX ** 2);
+
+            if (denominator === 0) {
+                return null;
+            }
+
+            return (
+                ((count * sumXY) - (sumX * sumY))
+                / denominator
+            );
+        }
+
+        function formatSigned(value) {
+            const rounded = value.toFixed(2).replace('.', ',');
+
+            return value > 0 ? `+${rounded}` : rounded;
+        }
+
+        function filterData() {
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+
+            return weightData.filter(entry => {
+                if (startDate && entry.date < startDate) {
+                    return false;
+                }
+
+                if (endDate && entry.date > endDate) {
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        function updateStats(entries) {
+            countElement.textContent = entries.length;
+
+            if (entries.length === 0) {
+                trendElement.textContent = '—';
+                variationElement.textContent = '—';
+                minElement.textContent = '—';
+                maxElement.textContent = '—';
+
+                return;
+            }
+
+            const weights = entries.map(entry => entry.weight);
+
+            minElement.textContent = `${Math.min(...weights)} kg`;
+            maxElement.textContent = `${Math.max(...weights)} kg`;
+
+            if (entries.length < 2) {
+                trendElement.textContent = '—';
+                variationElement.textContent = '—';
+
+                return;
+            }
+
+            const variation =
+                entries[entries.length - 1].weight
+                - entries[0].weight;
+
+            variationElement.textContent =
+                `${formatSigned(variation)} kg`;
+
+            const trend = calculateTrend(entries);
+
+            trendElement.textContent = trend === null
+                ? '—'
+                : `${formatSigned(trend)} kg/sem.`;
+        }
+
+        function updateChart() {
+            const entries = filterData();
+
+            const labels = entries.map(entry => entry.label);
+            const weights = entries.map(entry => entry.weight);
+
+            weightChart.data.labels = labels;
+            weightChart.data.datasets[0].data = weights;
+
+            weightChart.update();
+
+            updateStats(entries);
+        }
+
+        function initializeDates() {
+            if (weightData.length === 0) {
+                return;
+            }
+
+            startDateInput.value = weightData[0].date;
+            endDateInput.value = weightData[weightData.length - 1].date;
+        }
+
+        weightChart = new Chart(
+            document.getElementById('weightDetailChart'),
+            {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Poids',
+                            data: [],
+                            borderWidth: 2,
+                            tension: 0.25,
+                            fill: false,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Poids (kg)'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        startDateInput.addEventListener('change', updateChart);
+        endDateInput.addEventListener('change', updateChart);
+
+        initializeDates();
+        updateChart();
+    </script>
+{% endblock %}

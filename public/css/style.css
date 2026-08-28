@@ -1013,9 +1013,224 @@
     font-size: 1.5rem;
 }
 
+.graph-page {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--page-padding);
+}
+
+.graph-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+}
+
+.graph-card {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4xl);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm-alt);
+}
+
+.graph-card h1,
+.graph-card h2 {
+    margin: 0;
+}
+
+.graph-card h1 {
+    font-size: 1.7rem;
+}
+
+.graph-card h2 {
+    font-size: 1.3rem;
+}
+
+.graph-container {
+    position: relative;
+    width: 100%;
+    height: 260px;
+}
+
+.graph-container-small {
+    max-width: 350px;
+    height: 260px;
+    margin: 0 auto;
+}
+
+.graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.graph-header h1 {
+    margin: 0 0 8px;
+    font-size: 2.5rem;
+}
+
+.graph-header p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.graph-trends {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.graph-trends div {
+    padding: 12px;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-light);
+    text-align: center;
+}
+
+.graph-trends span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+}
+
+.graph-trends strong {
+    font-size: 1rem;
+}
+
+.graph-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.graph-card-header h2 {
+    margin: 0;
+}
+
+.graph-detail-link {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-light);
+    color: var(--color-text-link);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background var(--transition-base), border-color var(--transition-base);
+}
+
+.graph-detail-link:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-border-hover);
+}
+
+.graph-detail-page {
+    max-width: var(--max-width-lg);
+    margin: 0 auto;
+    padding: var(--page-padding);
+}
+
+.graph-detail-card {
+    padding: 30px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4xl);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm-alt);
+}
+
+.graph-period-form {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.graph-period-form > div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.graph-period-form label {
+    color: var(--color-text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.graph-period-form input {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    color: var(--color-text-primary);
+    font: inherit;
+}
+
+.graph-period-form input:focus {
+    outline: none;
+    border-color: var(--color-text-faint);
+    box-shadow: var(--shadow-focus);
+}
+
+.graph-detail-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+}
+
+.graph-detail-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.graph-detail-stats div {
+    min-width: 0;
+    padding: 15px;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-light);
+    text-align: center;
+}
+
+.graph-detail-stats span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+}
+
+.graph-detail-stats strong {
+    font-size: 1.05rem;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 1200px) {
+    .graph-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 900px) {
-    .dashboard-header {
+    .graph-detail-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .dashboard-header,
+    .graph-header {
         flex-direction: column;
+        align-items: stretch;
     }
 
     .dashboard-actions,
@@ -1026,34 +1241,76 @@
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
+
+    .dashboard-actions .dashboard-button,
+    .graph-header .dashboard-button {
+        text-align: center;
+    }
 }
 
 @media (max-width: 768px) {
-    .report {
+    .graph-detail-page {
         padding: var(--page-padding-mobile);
     }
 
-    .report-header h1 {
+    .graph-detail-card {
+        padding: 20px;
+    }
+
+    .graph-detail-container {
+        height: 400px;
+    }
+
+    .report,
+    .dashboard,
+    .form-page,
+    .entry-index,
+    .entry-show,
+    .graph-page {
+        padding: var(--page-padding-mobile);
+    }
+
+    .report-header,
+    .dashboard-header,
+    .graph-header,
+    .entry-index-header,
+    .entry-show-header {
+        margin-bottom: 24px;
+    }
+
+    .report-header h1,
+    .dashboard-header h1,
+    .graph-header h1 {
         font-size: 2rem;
     }
 
-    .report-table {
-        min-width: 700px;
-    }
-
-    .entry-index,
-    .entry-show {
-        padding: var(--page-padding-mobile);
+    .entry-index-header h1,
+    .entry-show-header h1 {
+        font-size: 1.9rem;
     }
 
     .entry-index-header,
     .entry-show-header {
         align-items: stretch;
         flex-direction: column;
+        gap: 18px;
     }
 
     .entry-index-header .dashboard-button {
         text-align: center;
+    }
+
+    .entry-show-actions {
+        flex-wrap: wrap;
+    }
+
+    .entry-show-actions a {
+        flex: 1 1 180px;
+        text-align: center;
+    }
+
+    .entry-show-card {
+        padding: 24px;
     }
 
     .entry-card-link {
@@ -1070,9 +1327,159 @@
         margin: 12px 0;
     }
 
-    .entry-show-actions a {
-        flex: 1;
+    .report-table {
+        min-width: 700px;
+    }
+
+    .report-list {
+        max-width: none;
+    }
+
+    .graph-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .graph-card {
+        padding: 20px;
+    }
+
+    .graph-container,
+    .graph-container-small {
+        height: 280px;
+    }
+
+    .graph-container-small {
+        max-width: 420px;
+    }
+}
+
+@media (max-width: 600px) {
+    .graph-period-form {
+        flex-direction: column;
+    }
+
+    .graph-period-form input {
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .graph-detail-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .graph-detail-container {
+        height: 320px;
+    }
+
+    .dashboard-actions,
+    .entry-show-actions {
+        flex-direction: column;
+    }
+
+    .dashboard-button,
+    .entry-show-actions a,
+    .graph-header .dashboard-button {
+        width: 100%;
+        box-sizing: border-box;
         text-align: center;
+    }
+
+    .dashboard-profile-card {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-profile-content {
+        min-width: 0;
+    }
+
+    .dashboard-profile-values {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 20px;
+    }
+
+    .dashboard-profile-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .dashboard-profile-button {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .dashboard-progress-card {
+        padding: 20px;
+    }
+
+    .dashboard-progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .dashboard-progress-weight {
+        align-items: flex-start;
+    }
+
+    .dashboard-progress-value {
+        font-size: 2.1rem;
+    }
+
+    .dashboard-progress-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .dashboard-progress-action {
+        align-self: flex-start;
+    }
+
+    .dashboard-milestone-card {
+        align-items: flex-start;
+    }
+
+    .dashboard-card {
+        padding: 18px;
+    }
+
+    .dashboard-card-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .dashboard-card-header h3 {
+        flex-basis: 100%;
+    }
+
+    .dashboard-metrics,
+    .dashboard-sleep-times {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-sleep-duration {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .form-card {
+        padding: 25px 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+    }
+
+    .form-button {
+        width: 100%;
     }
 
     .entry-show-card {
@@ -1082,64 +1489,120 @@
     .entry-show-metrics {
         grid-template-columns: 1fr;
     }
+
+    .entry-card-metrics {
+        flex-wrap: wrap;
+        gap: 8px 16px;
+    }
+
+    .graph-trends {
+        grid-template-columns: 1fr;
+    }
+
+    .graph-card {
+        padding: 18px;
+    }
+
+    .graph-container,
+    .graph-container-small {
+        height: 260px;
+    }
 }
 
-@media (max-width: 600px) {
-    .dashboard {
-        padding: var(--page-padding-mobile);
+@media (max-width: 480px) {
+    :root {
+        --page-padding-mobile: 20px 12px 40px;
     }
 
-    .dashboard-header h1 {
-        font-size: 2rem;
+    .graph-detail-stats {
+        grid-template-columns: 1fr;
     }
 
-    .dashboard-progress-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .graph-detail-container {
+        height: 280px;
     }
 
-    .dashboard-progress-weight {
-        align-items: flex-start;
+    .report-header h1,
+    .dashboard-header h1,
+    .graph-header h1 {
+        font-size: 1.8rem;
     }
 
-    .dashboard-progress-footer {
-        flex-direction: column;
-        gap: 5px;
+    .entry-index-header h1,
+    .entry-show-header h1,
+    .form-header h1 {
+        font-size: 1.7rem;
+    }
+
+    .dashboard-profile-card,
+    .dashboard-milestone-card {
+        padding: 16px;
     }
 
     .dashboard-profile-values {
-        gap: 20px;
-    }
-
-    .dashboard-metrics {
         grid-template-columns: 1fr;
     }
 
-    .dashboard-actions {
-        flex-direction: column;
-    }
-
-    .dashboard-button {
+    .dashboard-card-header a {
+        flex: 1 1 auto;
+        justify-content: center;
         text-align: center;
     }
 
-    .form-page {
-        padding: var(--page-padding-mobile);
+    .dashboard-list-item {
+        flex-direction: column;
+        gap: 6px;
     }
 
-    .form-card {
-        padding: 25px 20px;
+    .dashboard-list-item time,
+    .dashboard-pain {
+        align-self: flex-start;
     }
 
-    .form-grid {
+    .dashboard-sleep-duration strong {
+        font-size: 1.5rem;
+    }
+
+    .summary-grid,
+    .report-stats {
         grid-template-columns: 1fr;
     }
 
-    .form-actions {
-        justify-content: stretch;
+    .report-section h2 {
+        font-size: 1.45rem;
     }
 
-    .form-button {
-        width: 100%;
+    .report-table th,
+    .report-table td {
+        padding: 10px 12px;
+    }
+
+    .entry-card-header {
+        gap: 10px;
+    }
+
+    .entry-card-metrics {
+        flex-direction: column;
+    }
+
+    .entry-show-section {
+        padding-bottom: 20px;
+    }
+
+    .entry-show-section + .entry-show-section {
+        padding-top: 20px;
+    }
+
+    .entry-show-metric {
+        padding: 15px;
+    }
+
+    .graph-card h2 {
+        font-size: 1.15rem;
+    }
+
+    .graph-container,
+    .graph-container-small {
+        height: 240px;
     }
 }

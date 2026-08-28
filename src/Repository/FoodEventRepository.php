@@ -40,28 +40,16 @@ class FoodEventRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //    /**
-    //     * @return FoodEvent[] Returns an array of FoodEvent objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('f.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?FoodEvent
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * @return FoodEvent[]
+     */
+    public function findAllForProfile(Profile $profile): array
+    {
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('f.eatenAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

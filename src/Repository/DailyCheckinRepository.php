@@ -40,28 +40,17 @@ class DailyCheckinRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-//    /**
-//     * @return DailyCheckin[] Returns an array of DailyCheckin objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('d.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?DailyCheckin
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * @return DailyCheckin[]
+     */
+    public function findAllForProfile(Profile $profile): array
+    {
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('d.date', 'ASC')
+            ->addOrderBy('d.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

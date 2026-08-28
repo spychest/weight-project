@@ -1,0 +1,224 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Répartition des repas{% endblock %}
+
+{% block body %}
+    <div class="graph-detail-page">
+        <header class="graph-header">
+            <div>
+                <h1>Répartition des repas</h1>
+                <p>Analyse la répartition de tes différents types de repas.</p>
+            </div>
+
+            <a href="{{ path('app_graph') }}" class="dashboard-button">
+                ← Retour aux graphiques
+            </a>
+        </header>
+
+        <section class="graph-detail-card">
+            <div class="graph-period-form">
+                <div>
+                    <label for="mealStartDate">Du</label>
+                    <input type="date" id="mealStartDate">
+                </div>
+
+                <div>
+                    <label for="mealEndDate">Au</label>
+                    <input type="date" id="mealEndDate">
+                </div>
+            </div>
+
+            <div class="graph-detail-container">
+                <canvas id="mealDetailChart"></canvas>
+            </div>
+
+            <div class="graph-detail-stats">
+                <div>
+                    <span>Repas enregistrés</span>
+                    <strong id="mealTotal">—</strong>
+                </div>
+
+                <div>
+                    <span>Types différents</span>
+                    <strong id="mealTypes">—</strong>
+                </div>
+
+                <div>
+                    <span>Le plus fréquent</span>
+                    <strong id="mealMostFrequent">—</strong>
+                </div>
+
+                <div>
+                    <span>Nombre</span>
+                    <strong id="mealMostFrequentCount">—</strong>
+                </div>
+
+                <div>
+                    <span>Part</span>
+                    <strong id="mealMostFrequentPercentage">—</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const mealData = {{ mealData|json_encode|raw }};
+
+        const startDateInput = document.getElementById('mealStartDate');
+        const endDateInput = document.getElementById('mealEndDate');
+
+        const totalElement = document.getElementById('mealTotal');
+        const typesElement = document.getElementById('mealTypes');
+        const mostFrequentElement = document.getElementById('mealMostFrequent');
+        const mostFrequentCountElement = document.getElementById('mealMostFrequentCount');
+        const mostFrequentPercentageElement = document.getElementById('mealMostFrequentPercentage');
+
+        let mealChart = null;
+
+        function filterData() {
+            return mealData.filter(entry => {
+                if (startDateInput.value && entry.date < startDateInput.value) {
+                    return false;
+                }
+
+                if (endDateInput.value && entry.date > endDateInput.value) {
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        function getDistribution(entries) {
+            const counts = {};
+
+            entries.forEach(entry => {
+                counts[entry.mealType] = (counts[entry.mealType] ?? 0) + 1;
+            });
+
+            return counts;
+        }
+
+        function updateStats(entries, distribution) {
+            const total = entries.length;
+            const types = Object.keys(distribution);
+
+            totalElement.textContent = total;
+            typesElement.textContent = types.length;
+
+            if (total === 0 || types.length === 0) {
+                mostFrequentElement.textContent = '—';
+                mostFrequentCountElement.textContent = '—';
+                mostFrequentPercentageElement.textContent = '—';
+
+                return;
+            }
+
+            let mostFrequentType = null;
+            let mostFrequentCount = 0;
+
+            Object.entries(distribution).forEach(([type, count]) => {
+                if (count > mostFrequentCount) {
+                    mostFrequentType = type;
+                    mostFrequentCount = count;
+                }
+            });
+
+            const percentage = (mostFrequentCount / total) * 100;
+
+            mostFrequentElement.textContent = mostFrequentType;
+            mostFrequentCountElement.textContent = mostFrequentCount;
+            mostFrequentPercentageElement.textContent =
+                `${percentage.toFixed(1).replace('.', ',')} %`;
+        }
+
+        function updateChart() {
+            const entries = filterData();
+            const distribution = getDistribution(entries);
+
+            mealChart.data.labels = Object.keys(distribution);
+            mealChart.data.datasets[0].data = Object.values(distribution);
+
+            mealChart.update();
+
+            updateStats(entries, distribution);
+        }
+
+        function initializeDates() {
+            if (mealData.length === 0) {
+                return;
+            }
+
+            startDateInput.value = mealData[0].date;
+            endDateInput.value = mealData[mealData.length - 1].date;
+        }
+
+        mealChart = new Chart(
+            document.getElementById('mealDetailChart'),
+            {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Repas',
+                            data: [],
+                            backgroundColor: [
+                                '#4e79a7',
+                                '#f28e2b',
+                                '#e15759',
+                                '#76b7b2',
+                                '#59a14f',
+                                '#edc949',
+                                '#af7aa1',
+                                '#ff9da7',
+                                '#9c755f',
+                                '#bab0ab'
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#666'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label(context) {
+                                    const total = context.dataset.data.reduce(
+                                        (sum, value) => sum + value,
+                                        0
+                                    );
+
+                                    const value = context.raw;
+                                    const percentage = total > 0
+                                        ? (value / total) * 100
+                                        : 0;
+
+                                    return `${context.label}: ${value} (${percentage.toFixed(1).replace('.', ',')} %)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        startDateInput.addEventListener('change', updateChart);
+        endDateInput.addEventListener('change', updateChart);
+
+        initializeDates();
+        updateChart();
+    </script>
+{% endblock %}

@@ -1,0 +1,235 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}État quotidien{% endblock %}
+
+{% block body %}
+    <div class="graph-detail-page">
+        <header class="graph-header">
+            <div>
+                <h1>État quotidien</h1>
+                <p>Visualise l'évolution de ton humeur, de ton énergie, de ta frustration et de ta douleur.</p>
+            </div>
+
+            <a href="{{ path('app_graph') }}" class="dashboard-button">
+                ← Retour aux graphiques
+            </a>
+        </header>
+
+        <section class="graph-detail-card">
+            <div class="graph-period-form">
+                <div>
+                    <label for="checkinStartDate">Du</label>
+                    <input type="date" id="checkinStartDate">
+                </div>
+
+                <div>
+                    <label for="checkinEndDate">Au</label>
+                    <input type="date" id="checkinEndDate">
+                </div>
+            </div>
+
+            <div class="graph-detail-container">
+                <canvas id="checkinDetailChart"></canvas>
+            </div>
+
+            <div class="graph-detail-stats">
+                <div>
+                    <span>Humeur moyenne</span>
+                    <strong id="checkinMoodAverage">—</strong>
+                </div>
+
+                <div>
+                    <span>Énergie moyenne</span>
+                    <strong id="checkinEnergyAverage">—</strong>
+                </div>
+
+                <div>
+                    <span>Frustration moyenne</span>
+                    <strong id="checkinFrustrationAverage">—</strong>
+                </div>
+
+                <div>
+                    <span>Douleur moyenne</span>
+                    <strong id="checkinPainAverage">—</strong>
+                </div>
+
+                <div>
+                    <span>Jours renseignés</span>
+                    <strong id="checkinCount">—</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const checkinData = {{ checkinData|json_encode|raw }};
+
+        const startDateInput = document.getElementById('checkinStartDate');
+        const endDateInput = document.getElementById('checkinEndDate');
+
+        const moodAverageElement = document.getElementById('checkinMoodAverage');
+        const energyAverageElement = document.getElementById('checkinEnergyAverage');
+        const frustrationAverageElement = document.getElementById('checkinFrustrationAverage');
+        const painAverageElement = document.getElementById('checkinPainAverage');
+        const countElement = document.getElementById('checkinCount');
+
+        let checkinChart = null;
+
+        function filterData() {
+            return checkinData.filter(entry => {
+                if (startDateInput.value && entry.date < startDateInput.value) {
+                    return false;
+                }
+
+                if (endDateInput.value && entry.date > endDateInput.value) {
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        function calculateAverage(entries, key) {
+            const values = entries
+                .map(entry => entry[key])
+                .filter(value => value !== null);
+
+            if (values.length === 0) {
+                return null;
+            }
+
+            return values.reduce((sum, value) => sum + value, 0) / values.length;
+        }
+
+        function formatAverage(value) {
+            if (value === null) {
+                return '—';
+            }
+
+            return `${value.toFixed(1).replace('.', ',')} / 10`;
+        }
+
+        function updateStats(entries) {
+            countElement.textContent = entries.length;
+
+            moodAverageElement.textContent =
+                formatAverage(calculateAverage(entries, 'mood'));
+
+            energyAverageElement.textContent =
+                formatAverage(calculateAverage(entries, 'energy'));
+
+            frustrationAverageElement.textContent =
+                formatAverage(calculateAverage(entries, 'frustration'));
+
+            painAverageElement.textContent =
+                formatAverage(calculateAverage(entries, 'pain'));
+        }
+
+        function updateChart() {
+            const entries = filterData();
+
+            checkinChart.data.labels =
+                entries.map(entry => entry.label);
+
+            checkinChart.data.datasets[0].data =
+                entries.map(entry => entry.mood);
+
+            checkinChart.data.datasets[1].data =
+                entries.map(entry => entry.energy);
+
+            checkinChart.data.datasets[2].data =
+                entries.map(entry => entry.frustration);
+
+            checkinChart.data.datasets[3].data =
+                entries.map(entry => entry.pain);
+
+            checkinChart.update();
+
+            updateStats(entries);
+        }
+
+        function initializeDates() {
+            if (checkinData.length === 0) {
+                return;
+            }
+
+            startDateInput.value = checkinData[0].date;
+            endDateInput.value = checkinData[checkinData.length - 1].date;
+        }
+
+        checkinChart = new Chart(
+            document.getElementById('checkinDetailChart'),
+            {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Humeur',
+                            data: [],
+                            borderWidth: 2,
+                            tension: 0.25,
+                            fill: false
+                        },
+                        {
+                            label: 'Énergie',
+                            data: [],
+                            borderWidth: 2,
+                            tension: 0.25,
+                            fill: false
+                        },
+                        {
+                            label: 'Frustration',
+                            data: [],
+                            borderWidth: 2,
+                            tension: 0.25,
+                            fill: false
+                        },
+                        {
+                            label: 'Douleur',
+                            data: [],
+                            borderWidth: 2,
+                            tension: 0.25,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 1,
+                            max: 10,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Niveau'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        startDateInput.addEventListener('change', updateChart);
+        endDateInput.addEventListener('change', updateChart);
+
+        initializeDates();
+        updateChart();
+    </script>
+{% endblock %}

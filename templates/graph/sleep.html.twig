@@ -1,0 +1,270 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sommeil{% endblock %}
+
+{% block body %}
+    <div class="graph-detail-page">
+        <header class="graph-header">
+            <div>
+                <h1>Sommeil</h1>
+                <p>Visualise la durée de tes nuits sur la période de ton choix.</p>
+            </div>
+
+            <a href="{{ path('app_graph') }}" class="dashboard-button">
+                ← Retour aux graphiques
+            </a>
+        </header>
+
+        <section class="graph-detail-card">
+            <div class="graph-period-form">
+                <div>
+                    <label for="sleepStartDate">Du</label>
+                    <input type="date" id="sleepStartDate">
+                </div>
+
+                <div>
+                    <label for="sleepEndDate">Au</label>
+                    <input type="date" id="sleepEndDate">
+                </div>
+            </div>
+
+            <div class="graph-detail-container">
+                <canvas id="sleepDetailChart"></canvas>
+            </div>
+
+            <div class="graph-detail-stats">
+                <div>
+                    <span>Moyenne</span>
+                    <strong id="sleepAverage">—</strong>
+                </div>
+
+                <div>
+                    <span>Nuits renseignées</span>
+                    <strong id="sleepCount">—</strong>
+                </div>
+
+                <div>
+                    <span>Minimum</span>
+                    <strong id="sleepMin">—</strong>
+                </div>
+
+                <div>
+                    <span>Maximum</span>
+                    <strong id="sleepMax">—</strong>
+                </div>
+
+                <div>
+                    <span>Écart au repère</span>
+                    <strong id="sleepReferenceDifference">—</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const sleepData = {{ sleepData|json_encode|raw }};
+        const sleepReference = 7;
+
+        const startDateInput = document.getElementById('sleepStartDate');
+        const endDateInput = document.getElementById('sleepEndDate');
+
+        const averageElement = document.getElementById('sleepAverage');
+        const countElement = document.getElementById('sleepCount');
+        const minElement = document.getElementById('sleepMin');
+        const maxElement = document.getElementById('sleepMax');
+        const referenceDifferenceElement = document.getElementById('sleepReferenceDifference');
+
+        let sleepChart = null;
+
+        function formatHours(value) {
+            const hours = Math.floor(value);
+            const minutes = Math.round((value - hours) * 60);
+
+            if (minutes === 60) {
+                return `${hours + 1} h`;
+            }
+
+            if (minutes === 0) {
+                return `${hours} h`;
+            }
+
+            return `${hours} h ${String(minutes).padStart(2, '0')}`;
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function getDailyData() {
+            if (!startDateInput.value || !endDateInput.value) {
+                return [];
+            }
+
+            const durations = {};
+
+            sleepData.forEach(entry => {
+                if (
+                    entry.date >= startDateInput.value &&
+                    entry.date <= endDateInput.value
+                ) {
+                    durations[entry.date] = entry.duration;
+                }
+            });
+
+            const result = [];
+
+            const currentDate = new Date(`${startDateInput.value}T00:00:00`);
+            const endDate = new Date(`${endDateInput.value}T00:00:00`);
+
+            while (currentDate <= endDate) {
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const day = String(currentDate.getDate()).padStart(2, '0');
+
+                const key = `${year}-${month}-${day}`;
+
+                result.push({
+                    date: key,
+                    label: formatDate(currentDate),
+                    duration: durations[key] ?? null
+                });
+
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            return result;
+        }
+
+        function updateStats(entries) {
+            const durations = entries
+                .filter(entry => entry.duration !== null)
+                .map(entry => entry.duration);
+
+            countElement.textContent = durations.length;
+
+            if (durations.length === 0) {
+                averageElement.textContent = '—';
+                minElement.textContent = '—';
+                maxElement.textContent = '—';
+                referenceDifferenceElement.textContent = '—';
+
+                return;
+            }
+
+            const total = durations.reduce((sum, duration) => sum + duration, 0);
+            const average = total / durations.length;
+
+            averageElement.textContent = formatHours(average);
+            minElement.textContent = formatHours(Math.min(...durations));
+            maxElement.textContent = formatHours(Math.max(...durations));
+
+            const difference = average - sleepReference;
+
+            if (Math.abs(difference) < 0.01) {
+                referenceDifferenceElement.textContent = '0 h';
+                return;
+            }
+
+            referenceDifferenceElement.textContent =
+                `${difference > 0 ? '+' : '-'}${formatHours(Math.abs(difference))}`;
+        }
+
+        function updateChart() {
+            const entries = getDailyData();
+
+            sleepChart.data.labels =
+                entries.map(entry => entry.label);
+
+            sleepChart.data.datasets[0].data =
+                entries.map(entry => entry.duration);
+
+            sleepChart.data.datasets[1].data =
+                entries.map(() => sleepReference);
+
+            sleepChart.update();
+
+            updateStats(entries);
+        }
+
+        function initializeDates() {
+            if (sleepData.length === 0) {
+                return;
+            }
+
+            startDateInput.value = sleepData[0].date;
+            endDateInput.value = sleepData[sleepData.length - 1].date;
+        }
+
+        sleepChart = new Chart(
+            document.getElementById('sleepDetailChart'),
+            {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Durée du sommeil',
+                            data: [],
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Repère : 7 h',
+                            type: 'line',
+                            data: [],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label(context) {
+                                    if (context.raw === null) {
+                                        return '';
+                                    }
+
+                                    return `${context.dataset.label}: ${formatHours(context.raw)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Durée (heures)'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        startDateInput.addEventListener('change', updateChart);
+        endDateInput.addEventListener('change', updateChart);
+
+        initializeDates();
+        updateChart();
+    </script>
+{% endblock %}

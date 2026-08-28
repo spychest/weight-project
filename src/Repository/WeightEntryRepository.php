@@ -50,28 +50,13 @@ class WeightEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //    /**
-    //     * @return WeightEntry[] Returns an array of WeightEntry objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('w')
-    //            ->andWhere('w.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('w.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?WeightEntry
-    //    {
-    //        return $this->createQueryBuilder('w')
-    //            ->andWhere('w.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findAllForProfile(Profile $profile): array
+    {
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('w.measuredAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

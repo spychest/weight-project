@@ -1,0 +1,388 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Graphiques{% endblock %}
+
+{% block body %}
+    <div class="graph-page">
+        <header class="graph-header">
+            <div>
+                <h1>Graphiques</h1>
+                <p>Visualise l'évolution de tes différentes données.</p>
+            </div>
+
+            <a href="{{ path('app_dashboard') }}" class="dashboard-button">
+                ← Retour au dashboard
+            </a>
+        </header>
+
+        <div class="graph-grid">
+            <section class="graph-card">
+                <div class="graph-card-header">
+                    <h2>Évolution du poids</h2>
+
+                    <a href="{{ path('app_graph_weight') }}" class="graph-detail-link">
+                        Détails →
+                    </a>
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+
+                <div class="graph-trends">
+                    <div>
+                        <span>4 semaines</span>
+
+                        {% if weightGraphData.trends.fourWeeks is not null %}
+                            <strong>
+                                {{ weightGraphData.trends.fourWeeks > 0 ? '+' : '' }}{{ weightGraphData.trends.fourWeeks }} kg/sem.
+                            </strong>
+                        {% else %}
+                            <strong>—</strong>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <span>8 semaines</span>
+
+                        {% if weightGraphData.trends.eightWeeks is not null %}
+                            <strong>
+                                {{ weightGraphData.trends.eightWeeks > 0 ? '+' : '' }}{{ weightGraphData.trends.eightWeeks }} kg/sem.
+                            </strong>
+                        {% else %}
+                            <strong>—</strong>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <span>Depuis le début</span>
+
+                        {% if weightGraphData.trends.all is not null %}
+                            <strong>
+                                {{ weightGraphData.trends.all > 0 ? '+' : '' }}{{ weightGraphData.trends.all }} kg/sem.
+                            </strong>
+                        {% else %}
+                            <strong>—</strong>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="graph-card">
+                <div class="graph-card-header">
+                    <h2>Hydratation</h2>
+
+                    <a href="{{ path('app_graph_hydration') }}" class="graph-detail-link">
+                        Détails →
+                    </a>
+                </div>
+                <div class="graph-container">
+                    <canvas id="hydrationChart"></canvas>
+                </div>
+            </section>
+
+            <section class="graph-card">
+                <div class="graph-card-header">
+                    <h2>Sommeil</h2>
+
+                    <a href="{{ path('app_graph_sleep') }}" class="graph-detail-link">
+                        Détails →
+                    </a>
+                </div>
+                <div class="graph-container">
+                    <canvas id="sleepChart"></canvas>
+                </div>
+            </section>
+
+            <section class="graph-card">
+                <div class="graph-card-header">
+                    <h2>Répartition des repas</h2>
+
+                    <a href="{{ path('app_graph_meal') }}" class="graph-detail-link">
+                        Détails →
+                    </a>
+                </div>
+                <div class="graph-container">
+                    <canvas id="mealTypeChart"></canvas>
+                </div>
+            </section>
+
+            <section class="graph-card">
+                <div class="graph-card-header">
+                    <h2>État quotidien</h2>
+
+                    <a href="{{ path('app_graph_checkin') }}" class="graph-detail-link">
+                        Détails →
+                    </a>
+                </div>
+                <div class="graph-container">
+                    <canvas id="dailyCheckinChart"></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const labels = {{ weightGraphData.labels|json_encode|raw }};
+        const weights = {{ weightGraphData.weights|json_encode|raw }};
+        const milestone = {{ weightGraphData.milestone|json_encode|raw }};
+        const milestoneTitle = {{ weightGraphData.milestoneTitle|json_encode|raw }};
+
+        const datasets = [
+            {
+                label: 'Poids',
+                data: weights,
+                borderWidth: 2,
+                tension: 0.25,
+                fill: false,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }
+        ];
+
+        if (milestone !== null) {
+            datasets.push({
+                label: milestoneTitle + ' (' + milestone + ' kg)',
+                data: labels.map(() => milestone),
+                borderWidth: 2,
+                borderDash: [8, 6],
+                pointRadius: 0,
+                fill: false
+            });
+        }
+
+        new Chart(document.getElementById('weightChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Poids (kg)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        const hydrationLabels = {{ hydrationGraphData.labels|json_encode|raw }};
+        const hydrationQuantities = {{ hydrationGraphData.quantities|json_encode|raw }};
+        const hydrationReference = {{ hydrationGraphData.reference }};
+
+        new Chart(document.getElementById('hydrationChart'), {
+            type: 'bar',
+            data: {
+                labels: hydrationLabels,
+                datasets: [
+                    {
+                        label: 'Hydratation (ml)',
+                        data: hydrationQuantities
+                    },
+                    {
+                        type: 'line',
+                        label: 'Repère : 2,5 L/jour',
+                        data: hydrationLabels.map(() => hydrationReference),
+                        borderWidth: 2,
+                        borderDash: [8, 6],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantité (ml)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        const sleepLabels = {{ sleepGraphData.labels|json_encode|raw }};
+        const sleepDurations = {{ sleepGraphData.durations|json_encode|raw }};
+        const sleepReference = {{ sleepGraphData.reference }};
+
+        new Chart(document.getElementById('sleepChart'), {
+            type: 'bar',
+            data: {
+                labels: sleepLabels,
+                datasets: [
+                    {
+                        label: 'Durée de sommeil',
+                        data: sleepDurations
+                    },
+                    {
+                        type: 'line',
+                        label: 'Repère : 7 h',
+                        data: sleepLabels.map(() => sleepReference),
+                        borderWidth: 2,
+                        borderDash: [8, 6],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 10,
+                        title: {
+                            display: true,
+                            text: 'Durée (heures)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        const mealTypeLabels = {{ mealTypeGraphData.labels|json_encode|raw }};
+        const mealTypeValues = {{ mealTypeGraphData.values|json_encode|raw }};
+
+        new Chart(document.getElementById('mealTypeChart'), {
+            type: 'pie',
+            data: {
+                labels: mealTypeLabels,
+                datasets: [
+                    {
+                        data: mealTypeValues
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        const checkinLabels = {{ dailyCheckinGraphData.labels|json_encode|raw }};
+        const moodData = {{ dailyCheckinGraphData.mood|json_encode|raw }};
+        const energyData = {{ dailyCheckinGraphData.energy|json_encode|raw }};
+        const frustrationData = {{ dailyCheckinGraphData.frustration|json_encode|raw }};
+        const painData = {{ dailyCheckinGraphData.pain|json_encode|raw }};
+
+        new Chart(document.getElementById('dailyCheckinChart'), {
+            type: 'line',
+            data: {
+                labels: checkinLabels,
+                datasets: [
+                    {
+                        label: 'Humeur',
+                        data: moodData,
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: 3,
+                        fill: false
+                    },
+                    {
+                        label: 'Énergie',
+                        data: energyData,
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: 3,
+                        fill: false
+                    },
+                    {
+                        label: 'Frustration',
+                        data: frustrationData,
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: 3,
+                        fill: false
+                    },
+                    {
+                        label: 'Douleur',
+                        data: painData,
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: 3,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 10,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        title: {
+                            display: true,
+                            text: 'Niveau'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

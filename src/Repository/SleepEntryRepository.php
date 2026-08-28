@@ -40,28 +40,15 @@ class SleepEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //    /**
-    //     * @return SleepEntry[] Returns an array of SleepEntry objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?SleepEntry
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /** @return SleepEntry[] */
+    public function findAllForProfile(Profile $profile): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('s.date', 'ASC')
+            ->addOrderBy('s.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
