@@ -63,4 +63,25 @@ final class ProfileRequiredRoutesTest extends WebTestCase
         self::assertSelectorExists('.public-page-navigation');
     }
 
+    #[Test]
+    public function googleCallbackUsesTheOriginalHttpsUrlBehindATrustedProxy(): void
+    {
+        $browser = self::createClient([], [
+            'REMOTE_ADDR' => '127.0.0.1',
+            'HTTP_HOST' => 'weight.spychest.fr',
+            'HTTP_X_FORWARDED_HOST' => 'weight.spychest.fr',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTP_X_FORWARDED_PORT' => '443',
+        ]);
+
+        $browser->request('GET', '/connect/google');
+
+        self::assertResponseRedirects();
+        $googleAuthorizationUrl = (string) $browser->getResponse()->headers->get('Location');
+        self::assertStringContainsString(
+            'redirect_uri=https%3A%2F%2Fweight.spychest.fr%2Fconnect%2Fgoogle%2Fcheck',
+            $googleAuthorizationUrl,
+        );
+    }
+
 }
