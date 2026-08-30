@@ -4,5 +4,7 @@ knpu_oauth2_client:
             type: google
             client_id: '%env(GOOGLE_CLIENT_ID)%'
             client_secret: '%env(GOOGLE_CLIENT_SECRET)%'
-            redirect_route: app_google_check
+            # An absolute URL avoids losing the original HTTPS scheme when the
+            # application is reached through multiple reverse proxies.
+            redirect_route: '%env(GOOGLE_REDIRECT_URI)%'
             redirect_params: {}
