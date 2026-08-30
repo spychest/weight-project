@@ -16,14 +16,14 @@ final class DrinkEntryController extends AbstractController
 {
     #[Route('/drink/new', name: 'app_drink_new')]
     #[Route('/drink/new/{id}', name: 'app_drink_edit')]
-    public function new(
+    public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
-        ?DrinkEntry $drinkEntry = null
+        ?DrinkEntry $drinkEntry = null,
     ): Response {
-        $editMod = true;
-        if($drinkEntry === null){
-            $editMod = false;
+        $isEditMode = $drinkEntry !== null;
+
+        if ($drinkEntry === null) {
             $profile = $entityManager
                 ->getRepository(Profile::class)
                 ->findOneBy([]);
@@ -35,7 +35,6 @@ final class DrinkEntryController extends AbstractController
                 ->setDate(new \DateTimeImmutable());
         }
 
-
         $form = $this->createForm(DrinkEntryType::class, $drinkEntry);
 
         $form->handleRequest($request);
@@ -44,9 +43,10 @@ final class DrinkEntryController extends AbstractController
 
             $entityManager->persist($drinkEntry);
             $entityManager->flush();
-            if($editMod !== true) {
+            if (!$isEditMode) {
                 return $this->redirectToRoute('app_dashboard');
             }
+
             return $this->redirectToRoute('app_drink_index');
         }
 

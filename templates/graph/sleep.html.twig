@@ -2,6 +2,8 @@
 
 {% block title %}Sommeil{% endblock %}
 
+{% block javascripts %}{{ importmap('charts') }}{% endblock %}
+
 {% block body %}
     <div class="graph-detail-page">
         <header class="graph-header">
@@ -61,9 +63,10 @@
         </section>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        import { Chart, registerables } from 'chart.js';
+        Chart.register(...registerables);
 
-    <script>
         const sleepData = {{ sleepData|json_encode|raw }};
         const sleepReference = 7;
 

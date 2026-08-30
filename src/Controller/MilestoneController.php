@@ -14,14 +14,14 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MilestoneController extends AbstractController
 {
     #[Route('/milestone/new', name: 'app_milestone_new')]
-    public function new(
+    public function create(
         Request $request,
         EntityManagerInterface $entityManager,
         ProfileRepository $profileRepository,
     ): Response {
         $profile = $profileRepository->findFirstProfile();
 
-        if (!$profile) {
+        if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');
         }
 

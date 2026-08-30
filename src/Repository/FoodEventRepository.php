@@ -52,4 +52,17 @@ class FoodEventRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return FoodEvent[] */
+    public function findRecentForProfile(Profile $profile, int $maximumResults): array
+    {
+        return $this->createQueryBuilder('foodEvent')
+            ->andWhere('foodEvent.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('foodEvent.eatenAt', 'DESC')
+            ->addOrderBy('foodEvent.id', 'DESC')
+            ->setMaxResults($maximumResults)
+            ->getQuery()
+            ->getResult();
+    }
 }

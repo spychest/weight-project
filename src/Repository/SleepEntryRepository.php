@@ -51,4 +51,16 @@ class SleepEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findLatestForProfile(Profile $profile): ?SleepEntry
+    {
+        return $this->createQueryBuilder('sleepEntry')
+            ->andWhere('sleepEntry.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('sleepEntry.date', 'DESC')
+            ->addOrderBy('sleepEntry.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

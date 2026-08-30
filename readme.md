@@ -84,6 +84,13 @@ docker compose up -d \
 Une fois ceci effectué, vous pouvez vous rendre sur l'adresse localhost au port que vous avez défini dans le fichier `.env`.
 >Note : Si vous avez conservé le fichier `.env` en exemple, vous pouvez vous rendre sur [localhost:8080](http://localhost:8080)
 
+Par défaut, le conteneur web utilise l'environnement Symfony `prod` afin d'obtenir de meilleurs temps d'affichage. Pour lancer temporairement l'application en mode développement, ajoutez ces variables dans `.env.local`, puis recréez le conteneur PHP :
+
+```dotenv
+APP_RUNTIME_ENV=dev
+APP_RUNTIME_DEBUG=1
+```
+
 ### Astuce
 Maintenant que le projet a été lancé une première fois et si vous avez 
 conservé le fichier `.env` en exemple, vous pouvez maintenant lancer le 

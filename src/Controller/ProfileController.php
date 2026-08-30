@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ProfileController extends AbstractController
 {
     #[Route('/profile/new', name: 'app_profile_new')]
-    public function new(
+    public function create(
         Request $request,
         EntityManagerInterface $entityManager,
     ): Response {

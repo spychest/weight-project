@@ -16,14 +16,14 @@ final class FoodEventController extends AbstractController
 {
     #[Route('/food/new', name: 'app_food_new')]
     #[Route('/food/new/{id}', name: 'app_food_edit')]
-    public function new(
+    public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
-        ?FoodEvent $foodEvent = null
+        ?FoodEvent $foodEvent = null,
     ): Response {
-        $editMod = true;
-        if($foodEvent == null){
-            $editMod = false;
+        $isEditMode = $foodEvent !== null;
+
+        if ($foodEvent === null) {
             $profile = $entityManager
                 ->getRepository(Profile::class)
                 ->findOneBy([]);
@@ -35,7 +35,6 @@ final class FoodEventController extends AbstractController
                 ->setEatenAt(new \DateTimeImmutable());
         }
 
-
         $form = $this->createForm(FoodEventType::class, $foodEvent);
 
         $form->handleRequest($request);
@@ -45,7 +44,7 @@ final class FoodEventController extends AbstractController
             $entityManager->persist($foodEvent);
             $entityManager->flush();
 
-            if($editMod !== false) {
+            if ($isEditMode) {
                 return $this->redirectToRoute('app_food_index');
             }
 
@@ -54,7 +53,7 @@ final class FoodEventController extends AbstractController
 
         return $this->render('food_event/new.html.twig', [
             'form' => $form,
-            'editMod' => $editMod,
+            'editMod' => $isEditMode,
         ]);
     }
 

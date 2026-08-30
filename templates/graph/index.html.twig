@@ -2,6 +2,8 @@
 
 {% block title %}Graphiques{% endblock %}
 
+{% block javascripts %}{{ importmap('charts') }}{% endblock %}
+
 {% block body %}
     <div class="graph-page">
         <header class="graph-header">
@@ -122,9 +124,10 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        import { Chart, registerables } from 'chart.js';
+        Chart.register(...registerables);
 
-    <script>
         const labels = {{ weightGraphData.labels|json_encode|raw }};
         const weights = {{ weightGraphData.weights|json_encode|raw }};
         const milestone = {{ weightGraphData.milestone|json_encode|raw }};
@@ -183,7 +186,10 @@
             }
         });
     </script>
-    <script>
+    <script type="module">
+        import { Chart, registerables } from 'chart.js';
+        Chart.register(...registerables);
+
         const hydrationLabels = {{ hydrationGraphData.labels|json_encode|raw }};
         const hydrationQuantities = {{ hydrationGraphData.quantities|json_encode|raw }};
         const hydrationReference = {{ hydrationGraphData.reference }};
@@ -233,7 +239,10 @@
             }
         });
     </script>
-    <script>
+    <script type="module">
+        import { Chart, registerables } from 'chart.js';
+        Chart.register(...registerables);
+
         const sleepLabels = {{ sleepGraphData.labels|json_encode|raw }};
         const sleepDurations = {{ sleepGraphData.durations|json_encode|raw }};
         const sleepReference = {{ sleepGraphData.reference }};
@@ -284,7 +293,10 @@
             }
         });
     </script>
-    <script>
+    <script type="module">
+        import { Chart, registerables } from 'chart.js';
+        Chart.register(...registerables);
+
         const mealTypeLabels = {{ mealTypeGraphData.labels|json_encode|raw }};
         const mealTypeValues = {{ mealTypeGraphData.values|json_encode|raw }};
 
@@ -310,7 +322,10 @@
             }
         });
     </script>
-    <script>
+    <script type="module">
+        import { Chart, registerables } from 'chart.js';
+        Chart.register(...registerables);
+
         const checkinLabels = {{ dailyCheckinGraphData.labels|json_encode|raw }};
         const moodData = {{ dailyCheckinGraphData.mood|json_encode|raw }};
         const energyData = {{ dailyCheckinGraphData.energy|json_encode|raw }};

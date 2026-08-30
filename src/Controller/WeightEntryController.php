@@ -16,16 +16,15 @@ final class WeightEntryController extends AbstractController
 {
     #[Route('/weight/new', name: 'app_weight_new')]
     #[Route('/weight/new/{id}', name: 'app_weight_edit')]
-    public function new(
+    public function createOrEdit(
         Request $request,
         ProfileRepository $profileRepository,
         EntityManagerInterface $entityManager,
-        ?WeightEntry $weightEntry = null
+        ?WeightEntry $weightEntry = null,
     ): Response {
-        $editMod = true;
-        if($weightEntry == null){
-            $editMod = false;
+        $isEditMode = $weightEntry !== null;
 
+        if ($weightEntry === null) {
             $weightEntry = new WeightEntry();
         }
 
@@ -37,8 +36,8 @@ final class WeightEntryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if($editMod === false){
-                $profile = $profileRepository->findOneBy([]);
+            if (!$isEditMode) {
+                $profile = $profileRepository->findFirstProfile();
 
                 if ($profile === null) {
                     throw new \LogicException('No profile configured.');
@@ -49,15 +48,12 @@ final class WeightEntryController extends AbstractController
             $entityManager->persist($weightEntry);
             $entityManager->flush();
 
-            if($editMod !== true) {
-                return $this->redirectToRoute('app_dashboard');
-            }
             return $this->redirectToRoute('app_dashboard');
         }
 
         return $this->render('weight_entry/new.html.twig', [
             'form' => $form,
-            'editMod' => $editMod,
+            'editMod' => $isEditMode,
         ]);
     }
 
@@ -74,7 +70,8 @@ final class WeightEntryController extends AbstractController
     }
 
     #[Route('/weight/show/{id}', name: 'app_weight_show')]
-    public function show(WeightEntry $weightEntry):Response{
+    public function show(WeightEntry $weightEntry): Response
+    {
         return $this->render('weight_entry/show.html.twig', [
             'weightEntry' => $weightEntry,
         ]);

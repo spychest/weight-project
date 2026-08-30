@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Activity;
-use App\Entity\Profile;
 use App\Form\ActivityType;
+use App\Repository\ProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,13 +14,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ActivityController extends AbstractController
 {
     #[Route('/activity/new', name: 'app_activity_new')]
-    public function new(
+    public function create(
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        ProfileRepository $profileRepository,
     ): Response {
-        $profile = $entityManager
-            ->getRepository(Profile::class)
-            ->findOneBy([]);
+        $profile = $profileRepository->findFirstProfile();
+
+        if ($profile === null) {
+            return $this->redirectToRoute('app_profile_new');
+        }
 
         $activity = new Activity();
 

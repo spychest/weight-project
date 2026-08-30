@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: WeightEntryRepository::class)]
+#[ORM\Index(name: 'idx_weight_entry_profile_date', columns: ['profile_id', 'measured_at'])]
 class WeightEntry
 {
     #[ORM\Id]

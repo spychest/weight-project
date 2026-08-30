@@ -8,10 +8,14 @@ use App\DTO\DrinkEntryData;
 use App\DTO\FoodEventData;
 use App\DTO\MilestoneData;
 use App\Entity\Activity;
+use App\Entity\DailyCheckin;
+use App\Entity\DrinkEntry;
+use App\Entity\FoodEvent;
+use App\Entity\Profile;
+use App\Entity\SleepEntry;
 use App\Repository\DailyCheckinRepository;
 use App\Repository\DrinkEntryRepository;
 use App\Repository\FoodEventRepository;
-use App\Repository\ProfileRepository;
 use App\Repository\WeightEntryRepository;
 use App\Service\Milestone\MilestoneService;
 use App\DTO\SleepEntryData;
@@ -22,7 +26,6 @@ use App\Repository\ActivityRepository;
 final readonly class DashboardService
 {
     public function __construct(
-        private ProfileRepository $profileRepository,
         private WeightEntryRepository $weightEntryRepository,
         private MilestoneService $milestoneService,
         private FoodEventRepository $foodEventRepository,
@@ -30,18 +33,11 @@ final readonly class DashboardService
         private DailyCheckinRepository $dailyCheckinRepository,
         private SleepEntryRepository $sleepEntryRepository,
         private ActivityRepository $activityRepository,
-    )
-    {
+    ) {
     }
 
-    public function getDashboard(): DashboardData
+    public function getDashboardForProfile(Profile $profile): DashboardData
     {
-        $profile = $this->profileRepository->findOneBy([]);
-
-        if(null === $profile) {
-            throw new \LogicException('No profile found.');
-        }
-
         $latestWeightEntry = $this->weightEntryRepository->findLatestForProfile($profile);
 
         $lostWeight = 0;
@@ -52,131 +48,58 @@ final readonly class DashboardService
 
         if ($currentWeight !== null) {
             $lostWeight = $profile->getStartingWeight() - $currentWeight;
-        }
-
-        if ($currentWeight !== null) {
             $remainingWeight = $currentWeight - $profile->getTargetWeight();
-        }
+            $totalWeightToLose = $profile->getStartingWeight() - $profile->getTargetWeight();
 
-        if ($currentWeight !== null) {
-            $totalToLose = $profile->getStartingWeight() - $profile->getTargetWeight();
-
-            $progressPercentage = ($lostWeight / $totalToLose) * 100;
+            $progressPercentage = ($lostWeight / $totalWeightToLose) * 100;
         }
 
         $nextMilestone = null;
 
         if ($currentWeight !== null) {
-            $milestone = $this->milestoneService->findNextMilestone(
+            $nextMilestoneEntity = $this->milestoneService->findNextMilestone(
                 $profile,
-                $currentWeight
+                $currentWeight,
             );
 
-            if ($milestone !== null) {
+            if ($nextMilestoneEntity !== null) {
                 $nextMilestone = new MilestoneData(
-                    title: $milestone->getTitle(),
-                    description: $milestone->getDescription(),
-                    targetValue: $milestone->getTargetValue(),
-                    remainingWeight: $currentWeight - $milestone->getTargetValue(),
+                    title: $nextMilestoneEntity->getTitle(),
+                    description: $nextMilestoneEntity->getDescription(),
+                    targetValue: $nextMilestoneEntity->getTargetValue(),
+                    remainingWeight: $currentWeight - $nextMilestoneEntity->getTargetValue(),
                 );
             }
         }
 
-        $recentMeals = $this->foodEventRepository
-            ->findBy(
-                [],
-                ['eatenAt' => 'DESC'],
-                5
-            );
-
-        $recentMeals = array_map(
-            fn ($foodEvent) => new FoodEventData(
+        $recentMealData = array_map(
+            static fn (FoodEvent $foodEvent): FoodEventData => new FoodEventData(
                 $foodEvent->getMealType(),
                 $foodEvent->getEatenAt(),
                 $foodEvent->getDescription(),
                 $foodEvent->getHungerLevel(),
                 $foodEvent->getPleasureLevel(),
             ),
-            $recentMeals
+            $this->foodEventRepository->findRecentForProfile($profile, 5),
         );
 
-        $recentDrinks = $this->drinkEntryRepository
-            ->findBy(
-                [],
-                ['date' => 'DESC'],
-                5
-            );
-
-        $recentDrinks = array_map(
-            fn ($drink) => new DrinkEntryData(
-                $drink->getDrinkType(),
-                $drink->getQuantity(),
-                $drink->getDate(),
-                $drink->getDescription(),
+        $recentDrinkData = array_map(
+            static fn (DrinkEntry $drinkEntry): DrinkEntryData => new DrinkEntryData(
+                $drinkEntry->getDrinkType(),
+                $drinkEntry->getQuantity(),
+                $drinkEntry->getDate(),
+                $drinkEntry->getDescription(),
             ),
-            $recentDrinks
+            $this->drinkEntryRepository->findRecentForProfile($profile, 5),
         );
 
-        $dailyCheckin = $this->dailyCheckinRepository
-            ->findOneBy(
-                [],
-                [
-                    'date' => 'DESC'
-                ]
-            );
+        $latestDailyCheckin = $this->dailyCheckinRepository->findLatestForProfile($profile);
+        $latestDailyCheckinData = $this->createDailyCheckinData($latestDailyCheckin);
 
-        $dailyCheckinData = null;
+        $latestSleepEntry = $this->sleepEntryRepository->findLatestForProfile($profile);
+        $latestSleepEntryData = $this->createSleepEntryData($latestSleepEntry);
 
-        if ($dailyCheckin) {
-            $dailyCheckinData = new DailyCheckinData(
-                $dailyCheckin->getDate(),
-                $dailyCheckin->getMoodLevel(),
-                $dailyCheckin->getEnergyLevel(),
-                $dailyCheckin->getFrustrationLevel(),
-                $dailyCheckin->getPainLevel(),
-                $dailyCheckin->getNote(),
-            );
-        }
-
-        $sleepEntry = $this->sleepEntryRepository
-            ->findOneBy(
-                [],
-                ['date' => 'DESC']
-            );
-
-        $sleepEntryData = null;
-
-        if ($sleepEntry) {
-            $bedTime = $sleepEntry->getBedTime();
-            $wakeUpTime = $sleepEntry->getWakeUpTime();
-
-            $bedMinutes = ((int) $bedTime->format('H') * 60)
-                + (int) $bedTime->format('i');
-
-            $wakeUpMinutes = ((int) $wakeUpTime->format('H') * 60)
-                + (int) $wakeUpTime->format('i');
-
-            if ($wakeUpMinutes < $bedMinutes) {
-                $wakeUpMinutes += 24 * 60;
-            }
-
-            $durationMinutes = $wakeUpMinutes - $bedMinutes;
-
-            $sleepEntryData = new SleepEntryData(
-                $sleepEntry->getDate(),
-                $bedTime,
-                $wakeUpTime,
-                $sleepEntry->getQuality(),
-                $sleepEntry->getNote(),
-                $durationMinutes,
-            );
-        }
-
-        $activities = $this->activityRepository->findBy(
-            [],
-            ['date' => 'DESC'],
-            5
-        );
+        $recentActivityEntities = $this->activityRepository->findRecentForProfile($profile, 5);
 
         $recentActivities = array_map(
             static function (Activity $activity): ActivityData {
@@ -187,11 +110,11 @@ final readonly class DashboardService
                     $activity->getNote(),
                 );
             },
-            $activities
+            $recentActivityEntities,
         );
 
-        $imc = round($profile->getStartingWeight() / ($profile->getHeight() / 100) ** 2,2);
-        $targetImc = round($profile->getTargetWeight() / ($profile->getHeight() / 100) ** 2,2);
+        $startingBodyMassIndex = $this->calculateBodyMassIndex($profile, $profile->getStartingWeight());
+        $targetBodyMassIndex = $this->calculateBodyMassIndex($profile, $profile->getTargetWeight());
 
         return new DashboardData(
             height: $profile->getHeight(),
@@ -203,13 +126,61 @@ final readonly class DashboardService
             remainingWeight: $remainingWeight,
             progressPercentage: $progressPercentage,
             nextMilestone: $nextMilestone,
-            recentMeals: $recentMeals,
-            recentDrinks: $recentDrinks,
-            dailyCheckin: $dailyCheckinData,
-            sleep: $sleepEntryData,
+            recentMeals: $recentMealData,
+            recentDrinks: $recentDrinkData,
+            dailyCheckin: $latestDailyCheckinData,
+            sleep: $latestSleepEntryData,
             recentActivities: $recentActivities,
-            imc: $imc,
-            targetImc: $targetImc,
+            imc: $startingBodyMassIndex,
+            targetImc: $targetBodyMassIndex,
         );
+    }
+
+    private function createDailyCheckinData(?DailyCheckin $dailyCheckin): ?DailyCheckinData
+    {
+        if ($dailyCheckin === null) {
+            return null;
+        }
+
+        return new DailyCheckinData(
+            $dailyCheckin->getDate(),
+            $dailyCheckin->getMoodLevel(),
+            $dailyCheckin->getEnergyLevel(),
+            $dailyCheckin->getFrustrationLevel(),
+            $dailyCheckin->getPainLevel(),
+            $dailyCheckin->getNote(),
+        );
+    }
+
+    private function createSleepEntryData(?SleepEntry $sleepEntry): ?SleepEntryData
+    {
+        if ($sleepEntry === null) {
+            return null;
+        }
+
+        $bedTime = $sleepEntry->getBedTime();
+        $wakeUpTime = $sleepEntry->getWakeUpTime();
+        $bedTimeInMinutes = ((int) $bedTime->format('H') * 60) + (int) $bedTime->format('i');
+        $wakeUpTimeInMinutes = ((int) $wakeUpTime->format('H') * 60) + (int) $wakeUpTime->format('i');
+
+        if ($wakeUpTimeInMinutes < $bedTimeInMinutes) {
+            $wakeUpTimeInMinutes += 24 * 60;
+        }
+
+        return new SleepEntryData(
+            $sleepEntry->getDate(),
+            $bedTime,
+            $wakeUpTime,
+            $sleepEntry->getQuality(),
+            $sleepEntry->getNote(),
+            $wakeUpTimeInMinutes - $bedTimeInMinutes,
+        );
+    }
+
+    private function calculateBodyMassIndex(Profile $profile, float $weight): float
+    {
+        $heightInMeters = $profile->getHeight() / 100;
+
+        return round($weight / $heightInMeters ** 2, 2);
     }
 }

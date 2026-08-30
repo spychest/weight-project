@@ -51,4 +51,17 @@ class DrinkEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return DrinkEntry[] */
+    public function findRecentForProfile(Profile $profile, int $maximumResults): array
+    {
+        return $this->createQueryBuilder('drinkEntry')
+            ->andWhere('drinkEntry.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('drinkEntry.date', 'DESC')
+            ->addOrderBy('drinkEntry.id', 'DESC')
+            ->setMaxResults($maximumResults)
+            ->getQuery()
+            ->getResult();
+    }
 }

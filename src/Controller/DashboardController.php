@@ -21,14 +21,14 @@ final class DashboardController extends AbstractController
         DashboardService $dashboardService,
         ProfileRepository $profileRepository,
     ): Response {
-        $profile = $profileRepository->findOneBy([]);
+        $profile = $profileRepository->findFirstProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');
         }
 
         return $this->render('dashboard/index.html.twig', [
-            'dashboard' => $dashboardService->getDashboard(),
+            'dashboard' => $dashboardService->getDashboardForProfile($profile),
         ]);
     }
 }

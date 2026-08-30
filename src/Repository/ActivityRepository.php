@@ -40,28 +40,16 @@ class ActivityRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //    /**
-    //     * @return Activity[] Returns an array of Activity objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Activity
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /** @return Activity[] */
+    public function findRecentForProfile(Profile $profile, int $maximumResults): array
+    {
+        return $this->createQueryBuilder('activity')
+            ->andWhere('activity.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('activity.date', 'DESC')
+            ->addOrderBy('activity.id', 'DESC')
+            ->setMaxResults($maximumResults)
+            ->getQuery()
+            ->getResult();
+    }
 }

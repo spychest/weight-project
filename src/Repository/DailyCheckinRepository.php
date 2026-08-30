@@ -53,4 +53,16 @@ class DailyCheckinRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findLatestForProfile(Profile $profile): ?DailyCheckin
+    {
+        return $this->createQueryBuilder('dailyCheckin')
+            ->andWhere('dailyCheckin.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('dailyCheckin.date', 'DESC')
+            ->addOrderBy('dailyCheckin.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

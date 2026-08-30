@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SleepEntryRepository::class)]
+#[ORM\Index(name: 'idx_sleep_entry_profile_date', columns: ['profile_id', 'date'])]
 class SleepEntry
 {
     #[ORM\Id]

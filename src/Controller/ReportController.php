@@ -21,19 +21,23 @@ final class ReportController extends AbstractController
         ProfileRepository $profileRepository,
         PeriodReportService $periodReportService
     ): Response {
-        $form = $this->createForm(ReportPeriodType::class);
+        $reportPeriodForm = $this->createForm(ReportPeriodType::class);
 
-        $form->handleRequest($request);
+        $reportPeriodForm->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
+        if ($reportPeriodForm->isSubmitted() && $reportPeriodForm->isValid()) {
+            $reportPeriod = $reportPeriodForm->getData();
 
-            $profile = $profileRepository->findOneBy([]);
+            $profile = $profileRepository->findFirstProfile();
+
+            if ($profile === null) {
+                return $this->redirectToRoute('app_profile_new');
+            }
 
             $report = $periodReportService->generate(
                 $profile,
-                $data['startDate'],
-                $data['endDate'],
+                $reportPeriod['startDate'],
+                $reportPeriod['endDate'],
             );
 
             return $this->render('report/result.html.twig', [
@@ -42,7 +46,7 @@ final class ReportController extends AbstractController
         }
 
         return $this->render('report/index.html.twig', [
-            'form' => $form,
+            'form' => $reportPeriodForm,
         ]);
     }
 
@@ -54,7 +58,7 @@ final class ReportController extends AbstractController
         PeriodReportService $periodReportService,
         ReportDataExporter $reportDataExporter,
     ): Response {
-        $profile = $profileRepository->findOneBy([]);
+        $profile = $profileRepository->findFirstProfile();
 
         if ($profile === null) {
             throw $this->createNotFoundException('Aucun profil trouvé.');
@@ -80,10 +84,10 @@ final class ReportController extends AbstractController
             $endDateObject,
         );
 
-        $json = $reportDataExporter->export($report);
+        $serializedReport = $reportDataExporter->export($report);
 
         return new Response(
-            $json,
+            $serializedReport,
             Response::HTTP_OK,
             [
                 'Content-Type' => 'application/json; charset=utf-8',
@@ -99,7 +103,7 @@ final class ReportController extends AbstractController
         ProfileRepository $profileRepository,
         PeriodReportService $periodReportService,
     ): Response {
-        $profile = $profileRepository->findOneBy([]);
+        $profile = $profileRepository->findFirstProfile();
 
         if ($profile === null) {
             throw $this->createNotFoundException('Aucun profil trouvé.');
@@ -125,21 +129,21 @@ final class ReportController extends AbstractController
             $endDateObject,
         );
 
-        $html = $this->renderView('report/pdf.html.twig', [
+        $reportHtml = $this->renderView('report/pdf.html.twig', [
             'report' => $report,
         ]);
 
         $options = new Options();
         $options->set('defaultFont', 'DejaVu Sans');
 
-        $dompdf = new Dompdf($options);
+        $pdfDocument = new Dompdf($options);
 
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        $pdfDocument->loadHtml($reportHtml);
+        $pdfDocument->setPaper('A4', 'portrait');
+        $pdfDocument->render();
 
         return new Response(
-            $dompdf->output(),
+            $pdfDocument->output(),
             Response::HTTP_OK,
             [
                 'Content-Type' => 'application/pdf',
@@ -147,5 +151,4 @@ final class ReportController extends AbstractController
             ],
         );
     }
-
 }

@@ -14,41 +14,41 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class DailyCheckinController extends AbstractController
 {
-    //app_daily_checkin_edit
     #[Route('/daily-checkin/new', name: 'app_daily_checkin_new')]
     #[Route('/daily-checkin/new/{id}', name: 'app_daily_checkin_edit')]
-    public function new(
+    public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
-        DailyCheckin $dailyCheckin = null
+        ?DailyCheckin $dailyCheckin = null,
     ): Response {
-        $editMod = true;
-        if($dailyCheckin == null){
-            $editMod = false;
+        $isEditMode = $dailyCheckin !== null;
+
+        if ($dailyCheckin === null) {
             $profile = $entityManager
                 ->getRepository(Profile::class)
                 ->findOneBy([]);
 
-            $checkin = new DailyCheckin();
+            $dailyCheckin = new DailyCheckin();
 
-            $checkin
+            $dailyCheckin
                 ->setProfile($profile)
                 ->setDate(new \DateTimeImmutable());
         }
 
-
-        $form = $this->createForm(DailyCheckinType::class, $checkin);
+        $form = $this->createForm(DailyCheckinType::class, $dailyCheckin);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $entityManager->persist($checkin);
+            $entityManager->persist($dailyCheckin);
             $entityManager->flush();
-            if($editMod !== true) {
+
+            if (!$isEditMode) {
                 return $this->redirectToRoute('app_daily_checkin_index');
             }
-            return $this->redirectToRoute('app_daily_checkin_show', ['id' => $checkin->getId()] );
+
+            return $this->redirectToRoute('app_daily_checkin_show', ['id' => $dailyCheckin->getId()]);
         }
 
         return $this->render('daily_checkin/new.html.twig', [

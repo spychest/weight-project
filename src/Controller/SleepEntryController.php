@@ -16,14 +16,14 @@ final class SleepEntryController extends AbstractController
 {
     #[Route('/sleep/new', name: 'app_sleep_new')]
     #[Route('/sleep/new/{id}', name: 'app_sleep_edit')]
-    public function new(
+    public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
-        ?SleepEntry $sleepEntry = null
+        ?SleepEntry $sleepEntry = null,
     ): Response {
-        $editMod = true;
-        if($sleepEntry == null){
-            $editMod = false;
+        $isEditMode = $sleepEntry !== null;
+
+        if ($sleepEntry === null) {
 
             $profile = $entityManager
                 ->getRepository(Profile::class)
@@ -36,7 +36,6 @@ final class SleepEntryController extends AbstractController
                 ->setDate(new \DateTimeImmutable());
         }
 
-
         $form = $this->createForm(SleepEntryType::class, $sleepEntry);
 
         $form->handleRequest($request);
@@ -44,9 +43,10 @@ final class SleepEntryController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($sleepEntry);
             $entityManager->flush();
-            if($editMod !== true) {
+            if (!$isEditMode) {
                 return $this->redirectToRoute('app_dashboard');
             }
+
             return $this->redirectToRoute('app_sleep_show', ['id' => $sleepEntry->getId()]);
         }
 
