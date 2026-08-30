@@ -134,29 +134,14 @@ docker compose down
 
 ### Déploiement en production
 
-Créez sur le serveur un fichier `.env.prod.local` contenant les variables Docker et Symfony de production. Il est ignoré par Git et doit notamment définir des mots de passe robustes, `APP_SECRET`, les paramètres de base de données et les identifiants Google OAuth.
-
-Vérifiez également que l'environnement d'exécution est bien celui de production :
-
-```dotenv
-APP_RUNTIME_ENV=prod
-APP_RUNTIME_DEBUG=0
-```
-
-Lancez ensuite :
+Renseignez les variables de production dans le fichier `.env`, puis lancez :
 
 ```bash
 chmod +x deploy.sh
 ./deploy.sh
 ```
 
-Un autre fichier peut être fourni explicitement :
-
-```bash
-./deploy.sh /chemin/vers/.env.production
-```
-
-Le script valide la configuration, construit et démarre les services, attend la base de données, installe les dépendances sans les outils de développement, applique les migrations, compile les assets, prépare le cache et contrôle finalement la réponse HTTP de l'application.
+Le script démarre les conteneurs, installe les dépendances dans `php-fpm`, applique les migrations et vide le cache Symfony.
 
 ## Technologies utilisées
 - PHP
