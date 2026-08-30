@@ -7,6 +7,7 @@ use App\Form\ChangeEmailType;
 use App\Form\ChangePasswordType;
 use App\Form\DeleteAccountType;
 use App\Form\ImportProfileDataType;
+use App\Form\ThemePreferenceType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\CurrentUserProfileProvider;
@@ -53,11 +54,25 @@ final class AccountController extends AbstractController
         $importProfileDataForm = $this->createForm(ImportProfileDataType::class, null, [
             'action' => $this->generateUrl('app_account').'#profile-data',
         ]);
+        $themePreferenceForm = $this->createForm(ThemePreferenceType::class, [
+            'darkModeEnabled' => $authenticatedUser->isDarkModeEnabled(),
+        ], [
+            'action' => $this->generateUrl('app_account').'#appearance-settings',
+        ]);
 
         $changeEmailForm->handleRequest($request);
         $changePasswordForm->handleRequest($request);
         $deleteAccountForm->handleRequest($request);
         $importProfileDataForm->handleRequest($request);
+        $themePreferenceForm->handleRequest($request);
+
+        if ($themePreferenceForm->isSubmitted() && $themePreferenceForm->isValid()) {
+            $themePreferenceData = $themePreferenceForm->getData();
+            $authenticatedUser->setDarkModeEnabled((bool) ($themePreferenceData['darkModeEnabled'] ?? false));
+            $entityManager->flush();
+            $this->addFlash('success', 'Ton apparence a été mise à jour.');
+            return $this->redirectToRoute('app_account');
+        }
 
         if ($changeEmailForm->isSubmitted() && $changeEmailForm->isValid()) {
             $currentPassword = (string) $changeEmailForm->get('currentPassword')->getData();
@@ -120,6 +135,7 @@ final class AccountController extends AbstractController
             'changePasswordForm' => $changePasswordForm,
             'deleteAccountForm' => $deleteAccountForm,
             'importProfileDataForm' => $importProfileDataForm,
+            'themePreferenceForm' => $themePreferenceForm,
         ]);
     }
 

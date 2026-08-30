@@ -29,4 +29,13 @@ final class UserTest extends TestCase
         self::assertSame($user, $identity->getUser());
         self::assertCount(1, $user->getIdentities());
     }
+
+    #[Test]
+    public function itStoresTheDarkModePreference(): void
+    {
+        $user = new User();
+        self::assertFalse($user->isDarkModeEnabled());
+        $user->setDarkModeEnabled(true);
+        self::assertTrue($user->isDarkModeEnabled());
+    }
 }

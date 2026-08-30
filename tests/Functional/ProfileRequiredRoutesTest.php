@@ -57,8 +57,10 @@ final class ProfileRequiredRoutesTest extends WebTestCase
 
         $browser->request('GET', '/');
         self::assertSelectorNotExists('.site-header');
+        self::assertSelectorExists('meta[name="viewport"]');
 
         $browser->request('GET', '/login');
         self::assertSelectorExists('.public-page-navigation');
     }
+
 }

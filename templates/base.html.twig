@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html{% if app.user and app.user.darkModeEnabled %} class="dark-mode"{% endif %}>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Mon suivi de poids{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=20260830-5">
         {% block stylesheets %}
         {% endblock %}
 
@@ -15,12 +16,24 @@
     <body>
         {% if app.user %}
         <header class="site-header site-header-authenticated">
-            <nav class="site-navigation">
+            <nav class="site-navigation site-navigation-desktop" aria-label="Navigation principale">
                 <a class="navigation-link" href="{{ path('app_dashboard') }}">Tableau de bord</a>
                 <a class="navigation-link" href="{{ path('app_account') }}">Mon compte</a>
                 <span class="authenticated-user-email">{{ app.user.userIdentifier }}</span>
                 <a class="navigation-button navigation-button-logout" href="{{ path('app_logout') }}">Déconnexion</a>
             </nav>
+            <details class="mobile-navigation">
+                <summary class="mobile-navigation-toggle">
+                    <span class="mobile-navigation-label">Menu</span>
+                    <span class="burger-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+                </summary>
+                <nav class="mobile-navigation-panel" aria-label="Navigation mobile">
+                    <a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+                    <a href="{{ path('app_account') }}">Mon compte</a>
+                    <span class="mobile-navigation-email">{{ app.user.userIdentifier }}</span>
+                    <a class="mobile-navigation-logout" href="{{ path('app_logout') }}">Déconnexion</a>
+                </nav>
+            </details>
         </header>
         {% elseif app.request.attributes.get('_route') != 'app_home' %}
         <div class="public-page-navigation">

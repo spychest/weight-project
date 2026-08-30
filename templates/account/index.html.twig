@@ -39,6 +39,21 @@
         {% endif %}
     </section>
 
+    <section id="appearance-settings" class="account-settings-card account-appearance-card">
+        <div class="account-settings-introduction">
+            <h2>Apparence</h2>
+            <p>Le mode nuit s’applique à toutes les pages lorsque tu es connecté.</p>
+        </div>
+        {{ form_start(themePreferenceForm) }}
+            <div class="theme-toggle-row">
+                {{ form_widget(themePreferenceForm.darkModeEnabled, {attr: {class: 'theme-toggle-input'}}) }}
+                {{ form_label(themePreferenceForm.darkModeEnabled, null, {label_attr: {class: 'theme-toggle-label'}}) }}
+            </div>
+            {{ form_errors(themePreferenceForm.darkModeEnabled) }}
+            <button class="account-action-button" type="submit">Enregistrer l’apparence</button>
+        {{ form_end(themePreferenceForm) }}
+    </section>
+
     <section id="email-settings" class="account-settings-card">
         <div class="account-settings-introduction">
             <h2>Changer mon adresse e-mail</h2>

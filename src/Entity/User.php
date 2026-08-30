@@ -32,6 +32,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $emailVerified = false;
 
     #[ORM\Column]
+    private bool $darkModeEnabled = false;
+
+    #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
@@ -61,6 +64,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void {}
     public function isEmailVerified(): bool { return $this->emailVerified; }
     public function setEmailVerified(bool $emailVerified): static { $this->emailVerified = $emailVerified; return $this; }
+    public function isDarkModeEnabled(): bool { return $this->darkModeEnabled; }
+    public function setDarkModeEnabled(bool $darkModeEnabled): static { $this->darkModeEnabled = $darkModeEnabled; return $this; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getLastLoginAt(): ?\DateTimeImmutable { return $this->lastLoginAt; }
     public function markLoginNow(): void { $this->lastLoginAt = new \DateTimeImmutable(); }
