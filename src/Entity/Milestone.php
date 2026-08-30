@@ -30,7 +30,7 @@ class Milestone
     private ?\DateTimeImmutable $achievedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'milestones')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Profile $profile = null;
 
     public function getId(): ?int

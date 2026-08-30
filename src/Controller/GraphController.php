@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Repository\ProfileRepository;
+use App\Service\CurrentUserProfileProvider;
 use App\Service\GraphService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,9 +13,9 @@ final class GraphController extends AbstractController
     #[Route('/graph', name: 'app_graph')]
     public function index(
         GraphService $graphService,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');
@@ -33,9 +33,9 @@ final class GraphController extends AbstractController
     #[Route('/graph/weight', name: 'app_graph_weight')]
     public function weight(
         GraphService $graphService,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');
@@ -49,9 +49,9 @@ final class GraphController extends AbstractController
     #[Route('/graph/hydration', name: 'app_graph_hydration')]
     public function hydration(
         GraphService $graphService,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');
@@ -65,9 +65,9 @@ final class GraphController extends AbstractController
     #[Route('/graph/sleep', name: 'app_graph_sleep')]
     public function sleep(
         GraphService $graphService,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');
@@ -81,9 +81,9 @@ final class GraphController extends AbstractController
     #[Route('/graph/meal', name: 'app_graph_meal')]
     public function meal(
         GraphService $graphService,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');
@@ -97,9 +97,9 @@ final class GraphController extends AbstractController
     #[Route('/graph/checkin', name: 'app_graph_checkin')]
     public function checkin(
         GraphService $graphService,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');

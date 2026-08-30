@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Form\ReportPeriodType;
-use App\Repository\ProfileRepository;
+use App\Service\CurrentUserProfileProvider;
 use App\Service\Report\PeriodReportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +18,7 @@ final class ReportController extends AbstractController
     #[Route('/report', name: 'app_report')]
     public function index(
         Request $request,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         PeriodReportService $periodReportService
     ): Response {
         $reportPeriodForm = $this->createForm(ReportPeriodType::class);
@@ -28,7 +28,7 @@ final class ReportController extends AbstractController
         if ($reportPeriodForm->isSubmitted() && $reportPeriodForm->isValid()) {
             $reportPeriod = $reportPeriodForm->getData();
 
-            $profile = $profileRepository->findFirstProfile();
+            $profile = $currentUserProfileProvider->getProfile();
 
             if ($profile === null) {
                 return $this->redirectToRoute('app_profile_new');
@@ -54,11 +54,11 @@ final class ReportController extends AbstractController
     public function exportData(
         string $startDate,
         string $endDate,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         PeriodReportService $periodReportService,
         ReportDataExporter $reportDataExporter,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             throw $this->createNotFoundException('Aucun profil trouvé.');
@@ -100,10 +100,10 @@ final class ReportController extends AbstractController
     public function exportPdf(
         string $startDate,
         string $endDate,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         PeriodReportService $periodReportService,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             throw $this->createNotFoundException('Aucun profil trouvé.');

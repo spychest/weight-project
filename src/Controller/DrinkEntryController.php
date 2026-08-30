@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\DrinkEntry;
-use App\Entity\Profile;
 use App\Form\DrinkEntryType;
 use App\Repository\DrinkEntryRepository;
+use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,19 +19,17 @@ final class DrinkEntryController extends AbstractController
     public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         ?DrinkEntry $drinkEntry = null,
     ): Response {
         $isEditMode = $drinkEntry !== null;
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($drinkEntry?->getProfile())) { throw $this->createNotFoundException(); }
 
         if ($drinkEntry === null) {
-            $profile = $entityManager
-                ->getRepository(Profile::class)
-                ->findOneBy([]);
-
             $drinkEntry = new DrinkEntry();
 
             $drinkEntry
-                ->setProfile($profile)
+                ->setProfile($currentUserProfileProvider->getRequiredProfile())
                 ->setDate(new \DateTimeImmutable());
         }
 
@@ -56,19 +54,18 @@ final class DrinkEntryController extends AbstractController
     }
 
     #[Route('/drink/show/{id}', name: 'app_drink_show')]
-    public function show(DrinkEntry $drinkEntry): Response
+    public function show(DrinkEntry $drinkEntry, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
+        if (!$currentUserProfileProvider->ownsProfile($drinkEntry->getProfile())) { throw $this->createNotFoundException(); }
         return $this->render('drink_entry/show.html.twig', [
             'drinkEntry' => $drinkEntry,
         ]);
     }
 
     #[Route('/drink/index', name: 'app_drink_index')]
-    public function index(DrinkEntryRepository $drinkEntryRepository): Response
+    public function index(DrinkEntryRepository $drinkEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $drinkEntries = $drinkEntryRepository->findBy([], [
-            'date' => 'DESC',
-        ]);
+        $drinkEntries = $drinkEntryRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
 
         return $this->render('drink_entry/index.html.twig', [
             'controller_name' => 'DrinkEntryController',

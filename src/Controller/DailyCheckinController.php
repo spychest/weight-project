@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\DailyCheckin;
-use App\Entity\Profile;
 use App\Form\DailyCheckinType;
 use App\Repository\DailyCheckinRepository;
+use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,19 +19,17 @@ final class DailyCheckinController extends AbstractController
     public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         ?DailyCheckin $dailyCheckin = null,
     ): Response {
         $isEditMode = $dailyCheckin !== null;
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($dailyCheckin?->getProfile())) { throw $this->createNotFoundException(); }
 
         if ($dailyCheckin === null) {
-            $profile = $entityManager
-                ->getRepository(Profile::class)
-                ->findOneBy([]);
-
             $dailyCheckin = new DailyCheckin();
 
             $dailyCheckin
-                ->setProfile($profile)
+                ->setProfile($currentUserProfileProvider->getRequiredProfile())
                 ->setDate(new \DateTimeImmutable());
         }
 
@@ -57,19 +55,18 @@ final class DailyCheckinController extends AbstractController
     }
 
     #[Route('/daily-checkin', name: 'app_daily_checkin_index')]
-    public function index(DailyCheckinRepository $dailyCheckinRepository): Response
+    public function index(DailyCheckinRepository $dailyCheckinRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $dailyCheckins = $dailyCheckinRepository->findBy([], [
-            'date' => 'DESC',
-        ]);
+        $dailyCheckins = $dailyCheckinRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
         return $this->render('daily_checkin/index.html.twig', [
             'dailyCheckins' => $dailyCheckins,
         ]);
     }
 
     #[Route('/daily-checkin/show/{id}', name: 'app_daily_checkin_show')]
-    public function show(DailyCheckin $dailyCheckin): Response
+    public function show(DailyCheckin $dailyCheckin, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
+        if (!$currentUserProfileProvider->ownsProfile($dailyCheckin->getProfile())) { throw $this->createNotFoundException(); }
         return $this->render('daily_checkin/show.html.twig', [
             'dailyCheckin' => $dailyCheckin,
         ]);

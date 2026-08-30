@@ -31,7 +31,7 @@ class WeightEntry
     private ?string $note = null;
 
     #[ORM\ManyToOne(inversedBy: 'weightEntries')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Profile $profile = null;
 
     public function __construct()

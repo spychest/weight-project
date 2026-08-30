@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ProfileRepository::class)]
 class Profile
 {
+    #[ORM\OneToOne(inversedBy: 'profile')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?User $user = null;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -99,6 +102,9 @@ class Profile
     {
         return $this->id;
     }
+
+    public function getUser(): ?User { return $this->user; }
+    public function setUser(?User $user): static { $this->user = $user; if ($user?->getProfile() !== $this) { $user?->setProfile($this); } return $this; }
 
     public function getHeight(): float
     {

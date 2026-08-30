@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\FoodEvent;
-use App\Entity\Profile;
 use App\Form\FoodEventType;
 use App\Repository\FoodEventRepository;
+use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,19 +19,17 @@ final class FoodEventController extends AbstractController
     public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         ?FoodEvent $foodEvent = null,
     ): Response {
         $isEditMode = $foodEvent !== null;
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($foodEvent?->getProfile())) { throw $this->createNotFoundException(); }
 
         if ($foodEvent === null) {
-            $profile = $entityManager
-                ->getRepository(Profile::class)
-                ->findOneBy([]);
-
             $foodEvent = new FoodEvent();
 
             $foodEvent
-                ->setProfile($profile)
+                ->setProfile($currentUserProfileProvider->getRequiredProfile())
                 ->setEatenAt(new \DateTimeImmutable());
         }
 
@@ -58,19 +56,18 @@ final class FoodEventController extends AbstractController
     }
 
     #[Route('/food/show/{id}', name: 'app_food_show')]
-    public function show(FoodEvent $foodEvent): Response
+    public function show(FoodEvent $foodEvent, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
+        if (!$currentUserProfileProvider->ownsProfile($foodEvent->getProfile())) { throw $this->createNotFoundException(); }
         return $this->render('food_event/show.html.twig', [
             'foodEvent' => $foodEvent,
         ]);
     }
 
     #[Route('/food', name: 'app_food_index')]
-    public function index(FoodEventRepository $foodEventRepository): Response
+    public function index(FoodEventRepository $foodEventRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $foodEvents = $foodEventRepository->findBy([], [
-            'eatenAt' => 'DESC',
-        ]);
+        $foodEvents = $foodEventRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
 
         return $this->render('food_event/index.html.twig', [
             'foodEvents' => $foodEvents,

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Profile;
+use App\Entity\User;
 use App\Form\ProfileType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +18,11 @@ class ProfileController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
     ): Response {
+        $authenticatedUser = $this->getUser();
+        if (!$authenticatedUser instanceof User) { throw $this->createAccessDeniedException(); }
+        if ($authenticatedUser->getProfile() !== null) { return $this->redirectToRoute('app_dashboard'); }
         $profile = new Profile();
+        $profile->setUser($authenticatedUser);
 
         $form = $this->createForm(ProfileType::class, $profile);
 

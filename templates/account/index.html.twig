@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block body %}
+<main class="account-page">
+    <header class="account-header">
+        <p class="account-kicker">Paramètres</p>
+        <h1>Mon compte</h1>
+        <p>Retrouve ici tes informations et tes méthodes de connexion.</p>
+    </header>
+
+    {% for successMessage in app.flashes('success') %}
+        <div class="account-success-message">{{ successMessage }}</div>
+    {% endfor %}
+
+    <section class="account-card">
+        <div>
+            <span class="account-field-label">Adresse e-mail</span>
+            <strong>{{ account.email }}</strong>
+        </div>
+        <span class="account-status">Compte actif</span>
+    </section>
+
+    <section class="account-card account-connection-card">
+        <div>
+            <h2>Connexion avec Google</h2>
+            {% if googleIdentityIsLinked %}
+                <p>Ton compte Google est associé. Tu peux l’utiliser pour te connecter sans saisir ton mot de passe.</p>
+            {% else %}
+                <p>Associe ton compte Google pour disposer d’une méthode de connexion supplémentaire.</p>
+            {% endif %}
+        </div>
+
+        {% if googleIdentityIsLinked %}
+            <span class="account-provider-status account-provider-status-linked">Associé</span>
+        {% else %}
+            <a class="account-google-button" href="{{ path('app_google_connect') }}">Associer mon compte Google</a>
+        {% endif %}
+    </section>
+
+    <section id="email-settings" class="account-settings-card">
+        <div class="account-settings-introduction">
+            <h2>Changer mon adresse e-mail</h2>
+            <p>Cette adresse sera utilisée lors de ta prochaine connexion.</p>
+        </div>
+        {{ form_start(changeEmailForm) }}
+            {{ form_row(changeEmailForm.newEmail) }}
+            {{ form_row(changeEmailForm.currentPassword) }}
+            <button class="account-action-button" type="submit">Mettre à jour mon e-mail</button>
+        {{ form_end(changeEmailForm) }}
+    </section>
+
+    <section id="password-settings" class="account-settings-card">
+        <div class="account-settings-introduction">
+            <h2>{{ account.password ? 'Changer mon mot de passe' : 'Créer un mot de passe' }}</h2>
+            <p>Choisis un mot de passe unique comportant au moins 12 caractères.</p>
+        </div>
+        {{ form_start(changePasswordForm) }}
+            {{ form_row(changePasswordForm.currentPassword) }}
+            {{ form_row(changePasswordForm.newPassword.first) }}
+            {{ form_row(changePasswordForm.newPassword.second) }}
+            <button class="account-action-button" type="submit">Enregistrer le mot de passe</button>
+        {{ form_end(changePasswordForm) }}
+    </section>
+
+    <section id="profile-data" class="account-settings-card">
+        <div class="account-settings-introduction">
+            <h2>Exporter ou importer mes données</h2>
+            <p>L’export JSON contient l’intégralité du profil et toutes les données qui lui sont liées.</p>
+        </div>
+        <div class="account-data-export">
+            <div>
+                <strong>Télécharger une sauvegarde</strong>
+                <p>Conserve le fichier dans un emplacement sûr. Il contient des données personnelles.</p>
+            </div>
+            <a class="account-action-button account-download-button" href="{{ path('app_account_data_export') }}">Exporter mes données</a>
+        </div>
+        <div class="account-import-divider"></div>
+        <div class="account-settings-introduction">
+            <h3>Restaurer une sauvegarde</h3>
+            <p>Le fichier est entièrement vérifié avant toute modification. L’import remplace les données actuelles du profil.</p>
+        </div>
+        {{ form_start(importProfileDataForm) }}
+            {{ form_row(importProfileDataForm.backupFile) }}
+            {{ form_row(importProfileDataForm.confirmReplacement) }}
+            <button class="account-action-button" type="submit">Importer le fichier JSON</button>
+        {{ form_end(importProfileDataForm) }}
+    </section>
+
+    <section id="danger-zone" class="account-settings-card account-danger-zone">
+        <div class="account-settings-introduction">
+            <p class="account-danger-kicker">Zone sensible</p>
+            <h2>Supprimer mon compte</h2>
+            <p>Cette action supprimera définitivement ton profil, tes pesées, tes jalons et toutes les données associées.</p>
+        </div>
+        {{ form_start(deleteAccountForm) }}
+            {{ form_row(deleteAccountForm.currentPassword) }}
+            {{ form_row(deleteAccountForm.confirmDeletion) }}
+            <button class="account-delete-button" type="submit">Supprimer définitivement mon compte</button>
+        {{ form_end(deleteAccountForm) }}
+    </section>
+</main>
+{% endblock %}

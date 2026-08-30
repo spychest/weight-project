@@ -1,0 +1,6 @@
+{% extends 'base.html.twig' %}
+{% block title %}Créer un compte{% endblock %}
+{% block body %}<main class="auth-page"><section class="auth-card"><h1>Créer ton compte</h1>
+{{ form_start(registration_form) }}{{ form_row(registration_form.email) }}{{ form_row(registration_form.plainPassword.first) }}{{ form_row(registration_form.plainPassword.second) }}<button class="button" type="submit">Créer mon compte</button>{{ form_end(registration_form) }}
+<div class="auth-separator"><span>ou</span></div><a class="button button-google" href="{{ path('app_google_connect') }}">S’inscrire avec Google</a><p>Déjà inscrit ? <a href="{{ path('app_login') }}">Se connecter</a></p>
+</section></main>{% endblock %}

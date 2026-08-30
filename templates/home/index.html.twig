@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon suivi de poids{% endblock %}
+{% block body %}
+<main class="landing-page"><section class="landing-hero">
+    <p class="landing-kicker">Un suivi simple, privé et motivant</p>
+    <h1>Comprends ta progression, sans perdre le fil.</h1>
+    <p>Centralise tes pesées, ton sommeil, ton hydratation, tes repas et tes jalons dans un tableau de bord personnel.</p>
+    <div class="landing-actions"><a class="button" href="{{ path('app_register') }}">Créer mon compte</a><a class="button button-secondary" href="{{ path('app_login') }}">Me connecter</a></div>
+</section><section class="landing-features">
+    <article><h2>Tout au même endroit</h2><p>Retrouve tes indicateurs et leur évolution en quelques secondes.</p></article>
+    <article><h2>Des jalons automatiques</h2><p>Chaque nouvelle pesée valide les objectifs que tu viens d’atteindre.</p></article>
+    <article><h2>Tes données, ton compte</h2><p>Chaque profil est strictement isolé des autres utilisateurs.</p></article>
+</section></main>
+{% endblock %}

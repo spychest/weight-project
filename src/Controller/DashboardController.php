@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Repository\ProfileRepository;
+use App\Service\CurrentUserProfileProvider;
 use App\Service\Dashboard\DashboardService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,15 +13,16 @@ final class DashboardController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function home(): Response
     {
-        return $this->redirectToRoute('app_dashboard');
+        if ($this->getUser() !== null) { return $this->redirectToRoute('app_dashboard'); }
+        return $this->render('home/index.html.twig');
     }
 
     #[Route('/dashboard', name: 'app_dashboard')]
     public function index(
         DashboardService $dashboardService,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');

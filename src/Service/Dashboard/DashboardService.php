@@ -114,6 +114,7 @@ final readonly class DashboardService
         );
 
         $startingBodyMassIndex = $this->calculateBodyMassIndex($profile, $profile->getStartingWeight());
+        $currentBodyMassIndex = $this->calculateBodyMassIndex($profile, $currentWeight ?? $profile->getStartingWeight());
         $targetBodyMassIndex = $this->calculateBodyMassIndex($profile, $profile->getTargetWeight());
 
         return new DashboardData(
@@ -132,6 +133,7 @@ final readonly class DashboardService
             sleep: $latestSleepEntryData,
             recentActivities: $recentActivities,
             imc: $startingBodyMassIndex,
+            currentImc: $currentBodyMassIndex,
             targetImc: $targetBodyMassIndex,
         );
     }

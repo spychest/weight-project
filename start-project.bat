@@ -53,6 +53,6 @@ echo.
 echo Projet demarre !
 echo.
 
-start "" "http://localhost:%NGINX_PORT%/dashboard"
+start "" "http://localhost:%NGINX_PORT%/"
 
 exit

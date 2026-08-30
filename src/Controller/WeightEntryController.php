@@ -4,8 +4,9 @@ namespace App\Controller;
 
 use App\Entity\WeightEntry;
 use App\Form\WeightEntryType;
-use App\Repository\ProfileRepository;
 use App\Repository\WeightEntryRepository;
+use App\Service\CurrentUserProfileProvider;
+use App\Service\Milestone\MilestoneService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,11 +19,14 @@ final class WeightEntryController extends AbstractController
     #[Route('/weight/new/{id}', name: 'app_weight_edit')]
     public function createOrEdit(
         Request $request,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         EntityManagerInterface $entityManager,
+        MilestoneService $milestoneService,
         ?WeightEntry $weightEntry = null,
     ): Response {
         $isEditMode = $weightEntry !== null;
+
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($weightEntry?->getProfile())) { throw $this->createNotFoundException(); }
 
         if ($weightEntry === null) {
             $weightEntry = new WeightEntry();
@@ -37,13 +41,21 @@ final class WeightEntryController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$isEditMode) {
-                $profile = $profileRepository->findFirstProfile();
-
-                if ($profile === null) {
-                    throw new \LogicException('No profile configured.');
-                }
-                $weightEntry->setProfile($profile);
+                $weightEntry->setProfile($currentUserProfileProvider->getRequiredProfile());
             }
+
+            $profile = $weightEntry->getProfile();
+            $recordedWeight = $weightEntry->getWeight();
+
+            if ($profile === null || $recordedWeight === null) {
+                throw new \LogicException('A weight entry requires a profile and a weight.');
+            }
+
+            $milestoneService->validateReachedWeightMilestones(
+                $profile,
+                $recordedWeight,
+                $weightEntry->getMeasuredAt(),
+            );
 
             $entityManager->persist($weightEntry);
             $entityManager->flush();
@@ -58,11 +70,9 @@ final class WeightEntryController extends AbstractController
     }
 
     #[Route('/weight', name: 'app_weight_index')]
-    public function index(WeightEntryRepository $weightEntryRepository): Response
+    public function index(WeightEntryRepository $weightEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $weightEntries = $weightEntryRepository->findBy([], [
-            'measuredAt' => 'DESC',
-        ]);
+        $weightEntries = $weightEntryRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
         return $this->render('weight_entry/index.html.twig', [
             'controller_name' => 'WeightEntryController',
             'weightEntries' => $weightEntries,
@@ -70,8 +80,9 @@ final class WeightEntryController extends AbstractController
     }
 
     #[Route('/weight/show/{id}', name: 'app_weight_show')]
-    public function show(WeightEntry $weightEntry): Response
+    public function show(WeightEntry $weightEntry, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
+        if (!$currentUserProfileProvider->ownsProfile($weightEntry->getProfile())) { throw $this->createNotFoundException(); }
         return $this->render('weight_entry/show.html.twig', [
             'weightEntry' => $weightEntry,
         ]);

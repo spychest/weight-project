@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\Profile;
 use App\Entity\SleepEntry;
 use App\Form\SleepEntryType;
 use App\Repository\SleepEntryRepository;
+use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,20 +19,18 @@ final class SleepEntryController extends AbstractController
     public function createOrEdit(
         Request $request,
         EntityManagerInterface $entityManager,
+        CurrentUserProfileProvider $currentUserProfileProvider,
         ?SleepEntry $sleepEntry = null,
     ): Response {
         $isEditMode = $sleepEntry !== null;
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($sleepEntry?->getProfile())) { throw $this->createNotFoundException(); }
 
         if ($sleepEntry === null) {
-
-            $profile = $entityManager
-                ->getRepository(Profile::class)
-                ->findOneBy([]);
 
             $sleepEntry = new SleepEntry();
 
             $sleepEntry
-                ->setProfile($profile)
+                ->setProfile($currentUserProfileProvider->getRequiredProfile())
                 ->setDate(new \DateTimeImmutable());
         }
 
@@ -56,11 +54,9 @@ final class SleepEntryController extends AbstractController
     }
 
     #[Route('/sleep', name: 'app_sleep_index')]
-    public function index(SleepEntryRepository $sleepEntryRepository): Response
+    public function index(SleepEntryRepository $sleepEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $sleepEntries = $sleepEntryRepository->findBy([], [
-            'date' => 'DESC',
-        ]);
+        $sleepEntries = $sleepEntryRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
         return $this->render('sleep_entry/index.html.twig', [
             'controller_name' => 'SleepEntryController',
             'sleepEntries' => $sleepEntries,
@@ -68,8 +64,9 @@ final class SleepEntryController extends AbstractController
     }
 
     #[Route('/sleep/show/{id}', name: 'app_sleep_show')]
-    public function show(SleepEntry $sleepEntry): Response
+    public function show(SleepEntry $sleepEntry, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
+        if (!$currentUserProfileProvider->ownsProfile($sleepEntry->getProfile())) { throw $this->createNotFoundException(); }
         return $this->render('sleep_entry/show.html.twig', [
             'sleepEntry' => $sleepEntry,
         ]);

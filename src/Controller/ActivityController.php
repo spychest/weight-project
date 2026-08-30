@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Activity;
 use App\Form\ActivityType;
-use App\Repository\ProfileRepository;
+use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,9 +17,9 @@ final class ActivityController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $entityManager,
-        ProfileRepository $profileRepository,
+        CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        $profile = $profileRepository->findFirstProfile();
+        $profile = $currentUserProfileProvider->getProfile();
 
         if ($profile === null) {
             return $this->redirectToRoute('app_profile_new');

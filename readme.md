@@ -91,6 +91,33 @@ APP_RUNTIME_ENV=dev
 APP_RUNTIME_DEBUG=1
 ```
 
+### Reprendre le profil historique
+
+Après la migration vers le système de comptes, l'ancien profil reste intact mais sans propriétaire. Pour créer votre compte local et lui rattacher automatiquement l'unique profil existant, lancez :
+
+```bash
+docker compose --env-file .env.local exec php-fpm php bin/console project:user:adopt-existing-profile
+```
+
+La commande demande l'adresse e-mail et le mot de passe de façon interactive. Elle refuse de continuer s'il n'existe pas exactement un profil sans propriétaire, afin d'éviter tout rattachement accidentel.
+
+### Connexion Google
+
+Créez un client OAuth 2.0 de type « application Web » dans Google Cloud, avec cette URL de redirection en local :
+
+```text
+http://localhost:8080/connect/google/check
+```
+
+Ajoutez ensuite les identifiants dans `.env.local` :
+
+```dotenv
+GOOGLE_CLIENT_ID=votre-identifiant
+GOOGLE_CLIENT_SECRET=votre-secret
+```
+
+Puis recréez le service PHP avec `docker compose --env-file .env.local up -d`.
+
 ### Astuce
 Maintenant que le projet a été lancé une première fois et si vous avez 
 conservé le fichier `.env` en exemple, vous pouvez maintenant lancer le 

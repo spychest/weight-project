@@ -42,7 +42,7 @@ class DailyCheckin
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'dailyCheckins')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Profile $profile = null;
 
     public function __construct()
