@@ -61,6 +61,7 @@
                     </article>
                 {% endfor %}
             </div>
+            {% include 'components/_pagination.html.twig' with {pagination: pagination, routeName: 'app_food_index'} only %}
         {% else %}
             <div class="entry-index-empty">
                 <span>🍽️</span>

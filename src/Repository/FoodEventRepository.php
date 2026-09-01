@@ -4,13 +4,12 @@ namespace App\Repository;
 
 use App\Entity\FoodEvent;
 use App\Entity\Profile;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<FoodEvent>
+ * @extends AbstractPaginatedRepository<FoodEvent>
  */
-class FoodEventRepository extends ServiceEntityRepository
+class FoodEventRepository extends AbstractPaginatedRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -53,16 +52,15 @@ class FoodEventRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /** @return FoodEvent[] */
-    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    public function paginateAllForProfileFromNewest(Profile $profile, int $page, int $itemsPerPage): \App\Pagination\PaginatedResult
     {
-        return $this->createQueryBuilder('foodEvent')
+        $queryBuilder = $this->createQueryBuilder('foodEvent')
             ->andWhere('foodEvent.profile = :profile')
             ->setParameter('profile', $profile)
             ->orderBy('foodEvent.eatenAt', 'DESC')
-            ->addOrderBy('foodEvent.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('foodEvent.id', 'DESC');
+
+        return $this->paginate($queryBuilder, $page, $itemsPerPage);
     }
 
     /** @return FoodEvent[] */

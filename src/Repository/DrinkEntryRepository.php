@@ -4,13 +4,12 @@ namespace App\Repository;
 
 use App\Entity\DrinkEntry;
 use App\Entity\Profile;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<DrinkEntry>
+ * @extends AbstractPaginatedRepository<DrinkEntry>
  */
-class DrinkEntryRepository extends ServiceEntityRepository
+class DrinkEntryRepository extends AbstractPaginatedRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -52,16 +51,15 @@ class DrinkEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /** @return DrinkEntry[] */
-    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    public function paginateAllForProfileFromNewest(Profile $profile, int $page, int $itemsPerPage): \App\Pagination\PaginatedResult
     {
-        return $this->createQueryBuilder('drinkEntry')
+        $queryBuilder = $this->createQueryBuilder('drinkEntry')
             ->andWhere('drinkEntry.profile = :profile')
             ->setParameter('profile', $profile)
             ->orderBy('drinkEntry.date', 'DESC')
-            ->addOrderBy('drinkEntry.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('drinkEntry.id', 'DESC');
+
+        return $this->paginate($queryBuilder, $page, $itemsPerPage);
     }
 
     /** @return DrinkEntry[] */

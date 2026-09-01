@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\WeightEntry;
 use App\Form\WeightEntryType;
+use App\Pagination\PaginatedResult;
 use App\Repository\WeightEntryRepository;
 use App\Service\CurrentUserProfileProvider;
 use App\Service\Milestone\MilestoneService;
@@ -70,12 +71,17 @@ final class WeightEntryController extends AbstractController
     }
 
     #[Route('/weight', name: 'app_weight_index')]
-    public function index(WeightEntryRepository $weightEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
+    public function index(Request $request, WeightEntryRepository $weightEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $weightEntries = $weightEntryRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
+        $pagination = $weightEntryRepository->paginateAllForProfileFromNewest(
+            $currentUserProfileProvider->getRequiredProfile(),
+            $request->query->getInt('page', 1),
+            PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
+        );
         return $this->render('weight_entry/index.html.twig', [
             'controller_name' => 'WeightEntryController',
-            'weightEntries' => $weightEntries,
+            'weightEntries' => $pagination->items,
+            'pagination' => $pagination,
         ]);
     }
 

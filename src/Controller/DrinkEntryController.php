@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\DrinkEntry;
 use App\Form\DrinkEntryType;
+use App\Pagination\PaginatedResult;
 use App\Repository\DrinkEntryRepository;
 use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
@@ -63,13 +64,18 @@ final class DrinkEntryController extends AbstractController
     }
 
     #[Route('/drink/index', name: 'app_drink_index')]
-    public function index(DrinkEntryRepository $drinkEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
+    public function index(Request $request, DrinkEntryRepository $drinkEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $drinkEntries = $drinkEntryRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
+        $pagination = $drinkEntryRepository->paginateAllForProfileFromNewest(
+            $currentUserProfileProvider->getRequiredProfile(),
+            $request->query->getInt('page', 1),
+            PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
+        );
 
         return $this->render('drink_entry/index.html.twig', [
             'controller_name' => 'DrinkEntryController',
-            'drinkEntries' => $drinkEntries,
+            'drinkEntries' => $pagination->items,
+            'pagination' => $pagination,
         ]);
     }
 }

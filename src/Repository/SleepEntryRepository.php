@@ -4,13 +4,12 @@ namespace App\Repository;
 
 use App\Entity\Profile;
 use App\Entity\SleepEntry;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<SleepEntry>
+ * @extends AbstractPaginatedRepository<SleepEntry>
  */
-class SleepEntryRepository extends ServiceEntityRepository
+class SleepEntryRepository extends AbstractPaginatedRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -52,16 +51,15 @@ class SleepEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /** @return SleepEntry[] */
-    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    public function paginateAllForProfileFromNewest(Profile $profile, int $page, int $itemsPerPage): \App\Pagination\PaginatedResult
     {
-        return $this->createQueryBuilder('sleepEntry')
+        $queryBuilder = $this->createQueryBuilder('sleepEntry')
             ->andWhere('sleepEntry.profile = :profile')
             ->setParameter('profile', $profile)
             ->orderBy('sleepEntry.date', 'DESC')
-            ->addOrderBy('sleepEntry.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('sleepEntry.id', 'DESC');
+
+        return $this->paginate($queryBuilder, $page, $itemsPerPage);
     }
 
     public function findLatestForProfile(Profile $profile): ?SleepEntry

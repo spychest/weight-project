@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\SleepEntry;
 use App\Form\SleepEntryType;
+use App\Pagination\PaginatedResult;
 use App\Repository\SleepEntryRepository;
 use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,12 +55,17 @@ final class SleepEntryController extends AbstractController
     }
 
     #[Route('/sleep', name: 'app_sleep_index')]
-    public function index(SleepEntryRepository $sleepEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
+    public function index(Request $request, SleepEntryRepository $sleepEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $sleepEntries = $sleepEntryRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
+        $pagination = $sleepEntryRepository->paginateAllForProfileFromNewest(
+            $currentUserProfileProvider->getRequiredProfile(),
+            $request->query->getInt('page', 1),
+            PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
+        );
         return $this->render('sleep_entry/index.html.twig', [
             'controller_name' => 'SleepEntryController',
-            'sleepEntries' => $sleepEntries,
+            'sleepEntries' => $pagination->items,
+            'pagination' => $pagination,
         ]);
     }
 

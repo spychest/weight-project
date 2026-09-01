@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\DailyCheckin;
 use App\Form\DailyCheckinType;
+use App\Pagination\PaginatedResult;
 use App\Repository\DailyCheckinRepository;
 use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
@@ -55,11 +56,16 @@ final class DailyCheckinController extends AbstractController
     }
 
     #[Route('/daily-checkin', name: 'app_daily_checkin_index')]
-    public function index(DailyCheckinRepository $dailyCheckinRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
+    public function index(Request $request, DailyCheckinRepository $dailyCheckinRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $dailyCheckins = $dailyCheckinRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
+        $pagination = $dailyCheckinRepository->paginateAllForProfileFromNewest(
+            $currentUserProfileProvider->getRequiredProfile(),
+            $request->query->getInt('page', 1),
+            PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
+        );
         return $this->render('daily_checkin/index.html.twig', [
-            'dailyCheckins' => $dailyCheckins,
+            'dailyCheckins' => $pagination->items,
+            'pagination' => $pagination,
         ]);
     }
 

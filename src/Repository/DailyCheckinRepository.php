@@ -4,13 +4,12 @@ namespace App\Repository;
 
 use App\Entity\DailyCheckin;
 use App\Entity\Profile;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<DailyCheckin>
+ * @extends AbstractPaginatedRepository<DailyCheckin>
  */
-class DailyCheckinRepository extends ServiceEntityRepository
+class DailyCheckinRepository extends AbstractPaginatedRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -54,16 +53,15 @@ class DailyCheckinRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /** @return DailyCheckin[] */
-    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    public function paginateAllForProfileFromNewest(Profile $profile, int $page, int $itemsPerPage): \App\Pagination\PaginatedResult
     {
-        return $this->createQueryBuilder('dailyCheckin')
+        $queryBuilder = $this->createQueryBuilder('dailyCheckin')
             ->andWhere('dailyCheckin.profile = :profile')
             ->setParameter('profile', $profile)
             ->orderBy('dailyCheckin.date', 'DESC')
-            ->addOrderBy('dailyCheckin.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('dailyCheckin.id', 'DESC');
+
+        return $this->paginate($queryBuilder, $page, $itemsPerPage);
     }
 
     public function findLatestForProfile(Profile $profile): ?DailyCheckin

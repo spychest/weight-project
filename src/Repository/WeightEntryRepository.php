@@ -4,13 +4,12 @@ namespace App\Repository;
 
 use App\Entity\Profile;
 use App\Entity\WeightEntry;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<WeightEntry>
+ * @extends AbstractPaginatedRepository<WeightEntry>
  */
-class WeightEntryRepository extends ServiceEntityRepository
+class WeightEntryRepository extends AbstractPaginatedRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -60,15 +59,14 @@ class WeightEntryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /** @return WeightEntry[] */
-    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    public function paginateAllForProfileFromNewest(Profile $profile, int $page, int $itemsPerPage): \App\Pagination\PaginatedResult
     {
-        return $this->createQueryBuilder('weightEntry')
+        $queryBuilder = $this->createQueryBuilder('weightEntry')
             ->andWhere('weightEntry.profile = :profile')
             ->setParameter('profile', $profile)
             ->orderBy('weightEntry.measuredAt', 'DESC')
-            ->addOrderBy('weightEntry.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('weightEntry.id', 'DESC');
+
+        return $this->paginate($queryBuilder, $page, $itemsPerPage);
     }
 }
