@@ -65,7 +65,7 @@ final class DrinkEntryController extends AbstractController
     #[Route('/drink/index', name: 'app_drink_index')]
     public function index(DrinkEntryRepository $drinkEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $drinkEntries = $drinkEntryRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
+        $drinkEntries = $drinkEntryRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
 
         return $this->render('drink_entry/index.html.twig', [
             'controller_name' => 'DrinkEntryController',

@@ -56,7 +56,7 @@ final class SleepEntryController extends AbstractController
     #[Route('/sleep', name: 'app_sleep_index')]
     public function index(SleepEntryRepository $sleepEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $sleepEntries = $sleepEntryRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
+        $sleepEntries = $sleepEntryRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
         return $this->render('sleep_entry/index.html.twig', [
             'controller_name' => 'SleepEntryController',
             'sleepEntries' => $sleepEntries,

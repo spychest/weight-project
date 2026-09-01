@@ -54,6 +54,18 @@ class FoodEventRepository extends ServiceEntityRepository
     }
 
     /** @return FoodEvent[] */
+    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    {
+        return $this->createQueryBuilder('foodEvent')
+            ->andWhere('foodEvent.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('foodEvent.eatenAt', 'DESC')
+            ->addOrderBy('foodEvent.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return FoodEvent[] */
     public function findRecentForProfile(Profile $profile, int $maximumResults): array
     {
         return $this->createQueryBuilder('foodEvent')

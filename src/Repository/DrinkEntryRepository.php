@@ -53,6 +53,18 @@ class DrinkEntryRepository extends ServiceEntityRepository
     }
 
     /** @return DrinkEntry[] */
+    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    {
+        return $this->createQueryBuilder('drinkEntry')
+            ->andWhere('drinkEntry.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('drinkEntry.date', 'DESC')
+            ->addOrderBy('drinkEntry.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return DrinkEntry[] */
     public function findRecentForProfile(Profile $profile, int $maximumResults): array
     {
         return $this->createQueryBuilder('drinkEntry')

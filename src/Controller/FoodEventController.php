@@ -67,7 +67,7 @@ final class FoodEventController extends AbstractController
     #[Route('/food', name: 'app_food_index')]
     public function index(FoodEventRepository $foodEventRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $foodEvents = $foodEventRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
+        $foodEvents = $foodEventRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
 
         return $this->render('food_event/index.html.twig', [
             'foodEvents' => $foodEvents,

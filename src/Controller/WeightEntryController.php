@@ -72,7 +72,7 @@ final class WeightEntryController extends AbstractController
     #[Route('/weight', name: 'app_weight_index')]
     public function index(WeightEntryRepository $weightEntryRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $weightEntries = $weightEntryRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
+        $weightEntries = $weightEntryRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
         return $this->render('weight_entry/index.html.twig', [
             'controller_name' => 'WeightEntryController',
             'weightEntries' => $weightEntries,

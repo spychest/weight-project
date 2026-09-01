@@ -59,4 +59,16 @@ class WeightEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return WeightEntry[] */
+    public function findAllForProfileOrderedFromNewest(Profile $profile): array
+    {
+        return $this->createQueryBuilder('weightEntry')
+            ->andWhere('weightEntry.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->orderBy('weightEntry.measuredAt', 'DESC')
+            ->addOrderBy('weightEntry.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

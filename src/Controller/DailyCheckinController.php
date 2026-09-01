@@ -57,7 +57,7 @@ final class DailyCheckinController extends AbstractController
     #[Route('/daily-checkin', name: 'app_daily_checkin_index')]
     public function index(DailyCheckinRepository $dailyCheckinRepository, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        $dailyCheckins = $dailyCheckinRepository->findAllForProfile($currentUserProfileProvider->getRequiredProfile());
+        $dailyCheckins = $dailyCheckinRepository->findAllForProfileOrderedFromNewest($currentUserProfileProvider->getRequiredProfile());
         return $this->render('daily_checkin/index.html.twig', [
             'dailyCheckins' => $dailyCheckins,
         ]);
