@@ -739,6 +739,7 @@
 .form-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
     margin-top: 30px;
     padding-top: 25px;
     border-top: 1px solid var(--color-border-light);
@@ -765,6 +766,126 @@
 
 .form-button-primary:hover {
     background: var(--color-text-primary-hover);
+}
+
+.form-modal {
+    width: min(700px, calc(100vw - 32px));
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--radius-4xl);
+    background: transparent;
+    color: var(--color-text-primary);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+}
+
+.form-modal::backdrop {
+    background: rgba(16, 24, 21, 0.68);
+    backdrop-filter: blur(3px);
+}
+
+.form-modal-content {
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    border-radius: var(--radius-4xl);
+    scrollbar-gutter: stable;
+}
+
+.form-modal .form-card {
+    position: relative;
+    border: 0;
+    box-shadow: none;
+}
+
+.form-modal .form-header {
+    padding-right: 44px;
+}
+
+.form-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-bg-light);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.form-modal-close:hover,
+.form-modal-close:focus-visible {
+    border-color: var(--color-border-hover);
+    background: var(--color-bg-hover);
+    outline: none;
+}
+
+.form-modal-status,
+.form-modal-error {
+    position: relative;
+    box-sizing: border-box;
+    min-height: 150px;
+    margin: 0;
+    padding: 55px 35px 35px;
+    border-radius: var(--radius-4xl);
+    background: var(--color-white);
+    text-align: center;
+}
+
+.form-modal-error p {
+    margin: 8px 0 24px;
+    color: var(--color-text-secondary);
+}
+
+.form-modal-inline-error {
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+    background: #fee7e7;
+    color: var(--color-error);
+}
+
+.form-modal-submitting .form-card {
+    cursor: progress;
+    opacity: 0.72;
+    pointer-events: none;
+}
+
+body:has(.form-modal[open]) {
+    overflow: hidden;
+}
+
+@media (max-width: 600px) {
+    .form-modal {
+        width: calc(100vw - 20px);
+        max-height: calc(100dvh - 20px);
+    }
+
+    .form-modal-content {
+        max-height: calc(100dvh - 20px);
+    }
+
+    .form-modal .form-card {
+        padding: 52px 20px 24px;
+    }
+
+    .form-modal .form-header {
+        margin-bottom: 22px;
+    }
+
+    .form-modal .form-header h1 {
+        font-size: 1.55rem;
+    }
 }
 
 .dashboard-progress-action {
@@ -2496,6 +2617,11 @@ html.dark-mode {
 .dark-mode .account-danger-zone,
 .dark-mode .alert {
     border-color: #704443;
+    background: #352120;
+    color: #ffb3ad;
+}
+
+.dark-mode .form-modal-inline-error {
     background: #352120;
     color: #ffb3ad;
 }

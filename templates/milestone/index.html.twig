@@ -11,7 +11,7 @@
                 <p>Retrouve ici tous tes objectifs intermédiaires, en cours ou déjà atteints.</p>
             </div>
             <a href="{{ path('app_dashboard') }}" class="dashboard-button dashboard-button-primary">Dashboard</a>
-            <a href="{{ path('app_milestone_new') }}" class="dashboard-button dashboard-button-primary">+ Ajouter un jalon</a>
+            <a href="{{ path('app_milestone_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>+ Ajouter un jalon</a>
         </header>
 
         {% if ongoingMilestonesPagination.totalItems == 0 and achievedMilestonesPagination.totalItems == 0 %}
@@ -19,7 +19,7 @@
                 <span>🎯</span>
                 <h2>Aucun jalon enregistré</h2>
                 <p>Ajoute un premier objectif intermédiaire pour suivre ta progression.</p>
-                <a href="{{ path('app_milestone_new') }}" class="dashboard-button dashboard-button-primary">Ajouter mon premier jalon</a>
+                <a href="{{ path('app_milestone_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter mon premier jalon</a>
             </div>
         {% else %}
             <section class="milestone-category" aria-labelledby="ongoing-milestones-title">

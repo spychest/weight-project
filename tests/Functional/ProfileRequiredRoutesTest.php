@@ -69,6 +69,11 @@ final class ProfileRequiredRoutesTest extends WebTestCase
     #[Test]
     public function googleCallbackUsesTheOriginalHttpsUrlBehindATrustedProxy(): void
     {
+        $expectedGoogleRedirectUri = 'https://weight.spychest.fr/connect/google/check';
+        $_ENV['GOOGLE_REDIRECT_URI'] = $expectedGoogleRedirectUri;
+        $_SERVER['GOOGLE_REDIRECT_URI'] = $expectedGoogleRedirectUri;
+        putenv('GOOGLE_REDIRECT_URI='.$expectedGoogleRedirectUri);
+
         $browser = self::createClient([], [
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_HOST' => 'weight.spychest.fr',

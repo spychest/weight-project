@@ -61,7 +61,7 @@
                     <span>Départ : {{ dashboard.startingWeight }} kg</span>
                     <span>Perdu : {{ dashboard.lostWeight }} kg</span>
                     <span>Restant : {{ dashboard.remainingWeight }} kg</span>
-                    <a href="{{ path('app_milestone_new') }}" class="dashboard-progress-action"> + Ajouter un jalon </a>
+                    <a href="{{ path('app_milestone_new') }}" class="dashboard-progress-action" data-modal-form> + Ajouter un jalon </a>
                 </div>
             </div>
         </section>
@@ -108,7 +108,7 @@
                     <div class="dashboard-card-header">
                         <h3>🍽️ Derniers repas</h3>
                         <a href="{{ path('app_food_index') }}">Voir tout</a>
-                        <a href="{{ path('app_food_new') }}">Ajouter</a>
+                        <a href="{{ path('app_food_new') }}" data-modal-form>Ajouter</a>
                     </div>
 
                     {% for meal in dashboard.recentMeals %}
@@ -128,7 +128,7 @@
                     <div class="dashboard-card-header">
                         <h3>💧 Hydratation</h3>
                         <a href="{{ path('app_drink_index') }}">Voir tout</a>
-                        <a href="{{ path('app_drink_new') }}">Ajouter</a>
+                        <a href="{{ path('app_drink_new') }}" data-modal-form>Ajouter</a>
                     </div>
 
                     {% for drink in dashboard.recentDrinks %}
@@ -152,7 +152,7 @@
                     <div class="dashboard-card-header">
                         <h3>📋 Dernier bilan</h3>
                         <a href="{{ path('app_daily_checkin_index') }}">Voir tout</a>
-                        <a href="{{ path('app_daily_checkin_new') }}">Ajouter</a>
+                        <a href="{{ path('app_daily_checkin_new') }}" data-modal-form>Ajouter</a>
                     </div>
 
                     {% if dashboard.dailyCheckin %}
@@ -194,7 +194,7 @@
                     <div class="dashboard-card-header">
                         <h3>🌙 Sommeil</h3>
                         <a href="{{ path('app_sleep_index') }}">Voir tout</a>
-                        <a href="{{ path('app_sleep_new') }}">Ajouter</a>
+                        <a href="{{ path('app_sleep_new') }}" data-modal-form>Ajouter</a>
                     </div>
 
                     {% if dashboard.sleep %}
@@ -231,7 +231,7 @@
                     <div class="dashboard-card-header">
                         <h3>🚶 Activités récentes</h3>
                         <a href="#">Voir tout</a>
-                        <a href="{{ path('app_activity_new') }}">Ajouter</a>
+                        <a href="{{ path('app_activity_new') }}" data-modal-form>Ajouter</a>
                     </div>
 
                     {% if dashboard.recentActivities is not empty %}
@@ -260,7 +260,7 @@
                     <div class="dashboard-card-header">
                         <h3>⚖️ Poids</h3>
                         <a href="{{ path('app_weight_index') }}">Voir tout</a>
-                        <a href="{{ path('app_weight_new') }}">Ajouter</a>
+                        <a href="{{ path('app_weight_new') }}" data-modal-form>Ajouter</a>
                     </div>
 
                     <div class="dashboard-metrics">
