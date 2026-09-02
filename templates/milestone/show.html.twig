@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ milestone.title }}{% endblock %}
+
+{% block body %}
+    <div class="entry-show">
+        <header class="entry-show-header">
+            <div>
+                <span class="entry-show-label">🎯 Jalon</span>
+                <h1>{{ milestone.title }}</h1>
+            </div>
+
+            <div class="entry-show-actions">
+                <a href="{{ path('app_milestone_edit', {id: milestone.id}) }}" class="dashboard-button dashboard-button-primary">Modifier</a>
+                <a href="{{ path('app_milestone_index') }}" class="dashboard-button">Retour</a>
+            </div>
+        </header>
+
+        <section class="entry-show-card">
+            <div class="entry-show-section">
+                <span class="entry-show-section-label">Statut</span>
+                <p class="entry-show-description">{{ milestone.achievedAt ? 'Atteint' : 'En cours' }}</p>
+            </div>
+
+            <div class="entry-show-metrics">
+                <div class="entry-show-metric">
+                    <span>Type</span>
+                    <strong>{{ milestone.type }}</strong>
+                </div>
+                <div class="entry-show-metric">
+                    <span>Objectif</span>
+                    <strong>{{ milestone.targetValue }} kg</strong>
+                </div>
+                {% if milestone.achievedAt %}
+                    <div class="entry-show-metric">
+                        <span>Date d’accomplissement</span>
+                        <strong>{{ milestone.achievedAt|date('d/m/Y') }}</strong>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if milestone.description %}
+                <div class="entry-show-section">
+                    <span class="entry-show-section-label">Description</span>
+                    <p>{{ milestone.description }}</p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

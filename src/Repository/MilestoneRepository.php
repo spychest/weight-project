@@ -4,13 +4,13 @@ namespace App\Repository;
 
 use App\Entity\Milestone;
 use App\Entity\Profile;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Pagination\PaginatedResult;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Milestone>
+ * @extends AbstractPaginatedRepository<Milestone>
  */
-class MilestoneRepository extends ServiceEntityRepository
+class MilestoneRepository extends AbstractPaginatedRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -29,5 +29,22 @@ class MilestoneRepository extends ServiceEntityRepository
             ->addOrderBy('m.id', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function paginateForProfileByCompletionStatus(
+        Profile $profile,
+        bool $completedMilestones,
+        int $page,
+        int $itemsPerPage,
+    ): PaginatedResult
+    {
+        $queryBuilder = $this->createQueryBuilder('milestone')
+            ->andWhere('milestone.profile = :profile')
+            ->setParameter('profile', $profile)
+            ->andWhere($completedMilestones ? 'milestone.achievedAt IS NOT NULL' : 'milestone.achievedAt IS NULL')
+            ->orderBy('milestone.targetValue', 'DESC')
+            ->addOrderBy('milestone.id', 'DESC');
+
+        return $this->paginate($queryBuilder, $page, $itemsPerPage);
     }
 }

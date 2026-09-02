@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter un jalon{% endblock %}
+{% block title %}{{ editMode ? 'Modifier le jalon' : 'Ajouter un jalon' }}{% endblock %}
 
 {% block body %}
     <div class="form-page">
         <div class="form-card">
             <header class="form-header">
-                <h1>Ajouter un jalon 🎯</h1>
-                <p>Définis un objectif intermédiaire pour suivre ta progression.</p>
+                <h1>{{ editMode ? 'Modifier le jalon' : 'Ajouter un jalon' }} 🎯</h1>
+                <p>{{ editMode ? 'Mets à jour les informations de ce jalon.' : 'Définis un objectif intermédiaire pour suivre ta progression.' }}</p>
             </header>
 
             {{ form_start(form) }}
@@ -21,8 +21,11 @@
 
             <div class="form-actions">
                 <button type="submit" class="form-button form-button-primary">
-                    Ajouter le jalon
+                    {{ editMode ? 'Enregistrer les modifications' : 'Ajouter le jalon' }}
                 </button>
+                {% if editMode %}
+                    <a href="{{ path('app_milestone_show', {id: form.vars.data.id}) }}" class="form-button">Annuler</a>
+                {% endif %}
             </div>
 
             {{ form_end(form) }}

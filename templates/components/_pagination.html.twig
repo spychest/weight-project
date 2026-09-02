@@ -1,7 +1,9 @@
 {% if pagination.totalPages > 1 %}
+    {% set pageParameterName = pageParameterName|default('page') %}
+    {% set preservedQueryParameters = preservedQueryParameters|default({}) %}
     <nav class="pagination" aria-label="Navigation entre les pages">
         {% if pagination.hasPreviousPage %}
-            <a class="pagination-link pagination-direction-link" href="{{ path(routeName, {page: pagination.currentPage - 1}) }}" rel="prev">
+            <a class="pagination-link pagination-direction-link" href="{{ path(routeName, preservedQueryParameters|merge({(pageParameterName): pagination.currentPage - 1})) }}" rel="prev">
                 ← Précédente
             </a>
         {% else %}
@@ -19,7 +21,7 @@
                         {{ pageNumber }}
                     </span>
                 {% else %}
-                    <a class="pagination-page-link" href="{{ path(routeName, {page: pageNumber}) }}">
+                    <a class="pagination-page-link" href="{{ path(routeName, preservedQueryParameters|merge({(pageParameterName): pageNumber})) }}">
                         {{ pageNumber }}
                     </a>
                 {% endif %}
@@ -27,7 +29,7 @@
         </div>
 
         {% if pagination.hasNextPage %}
-            <a class="pagination-link pagination-direction-link" href="{{ path(routeName, {page: pagination.currentPage + 1}) }}" rel="next">
+            <a class="pagination-link pagination-direction-link" href="{{ path(routeName, preservedQueryParameters|merge({(pageParameterName): pagination.currentPage + 1})) }}" rel="next">
                 Suivante →
             </a>
         {% else %}

@@ -57,7 +57,7 @@ class MilestoneService
         return $validatedMilestoneCount;
     }
 
-    private function isWeightMilestone(Milestone $milestone): bool
+    public function isWeightMilestone(Milestone $milestone): bool
     {
         $normalizedMilestoneType = strtoupper(trim((string) $milestone->getType()));
 

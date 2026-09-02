@@ -7,10 +7,12 @@ use App\DTO\DashboardData;
 use App\DTO\DrinkEntryData;
 use App\DTO\FoodEventData;
 use App\DTO\MilestoneData;
+use App\DTO\MilestoneProgressMarkerData;
 use App\Entity\Activity;
 use App\Entity\DailyCheckin;
 use App\Entity\DrinkEntry;
 use App\Entity\FoodEvent;
+use App\Entity\Milestone;
 use App\Entity\Profile;
 use App\Entity\SleepEntry;
 use App\Repository\DailyCheckinRepository;
@@ -55,6 +57,7 @@ final readonly class DashboardService
         }
 
         $nextMilestone = null;
+        $nextMilestoneEntity = null;
 
         if ($currentWeight !== null) {
             $nextMilestoneEntity = $this->milestoneService->findNextMilestone(
@@ -71,6 +74,8 @@ final readonly class DashboardService
                 );
             }
         }
+
+        $milestoneProgressMarkers = $this->createMilestoneProgressMarkers($profile, $nextMilestoneEntity);
 
         $recentMealData = array_map(
             static fn (FoodEvent $foodEvent): FoodEventData => new FoodEventData(
@@ -127,6 +132,7 @@ final readonly class DashboardService
             remainingWeight: $remainingWeight,
             progressPercentage: $progressPercentage,
             nextMilestone: $nextMilestone,
+            milestoneProgressMarkers: $milestoneProgressMarkers,
             recentMeals: $recentMealData,
             recentDrinks: $recentDrinkData,
             dailyCheckin: $latestDailyCheckinData,
@@ -136,6 +142,50 @@ final readonly class DashboardService
             currentImc: $currentBodyMassIndex,
             targetImc: $targetBodyMassIndex,
         );
+    }
+
+    /** @return list<MilestoneProgressMarkerData> */
+    private function createMilestoneProgressMarkers(Profile $profile, ?Milestone $nextMilestone): array
+    {
+        $startingWeight = $profile->getStartingWeight();
+        $targetWeight = $profile->getTargetWeight();
+        $totalWeightRange = $startingWeight - $targetWeight;
+
+        if ($totalWeightRange <= 0) {
+            return [];
+        }
+
+        $markers = [];
+
+        foreach ($profile->getMilestones() as $milestone) {
+            $milestoneId = $milestone->getId();
+            $milestoneTargetWeight = $milestone->getTargetValue();
+
+            if (
+                $milestoneId === null
+                || !$this->milestoneService->isWeightMilestone($milestone)
+                || $milestoneTargetWeight > $startingWeight
+                || $milestoneTargetWeight < $targetWeight
+            ) {
+                continue;
+            }
+
+            $markers[] = new MilestoneProgressMarkerData(
+                id: $milestoneId,
+                title: (string) $milestone->getTitle(),
+                targetWeight: $milestoneTargetWeight,
+                positionPercentage: (($startingWeight - $milestoneTargetWeight) / $totalWeightRange) * 100,
+                isAchieved: $milestone->getAchievedAt() !== null,
+                isNextMilestone: $milestone === $nextMilestone,
+            );
+        }
+
+        usort(
+            $markers,
+            static fn (MilestoneProgressMarkerData $firstMarker, MilestoneProgressMarkerData $secondMarker): int => $firstMarker->positionPercentage <=> $secondMarker->positionPercentage,
+        );
+
+        return $markers;
     }
 
     private function createDailyCheckinData(?DailyCheckin $dailyCheckin): ?DailyCheckinData

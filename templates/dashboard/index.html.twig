@@ -30,9 +30,31 @@
                         <span>objectif : {{ dashboard.targetWeight }} kg</span>
                     </div>
                 </div>
-                <div class="dashboard-progress-bar">
-                    <div class="dashboard-progress-bar-fill" style="width: {{ dashboard.formattedProgressPercentage|replace({' %': ''}) }}%;">
+                {#
+                    Ancienne barre de progression conservée pour pouvoir la restaurer facilement.
+                    <div class="dashboard-progress-bar">
+                        <div class="dashboard-progress-bar-fill" style="width: {{ dashboard.formattedProgressPercentage|replace({' %': ''}) }}%;"></div>
+                    </div>
+                #}
 
+                <div class="dashboard-milestone-progress" aria-label="Progression du poids et jalons">
+                    <div class="dashboard-milestone-progress-track">
+                        <div class="dashboard-progress-bar-fill" style="width: {{ dashboard.formattedProgressPercentage|replace({' %': ''}) }}%;"></div>
+
+                        {% for marker in dashboard.milestoneProgressMarkers %}
+                            <a
+                                href="{{ path('app_milestone_show', {id: marker.id}) }}"
+                                class="dashboard-milestone-marker{{ marker.isAchieved ? ' dashboard-milestone-marker-achieved' : '' }}{{ marker.isNextMilestone ? ' dashboard-milestone-marker-next' : '' }}"
+                                style="left: {{ marker.positionPercentage }}%;"
+                                aria-label="{{ marker.title }}, objectif {{ marker.targetWeight }} kg, {{ marker.isAchieved ? 'atteint' : 'à venir' }}"
+                            >
+                                <span class="dashboard-milestone-marker-dot"></span>
+                                <span class="dashboard-milestone-marker-tooltip" role="tooltip">
+                                    <strong>{{ marker.title }}</strong>
+                                    <span>{{ marker.targetWeight }} kg · {{ marker.isAchieved ? 'Atteint' : (marker.isNextMilestone ? 'Prochain jalon' : 'À venir') }}</span>
+                                </span>
+                            </a>
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="dashboard-progress-footer">
@@ -44,12 +66,13 @@
             </div>
         </section>
 
-        {% if dashboard.nextMilestone %}
-            <section class="dashboard-section">
-                <div class="dashboard-section-header">
-                    <h2>Prochain jalon</h2>
-                </div>
+        <section class="dashboard-section">
+            <div class="dashboard-section-header">
+                <h2>Prochain jalon</h2>
+                <a href="{{ path('app_milestone_index') }}">Voir tous les jalons</a>
+            </div>
 
+            {% if dashboard.nextMilestone %}
                 <div class="dashboard-milestone-card">
                     <div class="dashboard-milestone-icon">🎯</div>
 
@@ -64,8 +87,16 @@
                         <span>Encore : <strong>{{ dashboard.nextMilestone.remainingWeight }} kg</strong></span>
                     </div>
                 </div>
-            </section>
-        {% endif %}
+            {% else %}
+                <div class="dashboard-milestone-card">
+                    <div class="dashboard-milestone-icon">🎯</div>
+                    <div class="dashboard-milestone-content">
+                        <strong>Aucun prochain jalon</strong>
+                        <p>Ajoute un nouvel objectif intermédiaire pour poursuivre ta progression.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
 
         <section class="dashboard-section">
             <div class="dashboard-section-header">

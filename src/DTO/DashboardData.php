@@ -14,6 +14,8 @@ final readonly class DashboardData
         public ?float $remainingWeight,
         public ?float $progressPercentage,
         public ?MilestoneData $nextMilestone,
+        /** @var list<MilestoneProgressMarkerData> */
+        public array $milestoneProgressMarkers,
         public array $recentMeals,
         public array $recentDrinks,
         public ?DailyCheckinData $dailyCheckin,

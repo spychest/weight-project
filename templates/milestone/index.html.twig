@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes jalons{% endblock %}
+
+{% block body %}
+    <div class="entry-index">
+        <header class="entry-index-header">
+            <div>
+                <span class="entry-index-label">🎯 Progression</span>
+                <h1>Mes jalons</h1>
+                <p>Retrouve ici tous tes objectifs intermédiaires, en cours ou déjà atteints.</p>
+            </div>
+            <a href="{{ path('app_dashboard') }}" class="dashboard-button dashboard-button-primary">Dashboard</a>
+            <a href="{{ path('app_milestone_new') }}" class="dashboard-button dashboard-button-primary">+ Ajouter un jalon</a>
+        </header>
+
+        {% if ongoingMilestonesPagination.totalItems == 0 and achievedMilestonesPagination.totalItems == 0 %}
+            <div class="entry-index-empty">
+                <span>🎯</span>
+                <h2>Aucun jalon enregistré</h2>
+                <p>Ajoute un premier objectif intermédiaire pour suivre ta progression.</p>
+                <a href="{{ path('app_milestone_new') }}" class="dashboard-button dashboard-button-primary">Ajouter mon premier jalon</a>
+            </div>
+        {% else %}
+            <section class="milestone-category" aria-labelledby="ongoing-milestones-title">
+                <header class="milestone-category-header">
+                    <h2 id="ongoing-milestones-title">Jalons en cours</h2>
+                    <p>{{ ongoingMilestonesPagination.totalItems }} jalon{{ ongoingMilestonesPagination.totalItems > 1 ? 's' : '' }} à atteindre</p>
+                </header>
+                {% if ongoingMilestonesPagination.items is not empty %}
+                    <div class="entry-list">
+                        {% for milestone in ongoingMilestonesPagination.items %}
+                            {% include 'milestone/_card.html.twig' with {milestone: milestone} only %}
+                        {% endfor %}
+                    </div>
+                    {% include 'components/_pagination.html.twig' with {pagination: ongoingMilestonesPagination, routeName: 'app_milestone_index', pageParameterName: 'ongoingPage', preservedQueryParameters: {achievedPage: achievedMilestonesPagination.currentPage}} only %}
+                {% else %}
+                    <p class="milestone-category-empty">Aucun jalon en cours.</p>
+                {% endif %}
+            </section>
+
+            <section class="milestone-category" aria-labelledby="achieved-milestones-title">
+                <header class="milestone-category-header">
+                    <h2 id="achieved-milestones-title">Jalons atteints</h2>
+                    <p>{{ achievedMilestonesPagination.totalItems }} jalon{{ achievedMilestonesPagination.totalItems > 1 ? 's' : '' }} atteint{{ achievedMilestonesPagination.totalItems > 1 ? 's' : '' }}</p>
+                </header>
+                {% if achievedMilestonesPagination.items is not empty %}
+                    <div class="entry-list">
+                        {% for milestone in achievedMilestonesPagination.items %}
+                            {% include 'milestone/_card.html.twig' with {milestone: milestone} only %}
+                        {% endfor %}
+                    </div>
+                    {% include 'components/_pagination.html.twig' with {pagination: achievedMilestonesPagination, routeName: 'app_milestone_index', pageParameterName: 'achievedPage', preservedQueryParameters: {ongoingPage: ongoingMilestonesPagination.currentPage}} only %}
+                {% else %}
+                    <p class="milestone-category-empty">Aucun jalon atteint pour le moment.</p>
+                {% endif %}
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}

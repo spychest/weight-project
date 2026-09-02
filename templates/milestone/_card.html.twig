@@ -1,0 +1,17 @@
+<article class="entry-card">
+    <a href="{{ path('app_milestone_show', {id: milestone.id}) }}" class="entry-card-link">
+        <div class="entry-card-header">
+            <div>
+                <span class="entry-card-type">{{ milestone.type }}</span>
+                <span class="milestone-status {{ milestone.achievedAt ? 'milestone-status-achieved' : 'milestone-status-pending' }}">
+                    {{ milestone.achievedAt ? 'Atteint' : 'En cours' }}
+                </span>
+            </div>
+            <span class="entry-card-arrow">→</span>
+        </div>
+        <h2 class="milestone-card-title">{{ milestone.title }}</h2>
+        <p class="entry-card-description">Objectif : <strong>{{ milestone.targetValue }} kg</strong></p>
+        {% if milestone.description %}<p class="entry-card-description">{{ milestone.description }}</p>{% endif %}
+        {% if milestone.achievedAt %}<p class="entry-card-description">Atteint le {{ milestone.achievedAt|date('d/m/Y') }}</p>{% endif %}
+    </a>
+</article>

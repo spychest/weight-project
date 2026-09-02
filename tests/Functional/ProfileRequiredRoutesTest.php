@@ -23,6 +23,9 @@ final class ProfileRequiredRoutesTest extends WebTestCase
         yield 'graphs' => ['/graph'];
         yield 'activity creation' => ['/activity/new'];
         yield 'milestone creation' => ['/milestone/new'];
+        yield 'milestone history' => ['/milestones'];
+        yield 'milestone details' => ['/milestone/1'];
+        yield 'milestone editing' => ['/milestone/1/edit'];
         yield 'account settings' => ['/account'];
     }
 
