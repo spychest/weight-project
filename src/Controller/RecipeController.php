@@ -24,29 +24,29 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 final class RecipeController extends AbstractController
 {
     #[Route('', name: 'app_recipe_index', methods: ['GET'])]
-    public function index(Request $request, RecipeRepository $recipeRepository): Response
-    {
-        return $this->render('recipe/index.html.twig', [
-            'recipesPagination' => $recipeRepository->paginatePublished(
-                $request->query->getInt('page', 1),
-                PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
-            ),
-        ]);
-    }
-
-    #[Route('/mine', name: 'app_recipe_manage', methods: ['GET'])]
-    public function manage(
+    public function index(
         Request $request,
         RecipeRepository $recipeRepository,
         CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
-        return $this->render('recipe/manage.html.twig', [
-            'recipesPagination' => $recipeRepository->paginateForProfile(
-                $currentUserProfileProvider->getRequiredProfile(),
-                $request->query->getInt('page', 1),
+        return $this->render('recipe/index.html.twig', [
+            'communityRecipesPagination' => $recipeRepository->paginatePublished(
+                $request->query->getInt('communityPage', 1),
                 PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
             ),
+            'personalRecipesPagination' => $recipeRepository->paginateForProfile(
+                $currentUserProfileProvider->getRequiredProfile(),
+                $request->query->getInt('minePage', 1),
+                PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
+            ),
+            'activeRecipeTab' => $request->query->getString('tab') === 'mine' ? 'mine' : 'community',
         ]);
+    }
+
+    #[Route('/mine', name: 'app_recipe_manage', methods: ['GET'])]
+    public function manage(): Response
+    {
+        return $this->redirectToRoute('app_recipe_index', ['tab' => 'mine']);
     }
 
     #[Route('/new', name: 'app_recipe_new', methods: ['GET', 'POST'])]

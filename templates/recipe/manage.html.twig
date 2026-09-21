@@ -6,8 +6,9 @@
     <main class="recipe-page">
         <header class="recipe-page-header">
             <div><p class="recipe-page-kicker">Espace personnel</p><h1>Mes recettes</h1><p>Ajoute, consulte et modifie tes recettes.</p></div>
-            <div class="recipe-page-actions"><a href="{{ path('app_recipe_index') }}" class="dashboard-button">Toutes les recettes</a><a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>＋ Ajouter</a></div>
+            <div class="recipe-page-actions"><a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>＋ Ajouter</a></div>
         </header>
+        {% include 'recipe/_tabs.html.twig' with {activeTab: 'mine'} only %}
         {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
 
         {% if recipesPagination.items is empty %}
