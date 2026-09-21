@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recettes{% endblock %}
+
+{% block body %}
+    <main class="recipe-page">
+        <header class="recipe-page-header">
+            <div><p class="recipe-page-kicker">La cuisine de la communauté</p><h1>Recettes</h1><p>Découvre les recettes partagées par les utilisateurs.</p></div>
+            <div class="recipe-page-actions">
+                <a href="{{ path('app_recipe_manage') }}" class="dashboard-button">Mes recettes</a>
+                <a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>＋ Ajouter une recette</a>
+            </div>
+        </header>
+
+        {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
+
+        {% if recipesPagination.items is empty %}
+            <section class="recipe-empty-state"><span>🍽️</span><h2>Aucune recette pour le moment</h2><p>Sois la première personne à en partager une.</p><a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter une recette</a></section>
+        {% else %}
+            <div class="recipe-grid">{% for recipe in recipesPagination.items %}{% include 'recipe/_card.html.twig' with {recipe: recipe} only %}{% endfor %}</div>
+            {% include 'components/_pagination.html.twig' with {pagination: recipesPagination, routeName: 'app_recipe_index'} only %}
+        {% endif %}
+    </main>
+{% endblock %}

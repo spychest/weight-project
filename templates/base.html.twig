@@ -5,9 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Mon suivi de poids{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=20260903-1">
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=20260921-4">
         {% if app.user %}
             <script src="{{ asset('js/modal-forms.js') }}?v=20260903-1" defer></script>
+            <script src="{{ asset('js/recipe-form.js') }}?v=20260921-1" defer></script>
         {% endif %}
         {% block stylesheets %}
         {% endblock %}
@@ -21,6 +22,11 @@
         <header class="site-header site-header-authenticated">
             <nav class="site-navigation site-navigation-desktop" aria-label="Navigation principale">
                 <a class="navigation-link" href="{{ path('app_dashboard') }}">Tableau de bord</a>
+                {% set unseenRecipeCount = unseen_recipe_count() %}
+                <a class="navigation-link navigation-link-with-badge" href="{{ path('app_recipe_index') }}">
+                    Recettes
+                    {% if unseenRecipeCount > 0 %}<span class="navigation-badge" aria-label="{{ unseenRecipeCount }} recette(s) non vue(s)">{{ unseenRecipeCount }}</span>{% endif %}
+                </a>
                 <a class="navigation-link" href="{{ path('app_account') }}">Mon compte</a>
                 <span class="authenticated-user-email">{{ app.user.userIdentifier }}</span>
                 <a class="navigation-button navigation-button-logout" href="{{ path('app_logout') }}">Déconnexion</a>
@@ -32,6 +38,10 @@
                 </summary>
                 <nav class="mobile-navigation-panel" aria-label="Navigation mobile">
                     <a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+                    <a href="{{ path('app_recipe_index') }}">
+                        Recettes
+                        {% if unseenRecipeCount > 0 %}<span class="navigation-badge" aria-label="{{ unseenRecipeCount }} recette(s) non vue(s)">{{ unseenRecipeCount }}</span>{% endif %}
+                    </a>
                     <a href="{{ path('app_account') }}">Mon compte</a>
                     <span class="mobile-navigation-email">{{ app.user.userIdentifier }}</span>
                     <a class="mobile-navigation-logout" href="{{ path('app_logout') }}">Déconnexion</a>

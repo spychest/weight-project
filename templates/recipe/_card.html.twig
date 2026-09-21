@@ -1,0 +1,18 @@
+<article class="recipe-card">
+    <a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="recipe-card-image-link">
+        {% if recipe.photoFilename %}
+            <img class="recipe-card-image" src="{{ asset('uploads/recipes/' ~ recipe.photoFilename) }}" alt="{{ recipe.title }}">
+        {% else %}
+            <span class="recipe-card-placeholder" aria-hidden="true">🍲</span>
+        {% endif %}
+    </a>
+    <div class="recipe-card-content">
+        <h2><a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a></h2>
+        <div class="recipe-card-meta">
+            <span>🍽 {{ recipe.servings }} portion{{ recipe.servings > 1 ? 's' : '' }}</span>
+            {% if recipe.setupTimeMinutes is not null %}<span>Mise en place : {{ recipe.setupTimeMinutes }} min</span>{% endif %}
+            {% if recipe.preparationTimeMinutes is not null %}<span>Préparation : {{ recipe.preparationTimeMinutes }} min</span>{% endif %}
+            <span>👁 {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</span>
+        </div>
+    </div>
+</article>

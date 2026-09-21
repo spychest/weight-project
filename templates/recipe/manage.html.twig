@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes recettes{% endblock %}
+
+{% block body %}
+    <main class="recipe-page">
+        <header class="recipe-page-header">
+            <div><p class="recipe-page-kicker">Espace personnel</p><h1>Mes recettes</h1><p>Ajoute, consulte et modifie tes recettes.</p></div>
+            <div class="recipe-page-actions"><a href="{{ path('app_recipe_index') }}" class="dashboard-button">Toutes les recettes</a><a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>＋ Ajouter</a></div>
+        </header>
+        {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
+
+        {% if recipesPagination.items is empty %}
+            <section class="recipe-empty-state"><span>📝</span><h2>Tu n’as pas encore de recette</h2><a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Créer ma première recette</a></section>
+        {% else %}
+            <div class="recipe-management-list">
+                {% for recipe in recipesPagination.items %}
+                    <article class="recipe-management-row">
+                        <div><h2><a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a></h2><p>Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p></div>
+                        <div class="recipe-management-actions"><a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="dashboard-button">Voir</a><a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a></div>
+                    </article>
+                {% endfor %}
+            </div>
+            {% include 'components/_pagination.html.twig' with {pagination: recipesPagination, routeName: 'app_recipe_manage'} only %}
+        {% endif %}
+    </main>
+{% endblock %}

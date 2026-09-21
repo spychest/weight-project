@@ -85,6 +85,14 @@ class Profile
     #[ORM\OneToMany(targetEntity: SleepEntry::class, mappedBy: 'profile')]
     private Collection $sleepEntries;
 
+    /** @var Collection<int, Recipe> */
+    #[ORM\OneToMany(targetEntity: Recipe::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $recipes;
+
+    /** @var Collection<int, RecipeView> */
+    #[ORM\OneToMany(targetEntity: RecipeView::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $recipeViews;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
@@ -96,6 +104,8 @@ class Profile
         $this->milestones = new ArrayCollection();
         $this->drinkEntries = new ArrayCollection();
         $this->sleepEntries = new ArrayCollection();
+        $this->recipes = new ArrayCollection();
+        $this->recipeViews = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -392,4 +402,29 @@ class Profile
 
         return $this;
     }
+
+    /** @return Collection<int, Recipe> */
+    public function getRecipes(): Collection { return $this->recipes; }
+
+    public function addRecipe(Recipe $recipe): static
+    {
+        if (!$this->recipes->contains($recipe)) {
+            $this->recipes->add($recipe);
+            $recipe->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecipe(Recipe $recipe): static
+    {
+        if ($this->recipes->removeElement($recipe) && $recipe->getProfile() === $this) {
+            $recipe->setProfile(null);
+        }
+
+        return $this;
+    }
+
+    /** @return Collection<int, RecipeView> */
+    public function getRecipeViews(): Collection { return $this->recipeViews; }
 }

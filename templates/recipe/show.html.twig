@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block body %}
+    <main class="recipe-detail-page recipe-detail-page-redesigned">
+        {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
+        <article class="recipe-detail-card recipe-detail-card-redesigned">
+            <div class="recipe-detail-content recipe-detail-content-redesigned">
+                <header class="recipe-detail-heading recipe-detail-heading-redesigned">
+                    <div>
+                        <p class="recipe-page-kicker">Recette partagée</p>
+                        <h1>{{ recipe.title }}</h1>
+                        <p class="recipe-view-count">◉ {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }} unique{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p>
+                    </div>
+                    <div class="recipe-page-actions">
+                        <a href="{{ path('app_recipe_pdf', {id: recipe.id}) }}" class="dashboard-button recipe-secondary-action">Télécharger en PDF</a>
+                        {% if isOwner %}<a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a>{% endif %}
+                    </div>
+                </header>
+
+                <div class="recipe-times recipe-times-redesigned">
+                    <div><span class="recipe-metric-icon" aria-hidden="true">◷</span><span>Mise en place</span><strong>{{ recipe.setupTimeMinutes is not null ? recipe.setupTimeMinutes ~ ' min' : 'Non renseigné' }}</strong></div>
+                    <div><span class="recipe-metric-icon" aria-hidden="true">▣</span><span>Préparation</span><strong>{{ recipe.preparationTimeMinutes is not null ? recipe.preparationTimeMinutes ~ ' min' : 'Non renseigné' }}</strong></div>
+                    <div><span class="recipe-metric-icon" aria-hidden="true">♜</span><span>Portions</span><strong>{{ recipe.servings }} repas</strong></div>
+                </div>
+
+                <div class="recipe-detail-hero">
+                    {% if recipe.photoFilename %}
+                        <img class="recipe-detail-cover recipe-detail-cover-redesigned" src="{{ asset('uploads/recipes/' ~ recipe.photoFilename) }}" alt="{{ recipe.title }}">
+                    {% else %}
+                        <div class="recipe-detail-cover-placeholder" aria-label="Aucune photo disponible"><span aria-hidden="true">🍲</span></div>
+                    {% endif %}
+                </div>
+
+                <div class="recipe-detail-grid recipe-detail-grid-redesigned">
+                    <section class="recipe-process-card">
+                        <h2><span aria-hidden="true">☷</span> Étapes de la recette</h2>
+                        {% if recipe.setupSteps is not empty %}
+                            <div class="recipe-process-group">
+                                <h3>Mise en place</h3>
+                                <ol class="recipe-timeline">
+                                    {% for step in recipe.setupSteps %}<li><span class="recipe-timeline-number">{{ loop.index }}</span><p>{{ step|nl2br }}</p></li>{% endfor %}
+                                </ol>
+                            </div>
+                        {% endif %}
+                        <div class="recipe-process-group">
+                            {% if recipe.setupSteps is not empty %}<h3>Préparation</h3>{% endif %}
+                            <ol class="recipe-timeline">
+                                {% for step in recipe.preparationSteps %}<li><span class="recipe-timeline-number">{{ loop.index }}</span><p>{{ step|nl2br }}</p></li>{% endfor %}
+                            </ol>
+                        </div>
+                    </section>
+
+                    <aside class="recipe-detail-sidebar">
+                        <section class="recipe-sidebar-card recipe-ingredients-card">
+                            <div class="recipe-sidebar-heading"><h2><span aria-hidden="true">▰</span> Ingrédients</h2><span>{{ recipe.servings }} repas</span></div>
+                            <ul class="recipe-ingredient-list">
+                                {% for ingredient in recipe.ingredients %}<li><strong>{{ ingredient.quantity|number_format(2, ',', ' ')|trim('0', 'right')|trim(',', 'right') }} {{ ingredient.unit }}</strong><span>{{ ingredient.name }}</span></li>{% endfor %}
+                            </ul>
+                        </section>
+                        {% if recipe.utensils is not empty %}
+                            <section class="recipe-sidebar-card recipe-utensils-card">
+                                <h2><span aria-hidden="true">▣</span> Ustensiles</h2>
+                                <ul>{% for utensil in recipe.utensils %}<li>{{ utensil }}</li>{% endfor %}</ul>
+                            </section>
+                        {% endif %}
+                    </aside>
+                </div>
+
+                {% if recipe.tips is not empty %}
+                    <section class="recipe-tips recipe-tips-redesigned">
+                        <span class="recipe-tip-icon" aria-hidden="true">☼</span>
+                        <div><h2>Astuces</h2><ul>{% for tip in recipe.tips %}<li>{{ tip|nl2br }}</li>{% endfor %}</ul></div>
+                    </section>
+                {% endif %}
+
+                <footer class="recipe-detail-footer recipe-detail-footer-redesigned">
+                    <a href="{{ path('app_recipe_index') }}" class="dashboard-button">← Retour aux recettes</a>
+                    {% if isOwner %}
+                        <form method="post" action="{{ path('app_recipe_delete', {id: recipe.id}) }}" onsubmit="return confirm('Supprimer définitivement cette recette ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-recipe-' ~ recipe.id) }}">
+                            <button type="submit" class="recipe-delete-button">Supprimer la recette</button>
+                        </form>
+                    {% endif %}
+                </footer>
+            </div>
+        </article>
+    </main>
+{% endblock %}

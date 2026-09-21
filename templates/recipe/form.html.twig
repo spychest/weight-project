@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ editMode ? 'Modifier la recette' : 'Ajouter une recette' }}{% endblock %}
+
+{% block body %}
+    <div class="form-page recipe-form-page">
+        <div class="form-card recipe-form-card" data-recipe-form>
+            <header class="form-header">
+                <h1>{{ editMode ? 'Modifier la recette' : 'Ajouter une recette' }} 🍲</h1>
+                <p>Compose ta recette avec autant d’éléments et d’étapes que nécessaire.</p>
+            </header>
+
+            {{ form_start(form) }}
+                <div class="form-grid recipe-main-fields">
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.photo) }}
+                    {{ form_row(form.setupTimeMinutes) }}
+                    {{ form_row(form.preparationTimeMinutes) }}
+                    {{ form_row(form.servings) }}
+                </div>
+
+                {% if recipe.photoFilename %}
+                    <div class="recipe-current-photo">
+                        <img src="{{ asset('uploads/recipes/' ~ recipe.photoFilename) }}" alt="Photo actuelle de {{ recipe.title }}">
+                        <span>Photo actuelle</span>
+                    </div>
+                {% endif %}
+
+                <section class="recipe-form-section">
+                    <div class="recipe-form-section-heading">
+                        <div><h2>Ustensiles</h2><p>Facultatif — la liste peut rester vide.</p></div>
+                    </div>
+                    {{ form_errors(form.utensils) }}
+                    <div class="recipe-collection" data-collection="utensils" data-index="{{ form.utensils|length }}" data-prototype="{{ form_widget(form.utensils.vars.prototype)|e('html_attr') }}">
+                        {% for utensilField in form.utensils %}
+                            <div class="recipe-collection-row">
+                                {{ form_widget(utensilField) }}
+                                <button type="button" class="recipe-remove-row-button" data-collection-remove aria-label="Supprimer cet ustensile">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="recipe-add-row-button recipe-add-row-button-below" data-collection-add="utensils">＋ Ajouter un ustensile</button>
+                    {% do form.utensils.setRendered() %}
+                </section>
+
+                <section class="recipe-form-section">
+                    <div class="recipe-form-section-heading">
+                        <div><h2>Ingrédients</h2><p>Nom, quantité et unité sont requis.</p></div>
+                    </div>
+                    {{ form_errors(form.ingredients) }}
+                    <div class="recipe-collection recipe-ingredient-collection" data-collection="ingredients" data-index="{{ form.ingredients|length }}" data-prototype="{{ form_widget(form.ingredients.vars.prototype)|e('html_attr') }}">
+                        {% for ingredientField in form.ingredients %}
+                            <div class="recipe-collection-row recipe-ingredient-row">
+                                {{ form_widget(ingredientField) }}
+                                <button type="button" class="recipe-remove-row-button" data-collection-remove aria-label="Supprimer cet ingrédient">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="recipe-add-row-button recipe-add-row-button-below" data-collection-add="ingredients">＋ Ajouter un ingrédient</button>
+                    {% do form.ingredients.setRendered() %}
+                </section>
+
+                <section class="recipe-form-section">
+                    <div class="recipe-form-section-heading">
+                        <div><h2>Mise en place</h2><p>Facultatif — tout ce qui doit être préparé avant de cuisiner.</p></div>
+                    </div>
+                    {{ form_errors(form.setupSteps) }}
+                    <div class="recipe-collection recipe-step-collection" data-collection="setupSteps" data-index="{{ form.setupSteps|length }}" data-prototype="{{ form_widget(form.setupSteps.vars.prototype)|e('html_attr') }}">
+                        {% for setupStepField in form.setupSteps %}
+                            <div class="recipe-collection-row recipe-step-row">
+                                <span class="recipe-step-number" aria-hidden="true"></span>
+                                {{ form_widget(setupStepField) }}
+                                <button type="button" class="recipe-remove-row-button" data-collection-remove aria-label="Supprimer cette étape">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="recipe-add-row-button recipe-add-row-button-below" data-collection-add="setupSteps">＋ Ajouter une étape</button>
+                    {% do form.setupSteps.setRendered() %}
+                </section>
+
+                <section class="recipe-form-section">
+                    <div class="recipe-form-section-heading">
+                        <div><h2>Préparation</h2><p>Au moins une étape est obligatoire.</p></div>
+                    </div>
+                    {{ form_errors(form.preparationSteps) }}
+                    <div class="recipe-collection recipe-step-collection" data-collection="preparationSteps" data-index="{{ form.preparationSteps|length }}" data-prototype="{{ form_widget(form.preparationSteps.vars.prototype)|e('html_attr') }}">
+                        {% for preparationStepField in form.preparationSteps %}
+                            <div class="recipe-collection-row recipe-step-row">
+                                <span class="recipe-step-number" aria-hidden="true"></span>
+                                {{ form_widget(preparationStepField) }}
+                                <button type="button" class="recipe-remove-row-button" data-collection-remove aria-label="Supprimer cette étape">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="recipe-add-row-button recipe-add-row-button-below" data-collection-add="preparationSteps">＋ Ajouter une étape</button>
+                    {% do form.preparationSteps.setRendered() %}
+                </section>
+
+                <section class="recipe-form-section recipe-tips-form-section">
+                    <div class="recipe-form-section-heading">
+                        <div><h2>Astuces</h2><p>Facultatif — conservation, préparation à l’avance ou petits conseils.</p></div>
+                    </div>
+                    {{ form_errors(form.tips) }}
+                    <div class="recipe-collection" data-collection="tips" data-index="{{ form.tips|length }}" data-prototype="{{ form_widget(form.tips.vars.prototype)|e('html_attr') }}">
+                        {% for tipField in form.tips %}
+                            <div class="recipe-collection-row recipe-tip-row">
+                                {{ form_widget(tipField) }}
+                                <button type="button" class="recipe-remove-row-button" data-collection-remove aria-label="Supprimer cette astuce">×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="recipe-add-row-button recipe-add-row-button-below" data-collection-add="tips">＋ Ajouter une astuce</button>
+                    {% do form.tips.setRendered() %}
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="form-button form-button-primary">{{ editMode ? 'Enregistrer les modifications' : 'Publier la recette' }}</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

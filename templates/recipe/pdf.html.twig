@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { margin: 24px 26px 56px; }
+        body { margin: 0; color: #18202c; font-family: DejaVu Serif, serif; font-size: 9.5px; line-height: 1.42; }
+        h1, h2, h3, p, ul, ol { margin-top: 0; }
+        .page-border { position: fixed; top: -12px; right: -14px; bottom: -42px; left: -14px; border: 1px solid #dde3e1; border-radius: 8px; }
+        .header { position: absolute; top: 0; left: 0; width: 100%; border-collapse: collapse; }
+        .header td { padding: 0; text-align: left; }
+        .kicker { margin: 0 0 4px; color: #08723f; font: bold 9px DejaVu Sans, sans-serif; letter-spacing: 2px; text-transform: uppercase; }
+        h1 { margin: 0 0 14px; font-size: 35px; line-height: 1.04; }
+        .metrics, .layout { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .metrics { margin-top: 76px; margin-bottom: 12px; }
+        .metrics > tbody > tr > td { width: 33.333%; height: 48px; padding: 7px 10px; border-right: 8px solid white; background: #f3f4f4; vertical-align: middle; }
+        .metrics > tbody > tr > td:last-child { border-right: 0; }
+        .metric-icon { float: left; width: 24px; height: 24px; margin-right: 8px; }
+        .metric-copy { margin-left: 32px; }
+        .metric-label { color: #4b5563; font: 7px DejaVu Sans, sans-serif; text-transform: uppercase; }
+        .metric-value { margin-top: 1px; font-size: 12px; font-weight: bold; }
+        .layout > tbody > tr > td { vertical-align: top; }
+        .left { width: 61%; padding-right: 7px; }
+        .right { width: 39%; padding-left: 7px; }
+        .cover, .cover-placeholder { width: 100%; height: 245px; margin-bottom: 12px; border-radius: 7px; }
+        .cover { object-fit: cover; }
+        .cover-placeholder { color: #08723f; background: #edf3f0; font-size: 21px; line-height: 245px; text-align: center; }
+        .heading { width: 100%; margin-bottom: 10px; border-collapse: collapse; }
+        .heading td { padding: 0; vertical-align: middle; }
+        .heading .heading-icon-cell { width: 31px; }
+        .heading-icon { width: 23px; height: 23px; }
+        .heading h2 { margin: 0; font-size: 18px; text-align: left; }
+        .group-title { margin: 8px 0 7px 44px; color: #63716c; font: bold 7px DejaVu Sans, sans-serif; letter-spacing: 1px; text-transform: uppercase; }
+        .steps { margin: 0; padding: 0; list-style: none; }
+        .step { position: relative; min-height: 38px; margin-bottom: 6px; padding: 1px 0 7px 45px; page-break-inside: avoid; }
+        .step-number { position: absolute; top: 0; left: 0; width: 30px; height: 30px; border-radius: 50%; color: white; background: #08723f; font: bold 10px/30px DejaVu Sans, sans-serif; text-align: center; }
+        .step-line { position: absolute; top: 30px; left: 15px; width: 1px; height: 21px; background: #9bc9ae; }
+        .step p { margin: 0; color: #34423d; }
+        .card { margin-bottom: 11px; padding: 13px; border-radius: 7px; background: #f4f5f4; page-break-inside: avoid; }
+        .card .heading { margin-bottom: 10px; }
+        .card .heading h2 { font-size: 17px; }
+        .servings { padding: 3px 5px; border: 1px solid #cfd6d3; border-radius: 4px; background: white; font: bold 7px DejaVu Sans, sans-serif; white-space: nowrap; }
+        .ingredients { width: 100%; border-collapse: collapse; }
+        .ingredients td { padding: 2px 0; vertical-align: top; }
+        .ingredients .quantity { width: 44%; padding-right: 5px; font-weight: bold; white-space: nowrap; }
+        .utensils { margin: 0; padding-left: 18px; }
+        .utensils li { margin-bottom: 5px; padding-left: 3px; }
+        .tips { width: 100%; margin-top: 12px; border-collapse: collapse; background: #eaf7ef; color: #145f3b; page-break-inside: avoid; }
+        .tips td { padding: 11px 14px; vertical-align: top; }
+        .tips .tip-icon-cell { width: 35px; padding-right: 0; }
+        .tips h2 { margin: 0 0 3px; font-size: 15px; }
+        .tips ul { margin: 0; padding: 0; list-style: none; }
+        .footer { position: fixed; right: 2px; bottom: -40px; left: 2px; height: 30px; padding-top: 8px; border-top: 1px solid #cfd8d4; color: #4b6359; font: 7px DejaVu Sans, sans-serif; }
+        .footer-brand { position: absolute; top: 8px; left: 0; font-weight: bold; }
+        .footer-tagline { position: absolute; top: 17px; left: 0; }
+        .footer-url { position: absolute; top: 8px; right: 0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="page-border"></div>
+    <table class="header"><tr><td><p class="kicker">Recette partagée</p><h1>{{ recipe.title }}</h1></td></tr></table>
+
+    <table class="metrics"><tbody><tr>
+        <td><div class="metric-label">Mise en place</div><div class="metric-value">{{ recipe.setupTimeMinutes is not null ? recipe.setupTimeMinutes ~ ' min' : 'Non renseigné' }}</div></td>
+        <td><div class="metric-label">Préparation</div><div class="metric-value">{{ recipe.preparationTimeMinutes is not null ? recipe.preparationTimeMinutes ~ ' min' : 'Non renseigné' }}</div></td>
+        <td><div class="metric-label">Portions</div><div class="metric-value">{{ recipe.servings }} repas</div></td>
+    </tr></tbody></table>
+
+    <table class="layout"><tbody><tr>
+        <td class="left">
+            {% if photoDataUri %}<img class="cover" src="{{ photoDataUri }}" alt="">{% else %}<div class="cover-placeholder">Photo de la recette</div>{% endif %}
+            <table class="heading"><tr><td class="heading-icon-cell"><img class="heading-icon" width="23" height="23" src="{{ pdfIcons.list }}" alt=""></td><td><h2>Étapes de la recette</h2></td></tr></table>
+            {% if recipe.setupSteps is not empty %}
+                <h3 class="group-title">Mise en place</h3>
+                <ol class="steps">{% for step in recipe.setupSteps %}<li class="step"><span class="step-number">{{ loop.index }}</span>{% if not loop.last %}<span class="step-line"></span>{% endif %}<p>{{ step|nl2br }}</p></li>{% endfor %}</ol>
+            {% endif %}
+            {% if recipe.setupSteps is not empty %}<h3 class="group-title">Préparation</h3>{% endif %}
+            <ol class="steps">{% for step in recipe.preparationSteps %}<li class="step"><span class="step-number">{{ loop.index }}</span>{% if not loop.last %}<span class="step-line"></span>{% endif %}<p>{{ step|nl2br }}</p></li>{% endfor %}</ol>
+        </td>
+        <td class="right">
+            <div class="card">
+                <table class="heading"><tr><td class="heading-icon-cell"><img class="heading-icon" width="23" height="23" src="{{ pdfIcons.basket }}" alt=""></td><td><h2>Ingrédients</h2></td><td align="right"><span class="servings">{{ recipe.servings }} repas</span></td></tr></table>
+                <table class="ingredients"><tbody>{% for ingredient in recipe.ingredients %}<tr><td class="quantity">{{ ingredient.quantity|number_format(2, ',', ' ')|trim('0', 'right')|trim(',', 'right') }} {{ ingredient.unit }}</td><td>{{ ingredient.name }}</td></tr>{% endfor %}</tbody></table>
+            </div>
+            {% if recipe.utensils is not empty %}<div class="card"><table class="heading"><tr><td class="heading-icon-cell"><img class="heading-icon" width="23" height="23" src="{{ pdfIcons.utensils }}" alt=""></td><td><h2>Ustensiles</h2></td></tr></table><ul class="utensils">{% for utensil in recipe.utensils %}<li>{{ utensil }}</li>{% endfor %}</ul></div>{% endif %}
+        </td>
+    </tr></tbody></table>
+
+    {% if recipe.tips is not empty %}<table class="tips"><tr><td class="tip-icon-cell"><img class="heading-icon" width="23" height="23" src="{{ pdfIcons.bulb }}" alt=""></td><td><h2>Astuces</h2><ul>{% for tip in recipe.tips %}<li>{{ tip|nl2br }}</li>{% endfor %}</ul></td></tr></table>{% endif %}
+    <div class="footer"><span class="footer-brand">Recettes</span><span class="footer-url">https://weight.spychest.fr</span><span class="footer-tagline">Des idées simples pour bien manger</span></div>
+</body>
+</html>
