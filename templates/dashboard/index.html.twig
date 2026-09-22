@@ -2,6 +2,10 @@
 
 {% block title %}Dashboard{% endblock %}
 
+{% block javascripts %}
+    <script src="{{ asset('js/milestone-celebration.js') }}?v=20260922-1" defer></script>
+{% endblock %}
+
 {% block body %}
     <div class="dashboard">
         <header class="dashboard-header">
@@ -17,12 +21,35 @@
             </div>
         </header>
 
-        {% for milestoneMessage in app.flashes('milestone_success') %}
-            <div class="milestone-congratulations" role="status">
-                <span class="milestone-congratulations-icon" aria-hidden="true">🏆</span>
-                <div><strong>Objectif franchi !</strong><p>{{ milestoneMessage }}</p></div>
-            </div>
-        {% endfor %}
+        {% set milestoneMessages = app.flashes('milestone_success') %}
+        {% if milestoneMessages is not empty %}
+            <dialog
+                class="milestone-celebration-modal"
+                data-milestone-celebration
+                aria-labelledby="milestone-celebration-title"
+                aria-describedby="milestone-celebration-messages"
+            >
+                <canvas class="milestone-confetti-canvas" data-milestone-confetti aria-hidden="true"></canvas>
+                <section class="milestone-celebration-panel">
+                    <button
+                        type="button"
+                        class="milestone-celebration-close"
+                        data-milestone-celebration-close
+                        aria-label="Fermer la fenêtre de félicitations"
+                    >×</button>
+                    <span class="milestone-celebration-icon" aria-hidden="true">🏆</span>
+                    <h2 id="milestone-celebration-title">Objectif franchi !</h2>
+                    <div id="milestone-celebration-messages">
+                        {% for milestoneMessage in milestoneMessages %}
+                            <p>{{ milestoneMessage }}</p>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="form-button form-button-primary" data-milestone-celebration-close>
+                        Quitter
+                    </button>
+                </section>
+            </dialog>
+        {% endif %}
 
         {% for successMessage in app.flashes('success') %}
             <div class="account-success-message">{{ successMessage }}</div>
