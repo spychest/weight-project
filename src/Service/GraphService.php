@@ -305,7 +305,7 @@ class GraphService
                 continue;
             }
 
-            $label = $mealType->value;
+            $label = $mealType->label();
 
             if (!isset($counts[$label])) {
                 $counts[$label] = 0;
@@ -333,7 +333,7 @@ class GraphService
 
             $data[] = [
                 'date' => $entry->getEatenAt()->format('Y-m-d'),
-                'mealType' => $entry->getMealType()->value,
+                'mealType' => $entry->getMealType()->label(),
             ];
         }
 

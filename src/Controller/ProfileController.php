@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Profile;
 use App\Entity\User;
 use App\Form\ProfileType;
+use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +38,30 @@ class ProfileController extends AbstractController
 
         return $this->render('profile/new.html.twig', [
             'form' => $form,
+            'editMode' => false,
+        ]);
+    }
+
+    #[Route('/profile/edit', name: 'app_profile_edit', methods: ['GET', 'POST'])]
+    public function edit(
+        Request $request,
+        CurrentUserProfileProvider $currentUserProfileProvider,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $profile = $currentUserProfileProvider->getRequiredProfile();
+        $form = $this->createForm(ProfileType::class, $profile);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash('success', 'Ton profil a été mis à jour.');
+
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('profile/new.html.twig', [
+            'form' => $form,
+            'editMode' => true,
         ]);
     }
 }

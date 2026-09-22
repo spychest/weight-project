@@ -118,7 +118,7 @@ final class GraphServiceTest extends TestCase
 
         $graphData = $this->graphService->getMealTypeGraphData($profile);
 
-        self::assertSame(['lunch', 'dinner'], $graphData['labels']);
+        self::assertSame(['Déjeuner', 'Dîner'], $graphData['labels']);
         self::assertSame([2, 1], $graphData['values']);
     }
 

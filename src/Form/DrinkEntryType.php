@@ -23,6 +23,7 @@ class DrinkEntryType extends AbstractType
             ->add('drinkType', EnumType::class, [
                 'class' => DrinkType::class,
                 'label' => 'Boisson',
+                'choice_label' => static fn (DrinkType $drinkType): string => $drinkType->label(),
             ])
             ->add('quantity', IntegerType::class, [
                 'label' => 'Quantité (ml)',

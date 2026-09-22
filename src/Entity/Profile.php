@@ -55,6 +55,10 @@ class Profile
     #[ORM\OneToMany(targetEntity: FoodEvent::class, mappedBy: 'profile')]
     private Collection $foodEvents;
 
+    /** @var Collection<int, FavoriteMeal> */
+    #[ORM\OneToMany(targetEntity: FavoriteMeal::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $favoriteMeals;
+
     /**
      * @var Collection<int, Activity>
      */
@@ -98,6 +102,7 @@ class Profile
         $this->weightEntries = new ArrayCollection();
         $this->dailyCheckins = new ArrayCollection();
         $this->foodEvents = new ArrayCollection();
+        $this->favoriteMeals = new ArrayCollection();
         $this->activities = new ArrayCollection();
         $this->victories = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
@@ -259,6 +264,31 @@ class Profile
     public function removeFoodEvent(FoodEvent $foodEvent): static
     {
         $this->foodEvents->removeElement($foodEvent);
+
+        return $this;
+    }
+
+    /** @return Collection<int, FavoriteMeal> */
+    public function getFavoriteMeals(): Collection
+    {
+        return $this->favoriteMeals;
+    }
+
+    public function addFavoriteMeal(FavoriteMeal $favoriteMeal): static
+    {
+        if (!$this->favoriteMeals->contains($favoriteMeal)) {
+            $this->favoriteMeals->add($favoriteMeal);
+            $favoriteMeal->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavoriteMeal(FavoriteMeal $favoriteMeal): static
+    {
+        if ($this->favoriteMeals->removeElement($favoriteMeal) && $favoriteMeal->getProfile() === $this) {
+            $favoriteMeal->setProfile(null);
+        }
 
         return $this;
     }

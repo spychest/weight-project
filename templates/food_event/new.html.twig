@@ -7,9 +7,14 @@
                 <h1>Ajouter un repas</h1>
             </header>
 
-            {{ form_start(form) }}
+            {{ form_start(form, {attr: {'data-food-event-form': ''}}) }}
 
             <div class="form-grid">
+                <div class="food-favorite-selector">
+                    {{ form_row(form.favoriteMeal) }}
+                    <a href="{{ path('app_favorite_meal_index') }}" class="form-inline-link">Gérer mes repas favoris</a>
+                    <p class="form-help">Le contenu sélectionné sera copié dans le champ « Repas » et restera entièrement modifiable.</p>
+                </div>
                 {{ form_row(form.mealType) }}
                 {{ form_row(form.eatenAt) }}
                 {{ form_row(form.description) }}
@@ -17,6 +22,10 @@
                 {{ form_row(form.pleasureLevel) }}
                 {{ form_row(form.cause) }}
                 {{ form_row(form.note) }}
+                {{ form_row(form.saveAsFavorite) }}
+                <div data-favorite-meal-name{{ not form.saveAsFavorite.vars.data ? ' hidden' : '' }}>
+                    {{ form_row(form.favoriteMealName) }}
+                </div>
             </div>
 
             <div class="form-actions">

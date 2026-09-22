@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes repas favoris{% endblock %}
+
+{% block body %}
+    <main class="entry-index">
+        <header class="entry-index-header">
+            <div><p class="recipe-page-kicker">Repas habituels</p><h1>Mes repas favoris</h1><p>Enregistre tes repas récurrents pour remplir plus rapidement le formulaire.</p></div>
+            <div class="recipe-page-actions">
+                <a href="{{ path('app_food_index') }}" class="dashboard-button">Retour aux repas</a>
+                <a href="{{ path('app_favorite_meal_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>+ Ajouter un favori</a>
+            </div>
+        </header>
+
+        {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
+
+        {% if favoriteMeals is empty %}
+            <section class="recipe-empty-state"><span>⭐</span><h2>Aucun repas favori</h2><p>Tu peux en créer ici ou enregistrer directement un repas depuis son formulaire.</p></section>
+        {% else %}
+            <div class="favorite-meal-list">
+                {% for favoriteMeal in favoriteMeals %}
+                    <article class="favorite-meal-card">
+                        <div><h2>{{ favoriteMeal.name }}</h2><p>{{ favoriteMeal.description|nl2br }}</p></div>
+                        <div class="favorite-meal-actions">
+                            <a href="{{ path('app_favorite_meal_edit', {id: favoriteMeal.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a>
+                            <form method="post" action="{{ path('app_favorite_meal_delete', {id: favoriteMeal.id}) }}" onsubmit="return confirm('Supprimer ce repas favori ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-favorite-meal-' ~ favoriteMeal.id) }}">
+                                <button type="submit" class="recipe-delete-button">Supprimer</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </main>
+{% endblock %}

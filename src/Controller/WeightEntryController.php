@@ -52,11 +52,20 @@ final class WeightEntryController extends AbstractController
                 throw new \LogicException('A weight entry requires a profile and a weight.');
             }
 
-            $milestoneService->validateReachedWeightMilestones(
+            $validatedMilestoneCount = $milestoneService->validateReachedWeightMilestones(
                 $profile,
                 $recordedWeight,
                 $weightEntry->getMeasuredAt(),
             );
+
+            if ($validatedMilestoneCount > 0) {
+                $this->addFlash(
+                    'milestone_success',
+                    $validatedMilestoneCount === 1
+                        ? '🎉 Félicitations ! Tu viens de franchir un jalon. Continue comme ça !'
+                        : sprintf('🎉 Incroyable ! Tu viens de franchir %d jalons. Continue comme ça !', $validatedMilestoneCount),
+                );
+            }
 
             $entityManager->persist($weightEntry);
             $entityManager->flush();

@@ -2116,6 +2116,112 @@ body:has(.form-modal[open]) {
     font-weight: 700;
 }
 
+.milestone-congratulations {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding: 18px 20px;
+    border: 1px solid #e5c75b;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fff9dc, #edf9f4);
+    color: #38634f;
+    box-shadow: 0 10px 30px rgba(128, 105, 24, 0.1);
+}
+
+.milestone-congratulations-icon {
+    flex: 0 0 auto;
+    font-size: 2.4rem;
+}
+
+.milestone-congratulations strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #806618;
+    font-size: 1.1rem;
+}
+
+.milestone-congratulations p {
+    margin: 0;
+}
+
+.form-inline-link {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.form-help {
+    margin: 7px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.favorite-meal-list {
+    display: grid;
+    gap: 14px;
+}
+
+.favorite-meal-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+
+.favorite-meal-card h2 {
+    margin: 0 0 7px;
+    font-size: 1.15rem;
+}
+
+.favorite-meal-card p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+}
+
+.favorite-meal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.favorite-meal-actions form {
+    margin: 0;
+}
+
+.dark-mode .milestone-congratulations {
+    border-color: #766225;
+    background: linear-gradient(135deg, #3b351d, #183d2c);
+    color: #bcebd1;
+}
+
+.dark-mode .milestone-congratulations strong {
+    color: #f0d976;
+}
+
+@media (max-width: 650px) {
+    .favorite-meal-card,
+    .favorite-meal-actions {
+        flex-direction: column;
+    }
+
+    .favorite-meal-actions,
+    .favorite-meal-actions .dashboard-button,
+    .favorite-meal-actions form,
+    .favorite-meal-actions button {
+        width: 100%;
+    }
+}
+
 .account-settings-card {
     margin-top: 1.5rem;
     padding: 1.5rem;

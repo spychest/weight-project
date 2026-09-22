@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ editMode ? 'Modifier le repas favori' : 'Ajouter un repas favori' }}{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <div class="form-card">
+            <header class="form-header"><h1>{{ editMode ? 'Modifier le repas favori' : 'Ajouter un repas favori' }}</h1><p>Le contenu restera modifiable chaque fois que tu l’utiliseras.</p></header>
+            {{ form_start(form) }}
+                <div class="form-grid">{{ form_row(form.name) }}{{ form_row(form.description) }}</div>
+                <div class="form-actions">
+                    <button type="submit" class="form-button form-button-primary">{{ editMode ? 'Enregistrer les modifications' : 'Ajouter le favori' }}</button>
+                    <a href="{{ path('app_favorite_meal_index') }}" class="form-button">Annuler</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

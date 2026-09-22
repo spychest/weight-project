@@ -236,7 +236,7 @@
                         {% for entry in report.hydration.entries %}
                             <tr>
                                 <td>{{ entry.date|date('d/m/Y') }}</td>
-                                <td>{{ entry.drinkType.value }}</td>
+                                <td>{{ entry.drinkType.label }}</td>
                                 <td>{{ entry.quantity }} ml</td>
                                 <td>{{ entry.description ?? '—' }}</td>
                                 <td>{{ entry.note ?? '—' }}</td>

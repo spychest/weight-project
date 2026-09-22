@@ -39,7 +39,7 @@ final class ReportDataExporter
                 'entries' => array_map(
                     static fn ($entry) => [
                         'date' => $entry->date->format('Y-m-d'),
-                        'drinkType' => $entry->drinkType->value,
+                        'drinkType' => $entry->drinkType->label(),
                         'quantity' => $entry->quantity,
                         'description' => $entry->description,
                         'note' => $entry->note,

@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer mon profil{% endblock %}
+{% block title %}{{ editMode ? 'Modifier mon profil' : 'Créer mon profil' }}{% endblock %}
 
 {% block body %}
     <div class="form-page">
         <div class="form-card">
             <header class="form-header">
-                <h1>Bienvenue 👋</h1>
-                <p>Pour commencer ton suivi, renseigne quelques informations.</p>
+                <h1>{{ editMode ? 'Modifier mon profil' : 'Bienvenue 👋' }}</h1>
+                <p>{{ editMode ? 'Mets à jour tes informations et tes objectifs.' : 'Pour commencer ton suivi, renseigne quelques informations.' }}</p>
             </header>
 
         {{ form_start(form) }}
@@ -20,8 +20,9 @@
         </div>
         <div class="form-actions">
             <button type="submit" class="form-button form-button-primary">
-                Commencer mon suivi
+                {{ editMode ? 'Enregistrer les modifications' : 'Commencer mon suivi' }}
             </button>
+            {% if editMode %}<a href="{{ path('app_dashboard') }}" class="form-button">Annuler</a>{% endif %}
         </div>
         {{ form_end(form) }}
     </div>

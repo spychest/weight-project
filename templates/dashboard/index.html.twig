@@ -17,6 +17,17 @@
             </div>
         </header>
 
+        {% for milestoneMessage in app.flashes('milestone_success') %}
+            <div class="milestone-congratulations" role="status">
+                <span class="milestone-congratulations-icon" aria-hidden="true">🏆</span>
+                <div><strong>Objectif franchi !</strong><p>{{ milestoneMessage }}</p></div>
+            </div>
+        {% endfor %}
+
+        {% for successMessage in app.flashes('success') %}
+            <div class="account-success-message">{{ successMessage }}</div>
+        {% endfor %}
+
         {% include 'dashboard/_profile_card.html.twig' %}
 
         <section class="dashboard-section">
@@ -114,7 +125,7 @@
                     {% for meal in dashboard.recentMeals %}
                         <div class="dashboard-list-item">
                             <div>
-                                <strong>{{ meal.mealType.value }}</strong>
+                                <strong>{{ meal.mealType.label }}</strong>
                                 <p>{{ meal.description }}</p>
                             </div>
                             <time>{{ meal.eatenAt|date('d/m H:i') }}</time>
@@ -134,7 +145,7 @@
                     {% for drink in dashboard.recentDrinks %}
                         <div class="dashboard-list-item">
                             <div>
-                                <strong>{{ drink.drinkType.value }}</strong>
+                                <strong>{{ drink.drinkType.label }}</strong>
 
                                 {% if drink.description %}
                                     <p>{{ drink.description }}</p>

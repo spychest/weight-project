@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\FavoriteMeal;
 use App\Entity\FoodEvent;
 use App\Form\FoodEventType;
 use App\Pagination\PaginatedResult;
+use App\Repository\FavoriteMealRepository;
 use App\Repository\FoodEventRepository;
 use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,6 +23,7 @@ final class FoodEventController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         CurrentUserProfileProvider $currentUserProfileProvider,
+        FavoriteMealRepository $favoriteMealRepository,
         ?FoodEvent $foodEvent = null,
     ): Response {
         $isEditMode = $foodEvent !== null;
@@ -34,11 +37,27 @@ final class FoodEventController extends AbstractController
                 ->setEatenAt(new \DateTimeImmutable());
         }
 
-        $form = $this->createForm(FoodEventType::class, $foodEvent);
+        $profile = $currentUserProfileProvider->getRequiredProfile();
+        $form = $this->createForm(FoodEventType::class, $foodEvent, [
+            'favorite_meals' => $favoriteMealRepository->findForProfile($profile),
+        ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('saveAsFavorite')->getData() === true) {
+                $favoriteMealName = trim((string) $form->get('favoriteMealName')->getData());
+                if ($favoriteMealName === '') {
+                    $favoriteMealName = mb_strimwidth((string) $foodEvent->getDescription(), 0, 80, '…');
+                }
+
+                $entityManager->persist(
+                    (new FavoriteMeal())
+                        ->setProfile($profile)
+                        ->setName($favoriteMealName)
+                        ->setDescription((string) $foodEvent->getDescription()),
+                );
+            }
 
             $entityManager->persist($foodEvent);
             $entityManager->flush();

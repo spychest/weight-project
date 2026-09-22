@@ -107,7 +107,7 @@ final class PeriodReportServiceTest extends TestCase
 
         self::assertSame(4.0, $report->food->averageHungerLevel);
         self::assertSame(7.0, $report->food->averagePleasureLevel);
-        self::assertSame(['lunch' => 1, 'dinner' => 1], $report->food->mealTypeCounts);
+        self::assertSame(['Déjeuner' => 1, 'Dîner' => 1], $report->food->mealTypeCounts);
 
         self::assertSame(7.0, $report->checkin->averageMoodLevel);
         self::assertSame(7.0, $report->checkin->averageEnergyLevel);
