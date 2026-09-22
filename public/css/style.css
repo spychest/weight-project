@@ -736,6 +736,23 @@
     font-size: 0.85rem;
 }
 
+.form-grid .form-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-grid .form-checkbox-row input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--color-primary, #147a45);
+}
+
+.form-grid .form-checkbox-row label {
+    margin: 0;
+    cursor: pointer;
+}
+
 .form-actions {
     display: flex;
     justify-content: flex-end;

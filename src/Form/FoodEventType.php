@@ -69,7 +69,7 @@ class FoodEventType extends AbstractType
                 'label' => 'Nom du favori',
                 'mapped' => false,
                 'required' => false,
-                'attr' => ['placeholder' => 'Ex. Petit-déjeuner habituel'],
+                'attr' => ['placeholder' => 'Ex. Chili, Burger, Fromage blanc banane raisin'],
             ]);
     }
 

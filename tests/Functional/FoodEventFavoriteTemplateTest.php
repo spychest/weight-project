@@ -43,6 +43,11 @@ final class FoodEventFavoriteTemplateTest extends KernelTestCase
         self::assertStringContainsString('Déjeuner habituel', $renderedForm);
         self::assertStringContainsString('data-meal-description="Poulet, riz et légumes"', $renderedForm);
         self::assertStringContainsString('Enregistrer ce repas dans mes favoris', $renderedForm);
+        self::assertStringContainsString('placeholder="Ex. Chili, Burger, Fromage blanc banane raisin"', $renderedForm);
+        self::assertMatchesRegularExpression(
+            '/<input[^>]+type="checkbox"[^>]*>\s*<label[^>]*>Enregistrer ce repas dans mes favoris<\/label>/',
+            $renderedForm,
+        );
         self::assertStringContainsString('data-food-event-form', $renderedForm);
     }
 }

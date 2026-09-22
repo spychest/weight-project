@@ -22,7 +22,11 @@
                 {{ form_row(form.pleasureLevel) }}
                 {{ form_row(form.cause) }}
                 {{ form_row(form.note) }}
-                {{ form_row(form.saveAsFavorite) }}
+                <div class="form-checkbox-row">
+                    {{ form_widget(form.saveAsFavorite) }}
+                    {{ form_label(form.saveAsFavorite) }}
+                    {{ form_errors(form.saveAsFavorite) }}
+                </div>
                 <div data-favorite-meal-name{{ not form.saveAsFavorite.vars.data ? ' hidden' : '' }}>
                     {{ form_row(form.favoriteMealName) }}
                 </div>
