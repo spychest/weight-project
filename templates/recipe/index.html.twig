@@ -30,10 +30,12 @@
             {% else %}
                 <div class="recipe-management-list">
                     {% for recipe in personalRecipesPagination.items %}
+                        <a href="{{ path('app_recipe_show', {id: recipe.id}) }}">
                         <article class="recipe-management-row">
-                            <div><h2><a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a></h2><p>Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p></div>
+                            <div><h2>{{ recipe.title }}</h2><p>Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p></div>
                             <div class="recipe-management-actions"><a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="dashboard-button">Voir</a><a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a></div>
                         </article>
+                        </a>
                     {% endfor %}
                 </div>
                 {% include 'components/_pagination.html.twig' with {pagination: personalRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'minePage', preservedQueryParameters: {tab: 'mine', communityPage: communityRecipesPagination.currentPage}} only %}
