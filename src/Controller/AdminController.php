@@ -93,10 +93,12 @@ final class AdminController extends AbstractController
             'items' => array_map(
                 static fn (User $user): array => [
                     'id' => $user->getId(),
-                    'email' => $user->getEmail(),
+                    'displayName' => $user->getProfile()?->getDisplayName() ?? 'Profil non créé',
+                    'avatarUrl' => $user->getProfile()?->getAvatarFilename() !== null
+                        ? '/uploads/profiles/'.rawurlencode($user->getProfile()->getAvatarFilename())
+                        : $user->getProfile()?->getGoogleAvatarUrl(),
                     'roles' => $user->getRoles(),
                     'hasProfile' => $user->getProfile() !== null,
-                    'emailVerified' => $user->isEmailVerified(),
                     'createdAt' => $user->getCreatedAt()->format(DATE_ATOM),
                     'lastLoginAt' => $user->getLastLoginAt()?->format(DATE_ATOM),
                 ],

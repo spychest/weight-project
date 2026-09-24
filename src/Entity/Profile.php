@@ -43,6 +43,15 @@ class Profile
     #[ORM\Column(length: 255)]
     private string $biologicalGender;
 
+    #[ORM\Column(length: 100)]
+    private string $displayName = '';
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatarFilename = null;
+
+    #[ORM\Column(length: 2048, nullable: true)]
+    private ?string $googleAvatarUrl = null;
+
     /**
      * @var Collection<int, DailyCheckin>
      */
@@ -219,6 +228,42 @@ class Profile
     public function setBiologicalGender(string $biologicalGender): static
     {
         $this->biologicalGender = $biologicalGender;
+
+        return $this;
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(string $displayName): static
+    {
+        $this->displayName = trim($displayName);
+
+        return $this;
+    }
+
+    public function getAvatarFilename(): ?string
+    {
+        return $this->avatarFilename;
+    }
+
+    public function setAvatarFilename(?string $avatarFilename): static
+    {
+        $this->avatarFilename = $avatarFilename;
+
+        return $this;
+    }
+
+    public function getGoogleAvatarUrl(): ?string
+    {
+        return $this->googleAvatarUrl;
+    }
+
+    public function setGoogleAvatarUrl(?string $googleAvatarUrl): static
+    {
+        $this->googleAvatarUrl = $googleAvatarUrl;
 
         return $this;
     }

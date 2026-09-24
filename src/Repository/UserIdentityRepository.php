@@ -9,6 +9,16 @@ use Doctrine\Persistence\ManagerRegistry;
 /** @extends ServiceEntityRepository<UserIdentity> */
 class UserIdentityRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry) { parent::__construct($registry, UserIdentity::class); }
-    public function findGoogleIdentity(string $googleUserId): ?UserIdentity { return $this->findOneBy(['provider' => 'google', 'providerUserId' => $googleUserId]); }
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, UserIdentity::class);
+    }
+
+    public function findGoogleIdentity(string $googleUserId): ?UserIdentity
+    {
+        return $this->findOneBy([
+            'provider' => 'google',
+            'providerUserId' => $googleUserId,
+        ]);
+    }
 }

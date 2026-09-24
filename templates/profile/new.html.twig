@@ -11,6 +11,27 @@
             </header>
 
         {{ form_start(form) }}
+        <div class="profile-identity-fields">
+            {% set currentAvatarUrl = profile.avatarFilename
+                ? asset('uploads/profiles/' ~ profile.avatarFilename)
+                : profile.googleAvatarUrl %}
+            <div class="profile-avatar-preview{% if not currentAvatarUrl %} profile-avatar-preview-fallback{% endif %}">
+                {% if currentAvatarUrl %}
+                    <img src="{{ currentAvatarUrl }}" alt="Photo de profil actuelle">
+                {% else %}
+                    <span aria-hidden="true">{{ profile.displayName ? profile.displayName|first|upper : '👤' }}</span>
+                {% endif %}
+            </div>
+            <div class="profile-identity-inputs">
+                {{ form_row(form.displayName) }}
+                {{ form_row(form.avatar) }}
+                {% if editMode and profile.avatarFilename %}
+                    {{ form_row(form.removeAvatar) }}
+                {% else %}
+                    <div hidden>{{ form_widget(form.removeAvatar) }}</div>
+                {% endif %}
+            </div>
+        </div>
         <div class="form-grid">
             {{ form_row(form.height) }}
             {{ form_row(form.birthDate) }}

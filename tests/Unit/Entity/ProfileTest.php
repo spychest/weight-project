@@ -12,6 +12,19 @@ use PHPUnit\Framework\TestCase;
 final class ProfileTest extends TestCase
 {
     #[Test]
+    public function itStoresThePublicIdentityWithoutExposingTheAccountEmail(): void
+    {
+        $profile = (new Profile())
+            ->setDisplayName('  Camille  ')
+            ->setAvatarFilename('camille.webp')
+            ->setGoogleAvatarUrl('https://example.test/google-avatar.jpg');
+
+        self::assertSame('Camille', $profile->getDisplayName());
+        self::assertSame('camille.webp', $profile->getAvatarFilename());
+        self::assertSame('https://example.test/google-avatar.jpg', $profile->getGoogleAvatarUrl());
+    }
+
+    #[Test]
     public function itKeepsTheWeightEntryRelationshipSynchronized(): void
     {
         $profile = new Profile();

@@ -44,7 +44,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         if ($searchTerm !== '') {
             $queryBuilder
-                ->andWhere('LOWER(user.email) LIKE :searchTerm')
+                ->andWhere('LOWER(profile.displayName) LIKE :searchTerm')
                 ->setParameter('searchTerm', '%'.mb_strtolower($searchTerm).'%');
         }
 

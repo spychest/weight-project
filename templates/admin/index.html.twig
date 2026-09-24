@@ -4,7 +4,7 @@
 
 {% block javascripts %}
     <script src="{{ asset('js/admin-catalog.js') }}?v=20260924-1" defer></script>
-    <script src="{{ asset('js/admin-navigation.js') }}?v=20260924-1" defer></script>
+    <script src="{{ asset('js/admin-navigation.js') }}?v=20260924-2" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -64,8 +64,8 @@
         </div>
         <form class="admin-catalog-filters admin-user-filters" data-users-filters>
             <label>
-                <span>Rechercher par adresse e-mail</span>
-                <input type="search" name="search" placeholder="utilisateur@exemple.fr" autocomplete="off">
+                <span>Rechercher par nom</span>
+                <input type="search" name="search" placeholder="Nom d’affichage…" autocomplete="off">
             </label>
             <button class="dashboard-button" type="reset">Réinitialiser</button>
         </form>

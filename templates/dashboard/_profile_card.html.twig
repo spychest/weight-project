@@ -1,10 +1,19 @@
 
 <div class="dashboard-profile-card">
-    <div class="dashboard-profile-icon">
-        👤
+    {% set dashboardProfile = app.user ? app.user.profile : null %}
+    {% set dashboardDisplayName = dashboardProfile ? dashboardProfile.displayName : 'Profil' %}
+    {% set dashboardAvatarUrl = dashboardProfile and dashboardProfile.avatarFilename
+        ? asset('uploads/profiles/' ~ dashboardProfile.avatarFilename)
+        : (dashboardProfile ? dashboardProfile.googleAvatarUrl : null) %}
+    <div class="dashboard-profile-icon{% if dashboardAvatarUrl %} dashboard-profile-avatar{% endif %}">
+        {% if dashboardAvatarUrl %}
+            <img src="{{ dashboardAvatarUrl }}" alt="Photo de profil de {{ dashboardDisplayName }}">
+        {% else %}
+            {{ dashboardDisplayName|first|upper }}
+        {% endif %}
     </div>
     <div class="dashboard-profile-content">
-        <span class="dashboard-card-label">Profil</span>
+        <span class="dashboard-card-label">{{ dashboardDisplayName }}</span>
         <div class="dashboard-profile-values">
             <div>
                 <span>Taille</span>

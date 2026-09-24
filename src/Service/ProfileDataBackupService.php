@@ -30,6 +30,7 @@ final class ProfileDataBackupService
             'version' => self::FORMAT_VERSION,
             'exportedAt' => (new \DateTimeImmutable())->format(DATE_ATOM),
             'profile' => [
+                'displayName' => $profile->getDisplayName(),
                 'height' => $profile->getHeight(), 'birthDate' => $profile->getBirthDate()->format('Y-m-d'),
                 'startingWeight' => $profile->getStartingWeight(), 'targetWeight' => $profile->getTargetWeight(),
                 'biologicalGender' => $profile->getBiologicalGender(), 'createdAt' => $profile->getCreatedAt()->format(DATE_ATOM),
@@ -56,6 +57,9 @@ final class ProfileDataBackupService
         foreach ($collections as $collection) { if (!isset($data[$collection]) || !is_array($data[$collection])) { throw new \InvalidArgumentException(sprintf('La section « %s » est absente ou invalide.', $collection)); } }
 
         $profileData = $data['profile'];
+        $displayName = isset($profileData['displayName'])
+            ? $this->requiredString($profileData, 'displayName')
+            : $profile->getDisplayName();
         $height = $this->requiredFloat($profileData, 'height');
         $birthDate = $this->date($profileData['birthDate'] ?? null, 'birthDate');
         $biologicalGender = $this->requiredString($profileData, 'biologicalGender');
@@ -73,10 +77,10 @@ final class ProfileDataBackupService
         foreach ($data['drinkEntries'] as $row) { $row = $this->row($row); $drinkType = DrinkType::tryFrom($this->requiredString($row, 'drinkType')); if ($drinkType === null) { throw new \InvalidArgumentException('Un type de boisson est invalide.'); } $entity = (new DrinkEntry())->setProfile($profile)->setDate($this->date($row['date'] ?? null, 'date'))->setDrinkType($drinkType)->setQuantity($this->requiredInt($row, 'quantity'))->setDescription($this->nullableString($row['description'] ?? null, 'description'))->setNote($this->nullableString($row['note'] ?? null, 'note')); if (($createdAt = $this->nullableDate($row['createdAt'] ?? null, 'createdAt')) !== null) { $entity->setCreatedAt($createdAt); } $entities[] = $entity; }
         foreach ($data['sleepEntries'] as $row) { $row = $this->row($row); $entity = (new SleepEntry())->setProfile($profile)->setDate($this->date($row['date'] ?? null, 'date'))->setBedTime($this->date($row['bedTime'] ?? null, 'bedTime'))->setWakeUpTime($this->date($row['wakeUpTime'] ?? null, 'wakeUpTime'))->setQuality($this->requiredInt($row, 'quality'))->setNote($this->nullableString($row['note'] ?? null, 'note')); if (($createdAt = $this->nullableDate($row['createdAt'] ?? null, 'createdAt')) !== null) { $entity->setCreatedAt($createdAt); } $entities[] = $entity; }
 
-        $this->entityManager->wrapInTransaction(function () use ($profile, $height, $birthDate, $biologicalGender, $startingWeight, $targetWeight, $entities, $collections): void {
+        $this->entityManager->wrapInTransaction(function () use ($profile, $displayName, $height, $birthDate, $biologicalGender, $startingWeight, $targetWeight, $entities, $collections): void {
             foreach ([$profile->getWeightEntries(), $profile->getDailyCheckins(), $profile->getFoodEvents(), $profile->getFavoriteMeals(), $profile->getActivities(), $profile->getVictories(), $profile->getMilestones(), $profile->getDrinkEntries(), $profile->getSleepEntries()] as $existingCollection) { foreach ($existingCollection->toArray() as $existingEntity) { $this->entityManager->remove($existingEntity); } }
             $this->entityManager->flush();
-            $profile->setHeight($height)->setBirthDate($birthDate)->setBiologicalGender($biologicalGender)->setStartingWeight($startingWeight)->setTargetWeight($targetWeight);
+            $profile->setDisplayName($displayName)->setHeight($height)->setBirthDate($birthDate)->setBiologicalGender($biologicalGender)->setStartingWeight($startingWeight)->setTargetWeight($targetWeight);
             foreach ($entities as $entity) { $this->entityManager->persist($entity); }
             $this->entityManager->flush();
         });

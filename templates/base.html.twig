@@ -6,7 +6,7 @@
         <title>{% block title %}Mon suivi de poids{% endblock %}</title>
         <meta name="theme-color" content="#174f3c">
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=20260924-1">
-        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=20260924-4">
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=20260924-5">
         {% if app.user %}
             <script src="{{ asset('js/modal-forms.js') }}?v=20260903-1" defer></script>
             <script src="{{ asset('js/recipe-form.js') }}?v=20260921-1" defer></script>
@@ -23,6 +23,11 @@
     </head>
     <body>
         {% if app.user %}
+        {% set navigationProfile = app.user.profile %}
+        {% set navigationDisplayName = navigationProfile ? navigationProfile.displayName : 'Nouveau membre' %}
+        {% set navigationAvatarUrl = navigationProfile and navigationProfile.avatarFilename
+            ? asset('uploads/profiles/' ~ navigationProfile.avatarFilename)
+            : (navigationProfile ? navigationProfile.googleAvatarUrl : null) %}
         <header class="site-header site-header-authenticated">
             <nav class="site-navigation site-navigation-desktop" aria-label="Navigation principale">
                 <a class="navigation-link" href="{{ path('app_dashboard') }}">Tableau de bord</a>
@@ -40,7 +45,14 @@
                 {% endif %}
                 <a class="navigation-link" href="{{ path('app_account') }}">Mon compte</a>
                 {% if is_granted('ROLE_ADMIN') %}<a class="navigation-link navigation-link-admin" href="{{ path('app_admin_index') }}">Administration</a>{% endif %}
-                <span class="authenticated-user-email">{{ app.user.userIdentifier }}</span>
+                <span class="authenticated-user-identity">
+                    {% if navigationAvatarUrl %}
+                        <img src="{{ navigationAvatarUrl }}" alt="" class="navigation-avatar">
+                    {% else %}
+                        <span class="navigation-avatar navigation-avatar-fallback" aria-hidden="true">{{ navigationDisplayName|first|upper }}</span>
+                    {% endif %}
+                    <span>{{ navigationDisplayName }}</span>
+                </span>
                 <a class="navigation-button navigation-button-logout" href="{{ path('app_logout') }}">Déconnexion</a>
             </nav>
             <details class="mobile-navigation">
@@ -59,7 +71,14 @@
                     {% endif %}
                     <a href="{{ path('app_account') }}">Mon compte</a>
                     {% if is_granted('ROLE_ADMIN') %}<a href="{{ path('app_admin_index') }}">Administration</a>{% endif %}
-                    <span class="mobile-navigation-email">{{ app.user.userIdentifier }}</span>
+                    <span class="mobile-navigation-identity">
+                        {% if navigationAvatarUrl %}
+                            <img src="{{ navigationAvatarUrl }}" alt="" class="navigation-avatar">
+                        {% else %}
+                            <span class="navigation-avatar navigation-avatar-fallback" aria-hidden="true">{{ navigationDisplayName|first|upper }}</span>
+                        {% endif %}
+                        <span>{{ navigationDisplayName }}</span>
+                    </span>
                     <a class="mobile-navigation-logout" href="{{ path('app_logout') }}">Déconnexion</a>
                 </nav>
             </details>

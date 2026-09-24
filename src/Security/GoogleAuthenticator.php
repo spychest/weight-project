@@ -23,43 +23,124 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 final class GoogleAuthenticator extends OAuth2Authenticator
 {
-    public function __construct(private readonly ClientRegistry $clientRegistry, private readonly UserRepository $userRepository, private readonly UserIdentityRepository $identityRepository, private readonly EntityManagerInterface $entityManager, private readonly UrlGeneratorInterface $urlGenerator) {}
-    public function supports(Request $request): ?bool { return $request->attributes->get('_route') === 'app_google_check'; }
+    public function __construct(
+        private readonly ClientRegistry $clientRegistry,
+        private readonly UserRepository $userRepository,
+        private readonly UserIdentityRepository $identityRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UrlGeneratorInterface $urlGenerator,
+    ) {
+    }
+
+    public function supports(Request $request): ?bool
+    {
+        return $request->attributes->get('_route') === 'app_google_check';
+    }
+
     public function authenticate(Request $request): Passport
     {
         $googleClient = $this->clientRegistry->getClient('google');
         $accessToken = $this->fetchAccessToken($googleClient);
-        return new SelfValidatingPassport(new UserBadge('google_'.$accessToken->getToken(), function () use ($googleClient, $accessToken, $request): User {
-            $googleUser = $googleClient->fetchUserFromToken($accessToken);
-            if (!$googleUser instanceof GoogleUser || $googleUser->getEmail() === null) { throw new CustomUserMessageAuthenticationException('Google n’a pas fourni une adresse e-mail utilisable.'); }
-            $googleUserId = (string) $googleUser->getId();
-            $userIdToLink = $request->getSession()->remove('google_identity_link_user_id');
-            $identity = $this->identityRepository->findGoogleIdentity($googleUserId);
-            if ($identity !== null) {
-                if (is_int($userIdToLink) && $identity->getUser()->getId() !== $userIdToLink) {
-                    throw new CustomUserMessageAuthenticationException('Ce compte Google est déjà associé à un autre compte.');
+
+        return new SelfValidatingPassport(new UserBadge(
+            'google_'.$accessToken->getToken(),
+            function () use ($googleClient, $accessToken, $request): User {
+                $googleUser = $googleClient->fetchUserFromToken($accessToken);
+                if (!$googleUser instanceof GoogleUser || $googleUser->getEmail() === null) {
+                    throw new CustomUserMessageAuthenticationException(
+                        'Google n’a pas fourni une adresse e-mail utilisable.',
+                    );
                 }
-                return $identity->getUser();
-            }
-            if (is_int($userIdToLink)) {
-                $userToLink = $this->userRepository->find($userIdToLink);
-                if ($userToLink instanceof User) {
-                    $userToLink->addIdentity(new UserIdentity('google', $googleUserId, $googleUser->getEmail()));
-                    $this->entityManager->flush();
-                    return $userToLink;
-                }
-            }
-            $existingUser = $this->userRepository->findOneByEmail($googleUser->getEmail());
-            if ($existingUser !== null) { throw new CustomUserMessageAuthenticationException('Un compte existe déjà avec cet e-mail. Connecte-toi avec ton mot de passe avant d’y associer Google.'); }
-            $newUser = (new User())->setEmail($googleUser->getEmail())->setEmailVerified(true);
-            $newUser->addIdentity(new UserIdentity('google', $googleUserId, $googleUser->getEmail()));
-            $this->entityManager->persist($newUser);
-            $this->entityManager->flush();
-            return $newUser;
-        }));
+
+                return $this->findOrCreateUserFromGoogle($googleUser, $request);
+            },
+        ));
     }
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    { $user = $token->getUser(); return new RedirectResponse($this->urlGenerator->generate($user instanceof User && $user->getProfile() === null ? 'app_profile_new' : 'app_dashboard')); }
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-    { $request->getSession()->getFlashBag()->add('error', $exception->getMessageKey()); return new RedirectResponse($this->urlGenerator->generate('app_login')); }
+
+    public function onAuthenticationSuccess(
+        Request $request,
+        TokenInterface $token,
+        string $firewallName,
+    ): ?Response {
+        $user = $token->getUser();
+        $routeName = $user instanceof User && $user->getProfile() === null
+            ? 'app_profile_new'
+            : 'app_dashboard';
+
+        return new RedirectResponse($this->urlGenerator->generate($routeName));
+    }
+
+    public function onAuthenticationFailure(
+        Request $request,
+        AuthenticationException $exception,
+    ): ?Response {
+        $request->getSession()->getFlashBag()->add('error', $exception->getMessageKey());
+
+        return new RedirectResponse($this->urlGenerator->generate('app_login'));
+    }
+
+    private function findOrCreateUserFromGoogle(GoogleUser $googleUser, Request $request): User
+    {
+        $googleUserId = (string) $googleUser->getId();
+        $googleAvatarUrl = $googleUser->getAvatar();
+        $userIdToLink = $request->getSession()->remove('google_identity_link_user_id');
+        $identity = $this->identityRepository->findGoogleIdentity($googleUserId);
+
+        if ($identity !== null) {
+            if (is_int($userIdToLink) && $identity->getUser()->getId() !== $userIdToLink) {
+                throw new CustomUserMessageAuthenticationException(
+                    'Ce compte Google est déjà associé à un autre compte.',
+                );
+            }
+
+            $this->synchronizeGoogleAvatar($identity, $googleAvatarUrl);
+
+            return $identity->getUser();
+        }
+
+        if (is_int($userIdToLink)) {
+            $userToLink = $this->userRepository->find($userIdToLink);
+            if ($userToLink instanceof User) {
+                $identity = new UserIdentity(
+                    'google',
+                    $googleUserId,
+                    $googleUser->getEmail(),
+                    $googleAvatarUrl,
+                );
+                $userToLink->addIdentity($identity);
+                $userToLink->getProfile()?->setGoogleAvatarUrl($googleAvatarUrl);
+                $this->entityManager->flush();
+
+                return $userToLink;
+            }
+        }
+
+        $existingUser = $this->userRepository->findOneByEmail($googleUser->getEmail());
+        if ($existingUser !== null) {
+            throw new CustomUserMessageAuthenticationException(
+                'Un compte existe déjà avec cet e-mail. Connecte-toi avec ton mot de passe avant d’y associer Google.',
+            );
+        }
+
+        $newUser = (new User())
+            ->setEmail($googleUser->getEmail())
+            ->setEmailVerified(true);
+        $newUser->addIdentity(new UserIdentity(
+            'google',
+            $googleUserId,
+            $googleUser->getEmail(),
+            $googleAvatarUrl,
+        ));
+        $this->entityManager->persist($newUser);
+        $this->entityManager->flush();
+
+        return $newUser;
+    }
+
+    private function synchronizeGoogleAvatar(UserIdentity $identity, ?string $googleAvatarUrl): void
+    {
+        $identity->setProviderAvatarUrl($googleAvatarUrl);
+        $identity->getUser()->getProfile()?->setGoogleAvatarUrl($googleAvatarUrl);
+        $this->entityManager->flush();
+    }
 }

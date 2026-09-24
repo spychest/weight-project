@@ -13,6 +13,7 @@ class ProfileFixture extends Fixture
         $profile = new Profile();
 
         $profile
+            ->setDisplayName('John Doe')
             ->setHeight(1.69)
             ->setBirthDate(new \DateTimeImmutable('1991-04-08'))
             ->setBiologicalGender('male')

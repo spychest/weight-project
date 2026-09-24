@@ -68,9 +68,12 @@
         }
         usersBody.innerHTML = users.map((user) => {
             const isAdministrator = user.roles.includes('ROLE_ADMIN');
+            const avatar = user.avatarUrl
+                ? `<img class="admin-user-avatar" src="${escapeHtml(user.avatarUrl)}" alt="">`
+                : `<span class="admin-user-avatar admin-user-avatar-fallback" aria-hidden="true">${escapeHtml(user.displayName.charAt(0).toUpperCase() || '?')}</span>`;
             return `<tr>
-                <td><strong>${escapeHtml(user.email)}</strong><small>${user.hasProfile ? 'Profil créé' : 'Sans profil'}</small></td>
-                <td><span class="admin-category-pill${isAdministrator ? ' is-admin' : ''}">${isAdministrator ? 'Administrateur' : 'Utilisateur'}</span>${user.emailVerified ? '<small>E-mail vérifié</small>' : '<small>E-mail non vérifié</small>'}</td>
+                <td><span class="admin-user-identity">${avatar}<span><strong>${escapeHtml(user.displayName)}</strong><small>${user.hasProfile ? 'Profil créé' : 'Sans profil'}</small></span></span></td>
+                <td><span class="admin-category-pill${isAdministrator ? ' is-admin' : ''}">${isAdministrator ? 'Administrateur' : 'Utilisateur'}</span></td>
                 <td>${formatDate(user.createdAt)}</td>
                 <td>${formatDate(user.lastLoginAt)}</td>
             </tr>`;

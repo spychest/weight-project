@@ -19,6 +19,7 @@ final class ProfileDataBackupServiceTest extends TestCase
         $entityManager->expects(self::once())->method('persist')->with(self::isInstanceOf(WeightEntry::class));
 
         $sourceProfile = (new Profile())
+            ->setDisplayName('Camille')
             ->setHeight(178.0)
             ->setBirthDate(new \DateTimeImmutable('1990-04-12'))
             ->setBiologicalGender('homme')
@@ -35,6 +36,7 @@ final class ProfileDataBackupServiceTest extends TestCase
         $importedEntryCount = $backupService->importProfile($targetProfile, $backupJson);
 
         self::assertSame(1, $importedEntryCount);
+        self::assertSame('Camille', $targetProfile->getDisplayName());
         self::assertSame(178.0, $targetProfile->getHeight());
         self::assertSame('1990-04-12', $targetProfile->getBirthDate()->format('Y-m-d'));
         self::assertSame(105.5, $targetProfile->getStartingWeight());
