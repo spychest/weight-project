@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/admin-catalog.js') }}?v=20260924-1" defer></script>
+    <script src="{{ asset('js/admin-navigation.js') }}?v=20260924-1" defer></script>
+{% endblock %}
+
+{% block body %}
+<main
+    class="admin-page"
+    data-admin-catalog
+    data-api-url="{{ path('app_admin_ingredient_list') }}"
+    data-users-api-url="{{ path('app_admin_user_list') }}"
+    data-csrf-token="{{ catalogCsrfToken }}"
+>
+    <header class="admin-heading">
+        <div>
+            <p class="recipe-page-kicker">Espace sécurisé</p>
+            <h1>Administration</h1>
+            <p>Vue d’ensemble du site et gestion du catalogue utilisé par les listes de courses.</p>
+        </div>
+    </header>
+
+    <nav class="admin-tabs" role="tablist" aria-label="Sections de l’administration">
+        <button type="button" role="tab" aria-selected="true" aria-controls="admin-panel-statistics" data-admin-tab="statistics">Statistiques</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="admin-panel-users" data-admin-tab="users">Utilisateurs</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="admin-panel-products" data-admin-tab="products">Produits</button>
+    </nav>
+
+    <section id="admin-panel-statistics" class="admin-statistics admin-tab-panel" role="tabpanel" data-admin-panel="statistics" aria-labelledby="admin-statistics-title">
+        <h2 id="admin-statistics-title">Statistiques du site</h2>
+        <div class="admin-statistics-grid">
+            {% set statisticCards = [
+                ['Comptes inscrits', statistics.registeredUsers, statistics.usersRegisteredLast30Days ~ ' ces 30 derniers jours'],
+                ['Profils créés', statistics.profiles, 'profils de suivi'],
+                ['Recettes', statistics.recipes, 'recettes partagées'],
+                ['Repas enregistrés', statistics.meals, 'entrées alimentaires'],
+                ['Pesées', statistics.weightEntries, 'mesures enregistrées'],
+                ['Boissons', statistics.drinkEntries, 'boissons enregistrées'],
+                ['Sommeils', statistics.sleepEntries, 'nuits enregistrées'],
+                ['Activités', statistics.activities, 'activités enregistrées'],
+                ['Humeurs', statistics.dailyCheckins, 'bilans quotidiens'],
+                ['Listes de courses', statistics.shoppingLists, statistics.activeShoppingLists ~ ' active(s)'],
+                ['Produits catalogués', statistics.catalogItems, 'ingrédients connus']
+            ] %}
+            {% for card in statisticCards %}
+                <article class="admin-statistic-card">
+                    <span>{{ card[0] }}</span>
+                    <strong>{{ card[1]|number_format(0, ',', ' ') }}</strong>
+                    <small>{{ card[2] }}</small>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="admin-panel-users" class="admin-catalog-section admin-tab-panel" role="tabpanel" data-admin-panel="users" aria-labelledby="admin-users-title" hidden>
+        <div class="admin-section-heading">
+            <div>
+                <h2 id="admin-users-title">Utilisateurs</h2>
+                <p><span data-users-total>0</span> compte(s) — 100 résultats maximum par page</p>
+            </div>
+        </div>
+        <form class="admin-catalog-filters admin-user-filters" data-users-filters>
+            <label>
+                <span>Rechercher par adresse e-mail</span>
+                <input type="search" name="search" placeholder="utilisateur@exemple.fr" autocomplete="off">
+            </label>
+            <button class="dashboard-button" type="reset">Réinitialiser</button>
+        </form>
+        <p class="admin-catalog-feedback" data-users-feedback aria-live="polite"></p>
+        <div class="admin-catalog-loading" data-users-loading hidden>Chargement des utilisateurs…</div>
+        <div class="admin-catalog-table-wrapper" data-users-table-wrapper hidden>
+            <table class="admin-catalog-table admin-users-table">
+                <thead><tr><th>Compte</th><th>Statut</th><th>Inscription</th><th>Dernière connexion</th></tr></thead>
+                <tbody data-users-body></tbody>
+            </table>
+        </div>
+        <nav class="admin-catalog-pagination" data-users-pagination aria-label="Pagination des utilisateurs"></nav>
+    </section>
+
+    <section id="admin-panel-products" class="admin-catalog-section admin-tab-panel" role="tabpanel" data-admin-panel="products" aria-labelledby="admin-catalog-title" hidden>
+        <div class="admin-section-heading">
+            <div>
+                <h2 id="admin-catalog-title">Catalogue des produits</h2>
+                <p><span data-catalog-total>0</span> produit(s) — 100 résultats maximum par page</p>
+            </div>
+            <button class="dashboard-button dashboard-button-primary" type="button" data-catalog-create>
+                Ajouter un produit
+            </button>
+        </div>
+
+        <form class="admin-catalog-filters" data-catalog-filters>
+            <label>
+                <span>Recherche rapide</span>
+                <input type="search" name="search" placeholder="Nom d’un aliment…" autocomplete="off">
+            </label>
+            <label>
+                <span>Catégorie</span>
+                <select name="category"><option value="">Toutes les catégories</option></select>
+            </label>
+            <button class="dashboard-button" type="reset">Réinitialiser</button>
+        </form>
+
+        <p class="admin-catalog-feedback" data-catalog-feedback aria-live="polite"></p>
+        <div class="admin-catalog-loading" data-catalog-loading>Chargement du catalogue…</div>
+        <div class="admin-catalog-table-wrapper" data-catalog-table-wrapper hidden>
+            <table class="admin-catalog-table">
+                <thead><tr><th>Aliment</th><th>Catégorie</th><th>Alias</th><th>Actions</th></tr></thead>
+                <tbody data-catalog-body></tbody>
+            </table>
+        </div>
+        <nav class="admin-catalog-pagination" data-catalog-pagination aria-label="Pagination du catalogue"></nav>
+    </section>
+
+    <dialog class="admin-catalog-dialog" data-catalog-dialog>
+        <form data-catalog-form>
+            <button type="button" class="shopping-list-dialog-close" data-catalog-close aria-label="Fermer">×</button>
+            <p class="recipe-page-kicker">Catalogue commun</p>
+            <h2 data-catalog-dialog-title>Ajouter un produit</h2>
+            <input type="hidden" name="id">
+            <label>Nom de l’aliment<input name="canonicalName" required maxlength="160"></label>
+            <label>Catégorie<input name="category" list="admin-category-list" required maxlength="100"></label>
+            <label>Alias séparés par des virgules<textarea name="aliases" rows="4" placeholder="tomates concassées, tomate concassé"></textarea></label>
+            <p class="admin-dialog-error" data-catalog-form-error aria-live="polite"></p>
+            <div class="shopping-list-dialog-actions">
+                <button type="button" class="dashboard-button" data-catalog-close>Annuler</button>
+                <button type="submit" class="dashboard-button dashboard-button-primary">Enregistrer</button>
+            </div>
+        </form>
+    </dialog>
+    <datalist id="admin-category-list" data-catalog-category-list></datalist>
+</main>
+{% endblock %}

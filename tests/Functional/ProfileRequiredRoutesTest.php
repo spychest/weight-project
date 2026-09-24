@@ -37,6 +37,8 @@ final class ProfileRequiredRoutesTest extends WebTestCase
         yield 'profile editing' => ['/profile/edit'];
         yield 'favorite meal management' => ['/food/favorites'];
         yield 'favorite meal creation' => ['/food/favorites/new'];
+        yield 'administration' => ['/admin'];
+        yield 'administration API' => ['/admin/api/ingredients'];
     }
 
     #[Test]
@@ -74,6 +76,8 @@ final class ProfileRequiredRoutesTest extends WebTestCase
 
         $browser->request('GET', '/login');
         self::assertSelectorExists('.public-page-navigation');
+        self::assertSelectorExists('input[type="password"][data-password-input]');
+        self::assertSelectorExists('button[data-password-toggle][aria-pressed="false"]');
     }
 
     #[Test]
