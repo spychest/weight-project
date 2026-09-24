@@ -3281,6 +3281,51 @@ html.dark-mode {
     gap: 22px;
 }
 
+.recipe-filters {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.55fr) auto;
+    align-items: end;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding: 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+
+.recipe-filters label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    color: var(--color-text-primary);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.recipe-filters input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 43px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    color: var(--color-text-primary);
+    font: inherit;
+}
+
+.recipe-filters input:focus {
+    border-color: #247d66;
+    outline: 3px solid rgba(36, 125, 102, 0.14);
+}
+
+.recipe-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .recipe-card,
 .recipe-detail-card,
 .recipe-management-row {
@@ -3363,6 +3408,24 @@ html.dark-mode {
 
 .recipe-card-content h2 {
     color: var(--color-text-primary);
+}
+
+.recipe-card-author,
+.recipe-detail-author {
+    margin: -4px 0 13px;
+    color: var(--color-text-secondary);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.recipe-card-author strong,
+.recipe-detail-author strong {
+    color: #247d66;
+}
+
+.recipe-detail-author {
+    margin: 10px 0 4px;
+    font-size: 0.9rem;
 }
 
 .recipe-card-meta {
@@ -3798,6 +3861,25 @@ html.dark-mode {
 
 .dark-mode .recipe-page-tab.is-active {
     background: var(--color-white);
+}
+
+.dark-mode .recipe-filters {
+    background: var(--color-white);
+}
+
+.dark-mode .recipe-filters input {
+    color-scheme: dark;
+}
+
+@media (max-width: 760px) {
+    .recipe-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .recipe-filter-actions,
+    .recipe-filter-actions .dashboard-button {
+        width: 100%;
+    }
 }
 
 .recipe-detail-card-redesigned {

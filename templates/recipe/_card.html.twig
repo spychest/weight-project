@@ -13,6 +13,7 @@
         </div>
         <div class="recipe-card-content">
             <h2>{{ recipe.title }}</h2>
+            <p class="recipe-card-author">Proposé par <strong>{{ recipe.profile.displayName }}</strong> le {{ recipe.createdAt|date('d/m/Y') }}</p>
             <div class="recipe-card-meta">
                 <span>🍽 {{ recipe.servings }} portion{{ recipe.servings > 1 ? 's' : '' }}</span>
                 {% if recipe.setupTimeMinutes is not null %}<span>Mise en place : {{ recipe.setupTimeMinutes }} min</span>{% endif %}

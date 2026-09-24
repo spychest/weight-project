@@ -11,6 +11,7 @@
                     <div>
                         <p class="recipe-page-kicker">Recette partagée</p>
                         <h1>{{ recipe.title }}</h1>
+                        <p class="recipe-detail-author">Proposé par <strong>{{ recipe.profile.displayName }}</strong> le {{ recipe.createdAt|date('d/m/Y') }}</p>
                         <p class="recipe-view-count">◉ {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }} unique{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p>
                     </div>
                     <div class="recipe-page-actions">

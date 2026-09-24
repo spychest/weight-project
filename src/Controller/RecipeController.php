@@ -29,10 +29,17 @@ final class RecipeController extends AbstractController
         RecipeRepository $recipeRepository,
         CurrentUserProfileProvider $currentUserProfileProvider,
     ): Response {
+        $authorFilter = trim($request->query->getString('author'));
+        $publicationDateFilter = $this->parsePublicationDateFilter(
+            $request->query->getString('publicationDate'),
+        );
+
         return $this->render('recipe/index.html.twig', [
             'communityRecipesPagination' => $recipeRepository->paginatePublished(
                 $request->query->getInt('communityPage', 1),
                 PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
+                $authorFilter,
+                $publicationDateFilter,
             ),
             'personalRecipesPagination' => $recipeRepository->paginateForProfile(
                 $currentUserProfileProvider->getRequiredProfile(),
@@ -40,6 +47,10 @@ final class RecipeController extends AbstractController
                 PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
             ),
             'activeRecipeTab' => $request->query->getString('tab') === 'mine' ? 'mine' : 'community',
+            'recipeFilters' => [
+                'author' => $authorFilter,
+                'publicationDate' => $publicationDateFilter?->format('Y-m-d') ?? '',
+            ],
         ]);
     }
 
@@ -203,6 +214,20 @@ final class RecipeController extends AbstractController
     private function getRecipePhotoDirectory(): string
     {
         return (string) $this->getParameter('kernel.project_dir').'/public/uploads/recipes';
+    }
+
+    private function parsePublicationDateFilter(string $publicationDate): ?\DateTimeImmutable
+    {
+        if ($publicationDate === '') {
+            return null;
+        }
+
+        $parsedDate = \DateTimeImmutable::createFromFormat('!Y-m-d', $publicationDate);
+        if (!$parsedDate instanceof \DateTimeImmutable || $parsedDate->format('Y-m-d') !== $publicationDate) {
+            return null;
+        }
+
+        return $parsedDate;
     }
 
     /** @return array<string, string> */

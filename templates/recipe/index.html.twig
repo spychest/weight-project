@@ -16,11 +16,28 @@
         {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
 
         <section class="recipe-tab-panel" data-recipe-tab-panel="community"{{ activeRecipeTab != 'community' ? ' hidden' : '' }}>
+            <form class="recipe-filters" method="get" action="{{ path('app_recipe_index') }}">
+                <input type="hidden" name="tab" value="community">
+                <label>
+                    <span>Proposée par</span>
+                    <input type="search" name="author" value="{{ recipeFilters.author }}" placeholder="Rechercher un pseudo…" autocomplete="off">
+                </label>
+                <label>
+                    <span>Publiée le</span>
+                    <input type="date" name="publicationDate" value="{{ recipeFilters.publicationDate }}">
+                </label>
+                <div class="recipe-filter-actions">
+                    <button type="submit" class="dashboard-button dashboard-button-primary">Filtrer</button>
+                    {% if recipeFilters.author or recipeFilters.publicationDate %}
+                        <a href="{{ path('app_recipe_index') }}" class="dashboard-button">Réinitialiser</a>
+                    {% endif %}
+                </div>
+            </form>
             {% if communityRecipesPagination.items is empty %}
-                <div class="recipe-empty-state"><span>🍽️</span><h2>Aucune recette pour le moment</h2><p>Sois la première personne à en partager une.</p><a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter une recette</a></div>
+                <div class="recipe-empty-state"><span>🍽️</span><h2>Aucune recette trouvée</h2><p>{{ recipeFilters.author or recipeFilters.publicationDate ? 'Aucune recette ne correspond à ces filtres.' : 'Sois la première personne à en partager une.' }}</p>{% if not recipeFilters.author and not recipeFilters.publicationDate %}<a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter une recette</a>{% endif %}</div>
             {% else %}
                 <div class="recipe-grid">{% for recipe in communityRecipesPagination.items %}{% include 'recipe/_card.html.twig' with {recipe: recipe} only %}{% endfor %}</div>
-                {% include 'components/_pagination.html.twig' with {pagination: communityRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'communityPage', preservedQueryParameters: {tab: 'community', minePage: personalRecipesPagination.currentPage}} only %}
+                {% include 'components/_pagination.html.twig' with {pagination: communityRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'communityPage', preservedQueryParameters: {tab: 'community', minePage: personalRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate}} only %}
             {% endif %}
         </section>
 
@@ -31,12 +48,12 @@
                 <div class="recipe-management-list">
                     {% for recipe in personalRecipesPagination.items %}
                         <article class="recipe-management-row">
-                            <div><h2><a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a></h2><p>Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p></div>
+                            <div><h2><a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a></h2><p>Proposée le {{ recipe.createdAt|date('d/m/Y') }} · Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p></div>
                             <div class="recipe-management-actions"><a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="dashboard-button">Voir</a><a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a></div>
                         </article>
                     {% endfor %}
                 </div>
-                {% include 'components/_pagination.html.twig' with {pagination: personalRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'minePage', preservedQueryParameters: {tab: 'mine', communityPage: communityRecipesPagination.currentPage}} only %}
+                {% include 'components/_pagination.html.twig' with {pagination: personalRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'minePage', preservedQueryParameters: {tab: 'mine', communityPage: communityRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate}} only %}
             {% endif %}
         </section>
     </main>

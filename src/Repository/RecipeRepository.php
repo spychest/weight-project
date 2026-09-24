@@ -15,9 +15,32 @@ final class RecipeRepository extends AbstractPaginatedRepository
         parent::__construct($registry, Recipe::class);
     }
 
-    public function paginatePublished(int $page, int $itemsPerPage): PaginatedResult
-    {
-        return $this->paginate($this->createQueryBuilder('recipe')->orderBy('recipe.createdAt', 'DESC'), $page, $itemsPerPage);
+    public function paginatePublished(
+        int $page,
+        int $itemsPerPage,
+        string $authorDisplayName = '',
+        ?\DateTimeImmutable $publicationDate = null,
+    ): PaginatedResult {
+        $queryBuilder = $this->createQueryBuilder('recipe')
+            ->innerJoin('recipe.profile', 'profile')
+            ->addSelect('profile')
+            ->orderBy('recipe.createdAt', 'DESC');
+
+        if ($authorDisplayName !== '') {
+            $queryBuilder
+                ->andWhere('LOWER(profile.displayName) LIKE :authorDisplayName')
+                ->setParameter('authorDisplayName', '%'.mb_strtolower($authorDisplayName).'%');
+        }
+
+        if ($publicationDate !== null) {
+            $queryBuilder
+                ->andWhere('recipe.createdAt >= :publicationDateStart')
+                ->andWhere('recipe.createdAt < :publicationDateEnd')
+                ->setParameter('publicationDateStart', $publicationDate)
+                ->setParameter('publicationDateEnd', $publicationDate->modify('+1 day'));
+        }
+
+        return $this->paginate($queryBuilder, $page, $itemsPerPage);
     }
 
     public function paginateForProfile(Profile $profile, int $page, int $itemsPerPage): PaginatedResult
