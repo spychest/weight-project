@@ -11,34 +11,81 @@
             </header>
 
         {{ form_start(form) }}
-        <div class="profile-identity-fields">
-            {% set currentAvatarUrl = profile.avatarFilename
-                ? asset('uploads/profiles/' ~ profile.avatarFilename)
-                : profile.googleAvatarUrl %}
-            <div class="profile-avatar-preview{% if not currentAvatarUrl %} profile-avatar-preview-fallback{% endif %}">
-                {% if currentAvatarUrl %}
-                    <img src="{{ currentAvatarUrl }}" alt="Photo de profil actuelle">
-                {% else %}
-                    <span aria-hidden="true">{{ profile.displayName ? profile.displayName|first|upper : '👤' }}</span>
-                {% endif %}
+        {% set currentAvatarUrl = profile.avatarFilename
+            ? asset('uploads/profiles/' ~ profile.avatarFilename)
+            : profile.googleAvatarUrl %}
+
+        <section class="profile-form-section profile-form-identity-section">
+            <header class="profile-form-section-header">
+                <span class="profile-form-section-icon" aria-hidden="true">👤</span>
+                <div>
+                    <h2>Mon identité</h2>
+                    <p>Ces informations sont visibles dans le menu et remplacent ton adresse e-mail.</p>
+                </div>
+            </header>
+            <div class="profile-identity-fields">
+                <div class="profile-avatar-block">
+                    <div class="profile-avatar-preview{% if not currentAvatarUrl %} profile-avatar-preview-fallback{% endif %}" data-profile-avatar-preview>
+                        {% if currentAvatarUrl %}
+                            <img src="{{ currentAvatarUrl }}" alt="Photo de profil actuelle">
+                        {% else %}
+                            <span aria-hidden="true">{{ profile.displayName ? profile.displayName|first|upper : '👤' }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="profile-avatar-caption">
+                        {% if profile.avatarFilename %}
+                            Photo personnalisée
+                        {% elseif profile.googleAvatarUrl %}
+                            Photo importée depuis Google
+                        {% else %}
+                            Aucune photo pour le moment
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="form-grid profile-identity-inputs">
+                    <div class="profile-form-field-wide">{{ form_row(form.displayName) }}</div>
+                    <div class="profile-form-field-wide">{{ form_row(form.avatar) }}</div>
+                    {% if editMode and profile.avatarFilename %}
+                        <div class="profile-remove-avatar profile-form-field-wide">
+                            {{ form_widget(form.removeAvatar) }}
+                            {{ form_label(form.removeAvatar) }}
+                            {{ form_errors(form.removeAvatar) }}
+                        </div>
+                    {% else %}
+                        <div hidden>{{ form_widget(form.removeAvatar) }}</div>
+                    {% endif %}
+                </div>
             </div>
-            <div class="profile-identity-inputs">
-                {{ form_row(form.displayName) }}
-                {{ form_row(form.avatar) }}
-                {% if editMode and profile.avatarFilename %}
-                    {{ form_row(form.removeAvatar) }}
-                {% else %}
-                    <div hidden>{{ form_widget(form.removeAvatar) }}</div>
-                {% endif %}
+        </section>
+
+        <section class="profile-form-section">
+            <header class="profile-form-section-header">
+                <span class="profile-form-section-icon" aria-hidden="true">🪪</span>
+                <div>
+                    <h2>Informations personnelles</h2>
+                    <p>Utilisées uniquement pour personnaliser tes indicateurs de suivi.</p>
+                </div>
+            </header>
+            <div class="form-grid">
+                {{ form_row(form.height) }}
+                {{ form_row(form.birthDate) }}
+                {{ form_row(form.biologicalGender) }}
             </div>
-        </div>
-        <div class="form-grid">
-            {{ form_row(form.height) }}
-            {{ form_row(form.birthDate) }}
-            {{ form_row(form.biologicalGender) }}
-            {{ form_row(form.startingWeight) }}
-            {{ form_row(form.targetWeight) }}
-        </div>
+        </section>
+
+        <section class="profile-form-section">
+            <header class="profile-form-section-header">
+                <span class="profile-form-section-icon" aria-hidden="true">🎯</span>
+                <div>
+                    <h2>Mon objectif</h2>
+                    <p>Tu peux ajuster ces valeurs à tout moment sans perdre ton historique.</p>
+                </div>
+            </header>
+            <div class="form-grid">
+                {{ form_row(form.startingWeight) }}
+                {{ form_row(form.targetWeight) }}
+            </div>
+        </section>
         <div class="form-actions">
             <button type="submit" class="form-button form-button-primary">
                 {{ editMode ? 'Enregistrer les modifications' : 'Commencer mon suivi' }}
