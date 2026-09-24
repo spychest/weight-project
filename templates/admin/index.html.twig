@@ -59,7 +59,7 @@
         <div class="admin-section-heading">
             <div>
                 <h2 id="admin-users-title">Utilisateurs</h2>
-                <p><span data-users-total>0</span> compte(s) — 100 résultats maximum par page</p>
+                <p><span data-users-total>0</span> compte(s) — {{ adminItemsPerPage }} résultats maximum par page</p>
             </div>
         </div>
         <form class="admin-catalog-filters admin-user-filters" data-users-filters>
@@ -84,7 +84,7 @@
         <div class="admin-section-heading">
             <div>
                 <h2 id="admin-catalog-title">Catalogue des produits</h2>
-                <p><span data-catalog-total>0</span> produit(s) — 100 résultats maximum par page</p>
+                <p><span data-catalog-total>0</span> produit(s) — {{ adminItemsPerPage }} résultats maximum par page</p>
             </div>
             <button class="dashboard-button dashboard-button-primary" type="button" data-catalog-create>
                 Ajouter un produit

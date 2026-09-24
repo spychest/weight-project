@@ -22,7 +22,7 @@ use JsonException;
 #[IsGranted('ROLE_ADMIN')]
 final class AdminController extends AbstractController
 {
-    private const ITEMS_PER_PAGE = 100;
+    private const ITEMS_PER_PAGE = 25;
 
     #[Route('', name: 'app_admin_index', methods: ['GET'])]
     public function index(
@@ -31,6 +31,7 @@ final class AdminController extends AbstractController
     ): Response {
         return $this->render('admin/index.html.twig', [
             'statistics' => $statisticsService->getStatistics(),
+            'adminItemsPerPage' => self::ITEMS_PER_PAGE,
             'catalogCsrfToken' => $csrfTokenManager
                 ->getToken('admin-ingredient-catalog')
                 ->getValue(),
