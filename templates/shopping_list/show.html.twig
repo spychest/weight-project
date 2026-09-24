@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste de courses{% endblock %}
+
+{% block body %}
+<main class="shopping-list-page">
+    {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
+    {% for message in app.flashes('error') %}<p class="form-error-message">{{ message }}</p>{% endfor %}
+
+    <header class="shopping-list-header">
+        <div>
+            <p class="recipe-page-kicker">Courses</p>
+            <h1>{{ shoppingList ? shoppingList.displayName : 'Aucune liste en cours' }}</h1>
+            <p>{{ shoppingList ? shoppingList.remainingItemCount ~ ' produit(s) restant(s)' : 'Ajoute une recette pour commencer automatiquement ta prochaine liste.' }}</p>
+        </div>
+        {% if shoppingList %}
+            <div class="recipe-page-actions">
+                <a class="dashboard-button" href="{{ path('app_shopping_list_pdf') }}">Télécharger en PDF</a>
+                <form method="post" action="{{ path('app_shopping_list_complete') }}" onsubmit="return confirm('Terminer et archiver cette liste ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('complete-shopping-list-' ~ shoppingList.id) }}">
+                    <button class="dashboard-button dashboard-button-primary" type="submit">Terminer la liste</button>
+                </form>
+            </div>
+        {% endif %}
+    </header>
+
+    {% if shoppingList %}
+        {% if shoppingList.recipeSelections is not empty %}
+        <section class="shopping-list-recipes">
+            <h2>Recettes ajoutées</h2>
+            <div class="shopping-list-recipe-grid">
+            {% for selection in shoppingList.recipeSelections %}
+                <article class="shopping-list-recipe-card">
+                    <div><strong>{{ selection.recipeTitle }}</strong><small>{{ selection.preparationCount }} préparation{{ selection.preparationCount > 1 ? 's' : '' }}</small></div>
+                    <form method="post" action="{{ path('app_shopping_list_recipe_quantity', {id: selection.id}) }}">
+                        <input name="preparationCount" type="number" min="1" max="99" value="{{ selection.preparationCount }}" aria-label="Nombre de préparations">
+                        <input type="hidden" name="_token" value="{{ csrf_token('shopping-list-recipe-' ~ selection.id) }}">
+                        <button class="shopping-list-small-button" type="submit">Actualiser</button>
+                    </form>
+                    <form method="post" action="{{ path('app_shopping_list_recipe_delete', {id: selection.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('shopping-list-recipe-' ~ selection.id) }}">
+                        <button class="shopping-list-remove-button" type="submit" aria-label="Retirer {{ selection.recipeTitle }}">Retirer</button>
+                    </form>
+                </article>
+            {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <div class="shopping-list-layout">
+            <section class="shopping-list-items">
+                {% for category, items in itemsByCategory %}
+                    <section class="shopping-list-category">
+                        <h2>{{ category }}</h2>
+                        {% for item in items %}
+                            <form class="shopping-list-item{{ item.checked ? ' is-checked' : '' }}" method="post" action="{{ path('app_shopping_list_item_update', {key: item.key}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('shopping-list-item-' ~ item.key) }}">
+                                <label class="shopping-list-check-label">
+                                    <input type="checkbox" name="checked" value="1" {{ item.checked ? 'checked' : '' }} data-shopping-item-checkbox>
+                                    <span class="shopping-list-item-name">{{ item.name }}</span>
+                                    {% if item.category != 'Épices et condiments' %}
+                                        <span class="shopping-list-item-quantity">{{ item.quantity|number_format(2, ',', ' ')|trim('0', 'right')|trim(',', 'right') }} {{ item.unit }}</span>
+                                    {% endif %}
+                                </label>
+                                <details class="shopping-list-item-editor">
+                                    <summary>Modifier</summary>
+                                    <div>
+                                        <label>Produit<input name="name" value="{{ item.name }}" required></label>
+                                        {% if item.category != 'Épices et condiments' %}
+                                            <label>Quantité<input name="quantity" type="number" min="0" step="0.01" value="{{ item.quantity }}"></label>
+                                            <label>Unité<input name="unit" value="{{ item.unit }}"></label>
+                                        {% endif %}
+                                        <label>Rayon<input name="category" value="{{ item.category }}" list="shopping-categories"></label>
+                                        <button class="shopping-list-small-button" type="submit">Enregistrer</button>
+                                        <button class="shopping-list-remove-button" type="submit" name="delete" value="1">Retirer</button>
+                                    </div>
+                                </details>
+                            </form>
+                        {% endfor %}
+                    </section>
+                {% else %}
+                    <div class="recipe-empty-state"><span>🛒</span><h2>La liste est vide</h2><p>Ajoute une recette ou un produit libre.</p></div>
+                {% endfor %}
+            </section>
+
+            <aside class="shopping-list-manual-card">
+                <h2>Ajouter un produit</h2>
+                <form method="post" action="{{ path('app_shopping_list_item_add') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('shopping-list-add-item') }}">
+                    <label>Produit<input name="name" placeholder="Ex. Papier cuisson" required></label>
+                    <div class="shopping-list-manual-row"><label>Quantité<input name="quantity" type="number" min="0" step="0.01" value="1"></label><label>Unité<input name="unit" placeholder="pièce"></label></div>
+                    <label>Rayon<input name="category" list="shopping-categories" placeholder="Classement automatique"></label>
+                    <button class="dashboard-button dashboard-button-primary" type="submit">Ajouter</button>
+                </form>
+            </aside>
+        </div>
+    {% else %}
+        <section class="recipe-empty-state shopping-list-empty"><span>🛒</span><h2>Ta liste commencera depuis une recette</h2><p>Parcours les recettes et utilise le bouton « Ajouter aux courses ».</p><a class="dashboard-button dashboard-button-primary" href="{{ path('app_recipe_index') }}">Voir les recettes</a></section>
+    {% endif %}
+
+    <datalist id="shopping-categories">
+        {% for category in ['Fruits et légumes', 'Viandes et poissons', 'Produits frais', 'Boulangerie', 'Féculents et légumineuses', 'Épices et condiments', 'Épicerie asiatique', 'Épicerie latine', 'Conserves et bocaux', 'Surgelés', 'Boissons', 'Huiles et sauces', 'Farines et pâtisserie', 'Autres'] %}<option value="{{ category }}">{% endfor %}
+    </datalist>
+</main>
+{% endblock %}

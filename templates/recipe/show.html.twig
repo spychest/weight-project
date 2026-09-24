@@ -14,6 +14,7 @@
                         <p class="recipe-view-count">◉ {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }} unique{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p>
                     </div>
                     <div class="recipe-page-actions">
+                        <button type="button" class="dashboard-button dashboard-button-primary" data-shopping-list-dialog-open>Ajouter aux courses</button>
                         <a href="{{ path('app_recipe_pdf', {id: recipe.id}) }}" class="dashboard-button recipe-secondary-action">Télécharger en PDF</a>
                         {% if isOwner %}<a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a>{% endif %}
                     </div>
@@ -86,5 +87,20 @@
                 </footer>
             </div>
         </article>
+        <dialog class="shopping-list-add-dialog" data-shopping-list-dialog>
+            <form method="post" action="{{ path('app_shopping_list_add_recipe', {id: recipe.id}) }}">
+                <button type="button" class="shopping-list-dialog-close" data-shopping-list-dialog-close aria-label="Fermer">×</button>
+                <p class="recipe-page-kicker">Liste de courses</p>
+                <h2>Ajouter « {{ recipe.title }} »</h2>
+                <p>Combien de fois souhaites-tu préparer cette recette ? Les quantités seront multipliées automatiquement.</p>
+                <label for="shopping-list-preparation-count">Nombre de préparations</label>
+                <input id="shopping-list-preparation-count" name="preparationCount" type="number" min="1" max="99" value="1" required>
+                <input type="hidden" name="_token" value="{{ csrf_token('add-recipe-to-shopping-list-' ~ recipe.id) }}">
+                <div class="shopping-list-dialog-actions">
+                    <button type="button" class="dashboard-button" data-shopping-list-dialog-close>Annuler</button>
+                    <button type="submit" class="dashboard-button dashboard-button-primary">Ajouter aux courses</button>
+                </div>
+            </form>
+        </dialog>
     </main>
 {% endblock %}

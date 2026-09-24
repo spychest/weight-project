@@ -6,12 +6,13 @@
         <title>{% block title %}Mon suivi de poids{% endblock %}</title>
         <meta name="theme-color" content="#174f3c">
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=20260924-1">
-        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=20260923-1">
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=20260924-2">
         {% if app.user %}
             <script src="{{ asset('js/modal-forms.js') }}?v=20260903-1" defer></script>
             <script src="{{ asset('js/recipe-form.js') }}?v=20260921-1" defer></script>
             <script src="{{ asset('js/recipe-tabs.js') }}?v=20260921-1" defer></script>
             <script src="{{ asset('js/favorite-meals.js') }}?v=20260922-1" defer></script>
+            <script src="{{ asset('js/shopping-list.js') }}?v=20260924-1" defer></script>
         {% endif %}
         {% block stylesheets %}
         {% endblock %}
@@ -30,6 +31,13 @@
                     Recettes
                     {% if unseenRecipeCount > 0 %}<span class="navigation-badge" aria-label="{{ unseenRecipeCount }} recette(s) non vue(s)">{{ unseenRecipeCount }}</span>{% endif %}
                 </a>
+                {% set activeShoppingList = active_shopping_list_summary() %}
+                {% if activeShoppingList %}
+                    <a class="navigation-link navigation-link-with-badge" href="{{ path('app_shopping_list_show') }}">
+                        Liste de courses
+                        {% if activeShoppingList.remaining > 0 %}<span class="navigation-badge">{{ activeShoppingList.remaining }}</span>{% endif %}
+                    </a>
+                {% endif %}
                 <a class="navigation-link" href="{{ path('app_account') }}">Mon compte</a>
                 <span class="authenticated-user-email">{{ app.user.userIdentifier }}</span>
                 <a class="navigation-button navigation-button-logout" href="{{ path('app_logout') }}">Déconnexion</a>
@@ -45,6 +53,9 @@
                         Recettes
                         {% if unseenRecipeCount > 0 %}<span class="navigation-badge" aria-label="{{ unseenRecipeCount }} recette(s) non vue(s)">{{ unseenRecipeCount }}</span>{% endif %}
                     </a>
+                    {% if activeShoppingList %}
+                        <a href="{{ path('app_shopping_list_show') }}">Liste de courses{% if activeShoppingList.remaining > 0 %} <span class="navigation-badge">{{ activeShoppingList.remaining }}</span>{% endif %}</a>
+                    {% endif %}
                     <a href="{{ path('app_account') }}">Mon compte</a>
                     <span class="mobile-navigation-email">{{ app.user.userIdentifier }}</span>
                     <a class="mobile-navigation-logout" href="{{ path('app_logout') }}">Déconnexion</a>

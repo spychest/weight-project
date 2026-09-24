@@ -2720,6 +2720,105 @@ button {
     }
 }
 
+/* Shopping list */
+.shopping-list-page {
+    width: min(1180px, calc(100% - 2rem));
+    margin: 2rem auto 4rem;
+}
+
+.shopping-list-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.shopping-list-header h1 { margin: .2rem 0; }
+.shopping-list-header p { color: var(--color-text-muted); }
+.shopping-list-header .recipe-page-actions { align-items: center; }
+.shopping-list-recipes,
+.shopping-list-category,
+.shopping-list-manual-card {
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: var(--color-white);
+    box-shadow: 0 8px 24px rgba(34, 65, 56, .06);
+}
+
+.shopping-list-recipes { margin-bottom: 1.5rem; padding: 1.25rem; }
+.shopping-list-recipes > h2 { margin: 0 0 1rem; }
+.shopping-list-recipe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .75rem; }
+.shopping-list-recipe-card { display: grid; grid-template-columns: 1fr auto; gap: .75rem; align-items: center; padding: .85rem; border-radius: 12px; background: var(--color-bg-light); }
+.shopping-list-recipe-card > div { display: flex; flex-direction: column; }
+.shopping-list-recipe-card small { color: var(--color-text-muted); }
+.shopping-list-recipe-card form { display: flex; gap: .4rem; }
+.shopping-list-recipe-card input[type="number"] { width: 62px; }
+.shopping-list-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 1.5rem; align-items: start; }
+.shopping-list-items { display: grid; gap: 1rem; }
+.shopping-list-category { overflow: hidden; }
+.shopping-list-category > h2 { margin: 0; padding: .9rem 1.1rem; color: #17664f; background: #eef7f3; font-size: 1.05rem; }
+.shopping-list-item { padding: .85rem 1rem; border-top: 1px solid var(--color-border); }
+.shopping-list-check-label { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .8rem; cursor: pointer; }
+.shopping-list-check-label input { width: 20px; height: 20px; accent-color: #16745b; }
+.shopping-list-item-name { font-weight: 700; }
+.shopping-list-item-quantity { color: var(--color-text-muted); font-weight: 700; }
+.shopping-list-item.is-checked .shopping-list-item-name,
+.shopping-list-item.is-checked .shopping-list-item-quantity { opacity: .55; text-decoration: line-through; }
+.shopping-list-item-editor { margin: .65rem 0 0 2rem; }
+.shopping-list-item-editor summary { color: #16745b; cursor: pointer; font-size: .85rem; font-weight: 700; }
+.shopping-list-item-editor > div { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr auto auto; gap: .55rem; align-items: end; margin-top: .75rem; }
+.shopping-list-item-editor label,
+.shopping-list-manual-card label { display: grid; gap: .25rem; color: var(--color-text-muted); font-size: .78rem; font-weight: 700; }
+.shopping-list-item-editor input,
+.shopping-list-manual-card input,
+.shopping-list-add-dialog input { min-width: 0; padding: .65rem .7rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-white); color: var(--color-text-primary); }
+.shopping-list-small-button,
+.shopping-list-remove-button { padding: .58rem .7rem; border: 1px solid #a9c9bf; border-radius: 8px; background: var(--color-white); color: #17664f; cursor: pointer; font-weight: 700; }
+.shopping-list-remove-button { border-color: #e3b5b5; color: #a33d3d; }
+.shopping-list-manual-card { position: sticky; top: 1rem; padding: 1.2rem; }
+.shopping-list-manual-card h2 { margin-top: 0; }
+.shopping-list-manual-card form { display: grid; gap: .8rem; }
+.shopping-list-manual-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+.shopping-list-empty { max-width: 720px; margin: 3rem auto; }
+
+.shopping-list-add-dialog { width: min(480px, calc(100% - 2rem)); padding: 0; border: 0; border-radius: 18px; background: var(--color-white); color: var(--color-text-primary); box-shadow: 0 24px 70px rgba(0, 0, 0, .3); }
+.shopping-list-add-dialog::backdrop { background: rgba(12, 25, 21, .62); backdrop-filter: blur(3px); }
+.shopping-list-add-dialog form { position: relative; display: grid; gap: .8rem; padding: 1.7rem; }
+.shopping-list-add-dialog h2,
+.shopping-list-add-dialog p { margin: 0; }
+.shopping-list-add-dialog label { margin-top: .5rem; font-weight: 700; }
+.shopping-list-add-dialog input { width: 100%; box-sizing: border-box; }
+.shopping-list-dialog-close { position: absolute; top: .7rem; right: .7rem; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--color-bg-light); color: var(--color-text-primary); cursor: pointer; font-size: 1.35rem; }
+.shopping-list-dialog-actions { display: flex; justify-content: flex-end; gap: .7rem; margin-top: .5rem; }
+
+.dark-mode .shopping-list-category > h2 { background: #183b32; color: #a9e3d2; }
+.dark-mode .shopping-list-small-button { border-color: #47776a; color: #a9e3d2; }
+.dark-mode .shopping-list-remove-button { border-color: #855252; color: #f0aaaa; }
+
+@media (max-width: 900px) {
+    .shopping-list-layout { grid-template-columns: 1fr; }
+    .shopping-list-manual-card { position: static; }
+    .shopping-list-item-editor > div { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 680px) {
+    .shopping-list-page { width: min(100% - 1rem, 1180px); margin-top: 1rem; }
+    .shopping-list-header { flex-direction: column; }
+    .shopping-list-header .recipe-page-actions,
+    .shopping-list-header .recipe-page-actions form,
+    .shopping-list-header .dashboard-button { width: 100%; }
+    .shopping-list-recipe-card { grid-template-columns: 1fr; }
+    .shopping-list-recipe-card form { width: 100%; }
+    .shopping-list-recipe-card form:first-of-type input { flex: 1; }
+    .shopping-list-check-label { grid-template-columns: auto 1fr; }
+    .shopping-list-item-quantity { grid-column: 2; }
+    .shopping-list-item-editor { margin-left: 0; }
+    .shopping-list-item-editor > div { grid-template-columns: 1fr; }
+    .shopping-list-dialog-actions { flex-direction: column-reverse; }
+    .shopping-list-dialog-actions .dashboard-button { width: 100%; }
+}
+
 /* Must remain last: override the historical `.site-header nav` flex rule. */
 @media (max-width: 720px) {
     .site-header .mobile-navigation-panel {

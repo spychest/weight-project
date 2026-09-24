@@ -97,6 +97,10 @@ class Profile
     #[ORM\OneToMany(targetEntity: RecipeView::class, mappedBy: 'profile', orphanRemoval: true)]
     private Collection $recipeViews;
 
+    /** @var Collection<int, ShoppingList> */
+    #[ORM\OneToMany(targetEntity: ShoppingList::class, mappedBy: 'profile', orphanRemoval: true)]
+    private Collection $shoppingLists;
+
     public function __construct()
     {
         $this->weightEntries = new ArrayCollection();
@@ -111,6 +115,7 @@ class Profile
         $this->sleepEntries = new ArrayCollection();
         $this->recipes = new ArrayCollection();
         $this->recipeViews = new ArrayCollection();
+        $this->shoppingLists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -457,4 +462,10 @@ class Profile
 
     /** @return Collection<int, RecipeView> */
     public function getRecipeViews(): Collection { return $this->recipeViews; }
+
+    /** @return Collection<int, ShoppingList> */
+    public function getShoppingLists(): Collection
+    {
+        return $this->shoppingLists;
+    }
 }
