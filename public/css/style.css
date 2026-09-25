@@ -3886,6 +3886,66 @@ html.dark-mode {
     font-size: 0.76rem;
 }
 
+.ingredient-autocomplete-field {
+    position: relative;
+    min-width: 0;
+}
+
+.ingredient-autocomplete-list {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 5px);
+    right: 0;
+    left: 0;
+    overflow-y: auto;
+    max-height: 280px;
+    padding: 5px;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    box-shadow: 0 14px 30px rgba(24, 51, 42, 0.18);
+}
+
+.ingredient-autocomplete-option {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 11px;
+    border: 0;
+    border-radius: calc(var(--radius-lg) - 3px);
+    background: transparent;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.ingredient-autocomplete-option:hover,
+.ingredient-autocomplete-option.is-highlighted {
+    background: var(--color-bg-light);
+}
+
+.ingredient-autocomplete-name {
+    overflow: hidden;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ingredient-autocomplete-category {
+    flex: 0 0 auto;
+    color: var(--color-text-secondary);
+    font-size: 0.76rem;
+}
+
+.dark-mode .ingredient-autocomplete-list {
+    border-color: var(--color-border);
+    background: var(--color-white);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.42);
+}
+
 .recipe-step-number {
     display: grid;
     width: 30px;

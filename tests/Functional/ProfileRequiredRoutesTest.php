@@ -30,6 +30,7 @@ final class ProfileRequiredRoutesTest extends WebTestCase
         yield 'recipe catalogue' => ['/recipes'];
         yield 'recipe management' => ['/recipes/mine'];
         yield 'recipe creation' => ['/recipes/new'];
+        yield 'ingredient suggestions' => ['/ingredients/suggestions?q=tom'];
         yield 'recipe details' => ['/recipes/1'];
         yield 'recipe PDF' => ['/recipes/1/pdf'];
         yield 'shopping list' => ['/shopping-list'];
