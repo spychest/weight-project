@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://weight.spychest.fr/schemas/ingredient-catalog.schema.json",
+  "title": "Catalogue d’ingrédients Weight Project",
+  "description": "Structure du catalogue initial utilisé pour alimenter la base de données.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "ingredients"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "ingredients": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ingredient"
+      }
+    }
+  },
+  "$defs": {
+    "ingredient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonicalName",
+        "category",
+        "aliases"
+      ],
+      "properties": {
+        "canonicalName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Boissons",
+            "Boulangerie",
+            "Conserves et bocaux",
+            "Épicerie asiatique",
+            "Épicerie latine",
+            "Épicerie orientale et méditerranéenne",
+            "Épices et condiments",
+            "Farines et pâtisserie",
+            "Féculents et légumineuses",
+            "Fruits et légumes",
+            "Fruits secs et graines",
+            "Huiles et sauces",
+            "Produits frais",
+            "Surgelés",
+            "Viandes et poissons"
+          ]
+        },
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{% if recipe.vegetarian or recipe.vegan or recipe.glutenFree %}
+    <div class="recipe-dietary-badges" aria-label="Régimes compatibles">
+        {% if recipe.vegetarian %}
+            <span class="recipe-dietary-badge"{% if allowKeyboardTooltips|default(true) %} tabindex="0"{% endif %} aria-label="Végétarien">
+                <span aria-hidden="true">🥕</span>
+                <span class="recipe-dietary-tooltip" role="tooltip">Végétarien</span>
+            </span>
+        {% endif %}
+        {% if recipe.vegan %}
+            <span class="recipe-dietary-badge"{% if allowKeyboardTooltips|default(true) %} tabindex="0"{% endif %} aria-label="Végan">
+                <span aria-hidden="true">🌱</span>
+                <span class="recipe-dietary-tooltip" role="tooltip">Végan</span>
+            </span>
+        {% endif %}
+        {% if recipe.glutenFree %}
+            <span class="recipe-dietary-badge recipe-dietary-badge-gluten-free"{% if allowKeyboardTooltips|default(true) %} tabindex="0"{% endif %} aria-label="Sans gluten">
+                <span aria-hidden="true">GF</span>
+                <span class="recipe-dietary-tooltip" role="tooltip">Sans gluten</span>
+            </span>
+        {% endif %}
+    </div>
+{% endif %}

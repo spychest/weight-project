@@ -20,6 +20,9 @@ final class RecipeRepository extends AbstractPaginatedRepository
         int $itemsPerPage,
         string $authorDisplayName = '',
         ?\DateTimeImmutable $publicationDate = null,
+        bool $vegetarianOnly = false,
+        bool $veganOnly = false,
+        bool $glutenFreeOnly = false,
     ): PaginatedResult {
         $queryBuilder = $this->createQueryBuilder('recipe')
             ->innerJoin('recipe.profile', 'profile')
@@ -38,6 +41,16 @@ final class RecipeRepository extends AbstractPaginatedRepository
                 ->andWhere('recipe.createdAt < :publicationDateEnd')
                 ->setParameter('publicationDateStart', $publicationDate)
                 ->setParameter('publicationDateEnd', $publicationDate->modify('+1 day'));
+        }
+
+        if ($vegetarianOnly) {
+            $queryBuilder->andWhere('recipe.vegetarian = true');
+        }
+        if ($veganOnly) {
+            $queryBuilder->andWhere('recipe.vegan = true');
+        }
+        if ($glutenFreeOnly) {
+            $queryBuilder->andWhere('recipe.glutenFree = true');
         }
 
         return $this->paginate($queryBuilder, $page, $itemsPerPage);

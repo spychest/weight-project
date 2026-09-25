@@ -3283,7 +3283,7 @@ html.dark-mode {
 
 .recipe-filters {
     display: grid;
-    grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.55fr) auto;
+    grid-template-columns: minmax(190px, 1fr) minmax(160px, 0.55fr) minmax(260px, auto) auto;
     align-items: end;
     gap: 14px;
     margin-bottom: 24px;
@@ -3292,6 +3292,43 @@ html.dark-mode {
     border-radius: var(--radius-2xl);
     background: var(--color-white);
     box-shadow: var(--shadow-sm);
+}
+
+.recipe-dietary-filters {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+    min-height: 43px;
+    margin: 0;
+    padding: 7px 11px;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-lg);
+}
+
+.recipe-dietary-filters legend {
+    padding: 0 4px;
+    color: var(--color-text-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.recipe-dietary-filters label {
+    display: inline-flex;
+    align-items: center;
+    grid-template-columns: none;
+    gap: 6px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.recipe-dietary-filters input[type="checkbox"] {
+    width: 16px;
+    min-height: 0;
+    height: 16px;
+    padding: 0;
+    accent-color: #247d66;
 }
 
 .recipe-filters label {
@@ -3421,6 +3458,126 @@ html.dark-mode {
 .recipe-card-author strong,
 .recipe-detail-author strong {
     color: #247d66;
+}
+
+.recipe-dietary-badges {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 13px;
+}
+
+.recipe-dietary-badge {
+    position: relative;
+    display: inline-grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border: 1px solid #b9d9cd;
+    border-radius: 50%;
+    background: #edf8f4;
+    color: #17624d;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.recipe-dietary-badge-gluten-free {
+    font-size: 0.68rem;
+    letter-spacing: -0.03em;
+}
+
+.recipe-dietary-tooltip,
+.recipe-information-tooltip-content {
+    position: absolute;
+    z-index: 20;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    width: max-content;
+    max-width: min(280px, calc(100vw - 48px));
+    padding: 7px 9px;
+    border-radius: 8px;
+    background: #173e33;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.35;
+    opacity: 0;
+    pointer-events: none;
+    text-align: center;
+    transform: translate(-50%, 4px);
+    transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.recipe-dietary-badge:hover .recipe-dietary-tooltip,
+.recipe-dietary-badge:focus .recipe-dietary-tooltip,
+.recipe-information-tooltip:hover .recipe-information-tooltip-content,
+.recipe-information-tooltip:focus .recipe-information-tooltip-content {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.recipe-dietary-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.recipe-dietary-option {
+    display: flex;
+    position: relative;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-light);
+}
+
+.recipe-dietary-option > input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex: 0 0 18px;
+    accent-color: #247d66;
+}
+
+.recipe-dietary-option > label {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.recipe-information-tooltip {
+    position: relative;
+    display: inline-grid;
+    width: 22px;
+    height: 22px;
+    margin-left: auto;
+    padding: 0;
+    place-items: center;
+    border: 1px solid #9ebdb2;
+    border-radius: 50%;
+    background: var(--color-white);
+    color: #247d66;
+    cursor: help;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.recipe-information-tooltip-content {
+    white-space: normal;
+}
+
+.dark-mode .recipe-dietary-option,
+.dark-mode .recipe-dietary-badge {
+    border-color: #315d50;
+    background: #173e33;
+    color: #9de0c4;
 }
 
 .recipe-detail-author {
@@ -3879,6 +4036,14 @@ html.dark-mode {
     .recipe-filter-actions,
     .recipe-filter-actions .dashboard-button {
         width: 100%;
+    }
+
+    .recipe-dietary-filters {
+        flex-wrap: wrap;
+    }
+
+    .recipe-dietary-options {
+        grid-template-columns: 1fr;
     }
 }
 

@@ -33,6 +33,9 @@ final class RecipeController extends AbstractController
         $publicationDateFilter = $this->parsePublicationDateFilter(
             $request->query->getString('publicationDate'),
         );
+        $vegetarianFilter = $request->query->getBoolean('vegetarian');
+        $veganFilter = $request->query->getBoolean('vegan');
+        $glutenFreeFilter = $request->query->getBoolean('glutenFree');
 
         return $this->render('recipe/index.html.twig', [
             'communityRecipesPagination' => $recipeRepository->paginatePublished(
@@ -40,6 +43,9 @@ final class RecipeController extends AbstractController
                 PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
                 $authorFilter,
                 $publicationDateFilter,
+                $vegetarianFilter,
+                $veganFilter,
+                $glutenFreeFilter,
             ),
             'personalRecipesPagination' => $recipeRepository->paginateForProfile(
                 $currentUserProfileProvider->getRequiredProfile(),
@@ -50,6 +56,9 @@ final class RecipeController extends AbstractController
             'recipeFilters' => [
                 'author' => $authorFilter,
                 'publicationDate' => $publicationDateFilter?->format('Y-m-d') ?? '',
+                'vegetarian' => $vegetarianFilter,
+                'vegan' => $veganFilter,
+                'glutenFree' => $glutenFreeFilter,
             ],
         ]);
     }

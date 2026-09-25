@@ -17,8 +17,24 @@ final class RecipeTest extends TestCase
         self::assertSame(1, $recipe->getServings());
         self::assertSame([], $recipe->getSetupSteps());
         self::assertSame([], $recipe->getTips());
+        self::assertFalse($recipe->isVegetarian());
+        self::assertFalse($recipe->isVegan());
+        self::assertFalse($recipe->isGlutenFree());
         self::assertCount(1, $recipe->getIngredients());
         self::assertSame([''], $recipe->getPreparationSteps());
+    }
+
+    #[Test]
+    public function itStoresDietaryCompatibilityExplicitly(): void
+    {
+        $recipe = (new Recipe())
+            ->setVegetarian(true)
+            ->setVegan(true)
+            ->setGlutenFree(true);
+
+        self::assertTrue($recipe->isVegetarian());
+        self::assertTrue($recipe->isVegan());
+        self::assertTrue($recipe->isGlutenFree());
     }
 
     #[Test]

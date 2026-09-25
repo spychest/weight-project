@@ -45,6 +45,30 @@ final class RecipeTemplateTest extends KernelTestCase
         self::assertStringContainsString('data-collection="setupSteps"', $renderedForm);
         self::assertStringContainsString('data-collection="preparationSteps"', $renderedForm);
         self::assertStringContainsString('data-collection="tips"', $renderedForm);
+        self::assertStringContainsString('name="recipe[vegetarian]"', $renderedForm);
+        self::assertStringContainsString('name="recipe[vegan]"', $renderedForm);
+        self::assertStringContainsString('name="recipe[glutenFree]"', $renderedForm);
+        self::assertStringContainsString('Exclut la viande et le poisson', $renderedForm);
+        self::assertStringContainsString('Exclut tous les produits d’origine animale', $renderedForm);
+        self::assertStringContainsString('Exclut les céréales contenant du gluten', $renderedForm);
         self::assertStringContainsString('Publier la recette', $renderedForm);
+    }
+
+    #[Test]
+    public function recipeDietaryBadgesDescribeEveryEnabledDiet(): void
+    {
+        self::bootKernel();
+        $twig = self::getContainer()->get(Environment::class);
+        self::assertInstanceOf(Environment::class, $twig);
+
+        $recipe = (new Recipe())
+            ->setVegetarian(true)
+            ->setVegan(true)
+            ->setGlutenFree(true);
+        $renderedBadges = $twig->render('recipe/_dietary_badges.html.twig', ['recipe' => $recipe]);
+
+        self::assertStringContainsString('Végétarien', $renderedBadges);
+        self::assertStringContainsString('Végan', $renderedBadges);
+        self::assertStringContainsString('Sans gluten', $renderedBadges);
     }
 }

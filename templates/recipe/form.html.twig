@@ -26,6 +26,41 @@
                     </div>
                 {% endif %}
 
+                <section class="recipe-form-section recipe-dietary-form-section">
+                    <div class="recipe-form-section-heading">
+                        <div><h2>Régimes alimentaires</h2><p>Facultatif — indique les régimes avec lesquels cette recette est compatible.</p></div>
+                    </div>
+                    <div class="recipe-dietary-options">
+                        <div class="recipe-dietary-option">
+                            {{ form_widget(form.vegetarian) }}
+                            {{ form_label(form.vegetarian) }}
+                            <button type="button" class="recipe-information-tooltip" aria-label="Définition du régime végétarien" aria-describedby="vegetarian-definition">
+                                <span aria-hidden="true">i</span>
+                                <span id="vegetarian-definition" class="recipe-information-tooltip-content" role="tooltip">Exclut la viande et le poisson, mais peut contenir des œufs, des produits laitiers ou du miel.</span>
+                            </button>
+                            {{ form_errors(form.vegetarian) }}
+                        </div>
+                        <div class="recipe-dietary-option">
+                            {{ form_widget(form.vegan) }}
+                            {{ form_label(form.vegan) }}
+                            <button type="button" class="recipe-information-tooltip" aria-label="Définition du régime végan" aria-describedby="vegan-definition">
+                                <span aria-hidden="true">i</span>
+                                <span id="vegan-definition" class="recipe-information-tooltip-content" role="tooltip">Exclut tous les produits d’origine animale, notamment la viande, le poisson, les œufs, les produits laitiers et le miel.</span>
+                            </button>
+                            {{ form_errors(form.vegan) }}
+                        </div>
+                        <div class="recipe-dietary-option">
+                            {{ form_widget(form.glutenFree) }}
+                            {{ form_label(form.glutenFree) }}
+                            <button type="button" class="recipe-information-tooltip" aria-label="Définition d’une alimentation sans gluten" aria-describedby="gluten-free-definition">
+                                <span aria-hidden="true">i</span>
+                                <span id="gluten-free-definition" class="recipe-information-tooltip-content" role="tooltip">Exclut les céréales contenant du gluten, comme le blé, l’orge et le seigle, ainsi que leurs dérivés.</span>
+                            </button>
+                            {{ form_errors(form.glutenFree) }}
+                        </div>
+                    </div>
+                </section>
+
                 <section class="recipe-form-section">
                     <div class="recipe-form-section-heading">
                         <div><h2>Ustensiles</h2><p>Facultatif — la liste peut rester vide.</p></div>

@@ -41,6 +41,15 @@ class Recipe
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photoFilename = null;
 
+    #[ORM\Column]
+    private bool $vegetarian = false;
+
+    #[ORM\Column]
+    private bool $vegan = false;
+
+    #[ORM\Column]
+    private bool $glutenFree = false;
+
     /** @var list<string> */
     #[ORM\Column(type: Types::JSON)]
     private array $utensils = [];
@@ -93,6 +102,41 @@ class Recipe
     public function setServings(int $servings): static { $this->servings = $servings; return $this; }
     public function getPhotoFilename(): ?string { return $this->photoFilename; }
     public function setPhotoFilename(?string $filename): static { $this->photoFilename = $filename; return $this; }
+    public function isVegetarian(): bool
+    {
+        return $this->vegetarian;
+    }
+
+    public function setVegetarian(bool $vegetarian): static
+    {
+        $this->vegetarian = $vegetarian;
+
+        return $this;
+    }
+
+    public function isVegan(): bool
+    {
+        return $this->vegan;
+    }
+
+    public function setVegan(bool $vegan): static
+    {
+        $this->vegan = $vegan;
+
+        return $this;
+    }
+
+    public function isGlutenFree(): bool
+    {
+        return $this->glutenFree;
+    }
+
+    public function setGlutenFree(bool $glutenFree): static
+    {
+        $this->glutenFree = $glutenFree;
+
+        return $this;
+    }
     /** @return list<string> */
     public function getUtensils(): array { return $this->utensils; }
     /** @param list<string> $utensils */

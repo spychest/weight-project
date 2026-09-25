@@ -26,18 +26,25 @@
                     <span>Publiée le</span>
                     <input type="date" name="publicationDate" value="{{ recipeFilters.publicationDate }}">
                 </label>
+                <fieldset class="recipe-dietary-filters">
+                    <legend>Régimes</legend>
+                    <label><input type="checkbox" name="vegetarian" value="1"{{ recipeFilters.vegetarian ? ' checked' : '' }}> Végétarien</label>
+                    <label><input type="checkbox" name="vegan" value="1"{{ recipeFilters.vegan ? ' checked' : '' }}> Végan</label>
+                    <label><input type="checkbox" name="glutenFree" value="1"{{ recipeFilters.glutenFree ? ' checked' : '' }}> Sans gluten</label>
+                </fieldset>
                 <div class="recipe-filter-actions">
                     <button type="submit" class="dashboard-button dashboard-button-primary">Filtrer</button>
-                    {% if recipeFilters.author or recipeFilters.publicationDate %}
+                    {% if recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree %}
                         <a href="{{ path('app_recipe_index') }}" class="dashboard-button">Réinitialiser</a>
                     {% endif %}
                 </div>
             </form>
             {% if communityRecipesPagination.items is empty %}
-                <div class="recipe-empty-state"><span>🍽️</span><h2>Aucune recette trouvée</h2><p>{{ recipeFilters.author or recipeFilters.publicationDate ? 'Aucune recette ne correspond à ces filtres.' : 'Sois la première personne à en partager une.' }}</p>{% if not recipeFilters.author and not recipeFilters.publicationDate %}<a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter une recette</a>{% endif %}</div>
+                {% set hasRecipeFilter = recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree %}
+                <div class="recipe-empty-state"><span>🍽️</span><h2>Aucune recette trouvée</h2><p>{{ hasRecipeFilter ? 'Aucune recette ne correspond à ces filtres.' : 'Sois la première personne à en partager une.' }}</p>{% if not hasRecipeFilter %}<a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter une recette</a>{% endif %}</div>
             {% else %}
                 <div class="recipe-grid">{% for recipe in communityRecipesPagination.items %}{% include 'recipe/_card.html.twig' with {recipe: recipe} only %}{% endfor %}</div>
-                {% include 'components/_pagination.html.twig' with {pagination: communityRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'communityPage', preservedQueryParameters: {tab: 'community', minePage: personalRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate}} only %}
+                {% include 'components/_pagination.html.twig' with {pagination: communityRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'communityPage', preservedQueryParameters: {tab: 'community', minePage: personalRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate, vegetarian: recipeFilters.vegetarian ? 1 : 0, vegan: recipeFilters.vegan ? 1 : 0, glutenFree: recipeFilters.glutenFree ? 1 : 0}} only %}
             {% endif %}
         </section>
 
@@ -48,12 +55,16 @@
                 <div class="recipe-management-list">
                     {% for recipe in personalRecipesPagination.items %}
                         <article class="recipe-management-row">
-                            <div><h2><a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a></h2><p>Proposée le {{ recipe.createdAt|date('d/m/Y') }} · Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p></div>
+                            <div>
+                                <h2><a href="{{ path('app_recipe_show', {id: recipe.id}) }}">{{ recipe.title }}</a></h2>
+                                <p>Proposée le {{ recipe.createdAt|date('d/m/Y') }} · Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p>
+                                {% include 'recipe/_dietary_badges.html.twig' with {recipe: recipe} only %}
+                            </div>
                             <div class="recipe-management-actions"><a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="dashboard-button">Voir</a><a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a></div>
                         </article>
                     {% endfor %}
                 </div>
-                {% include 'components/_pagination.html.twig' with {pagination: personalRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'minePage', preservedQueryParameters: {tab: 'mine', communityPage: communityRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate}} only %}
+                {% include 'components/_pagination.html.twig' with {pagination: personalRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'minePage', preservedQueryParameters: {tab: 'mine', communityPage: communityRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate, vegetarian: recipeFilters.vegetarian ? 1 : 0, vegan: recipeFilters.vegan ? 1 : 0, glutenFree: recipeFilters.glutenFree ? 1 : 0}} only %}
             {% endif %}
         </section>
     </main>

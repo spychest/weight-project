@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Recipe;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -30,6 +31,18 @@ final class RecipeType extends AbstractType
                 'required' => false,
                 'constraints' => [new Image(maxSize: '5M', mimeTypesMessage: 'Sélectionne une image valide.')],
                 'attr' => ['accept' => 'image/*'],
+            ])
+            ->add('vegetarian', CheckboxType::class, [
+                'label' => 'Végétarien',
+                'required' => false,
+            ])
+            ->add('vegan', CheckboxType::class, [
+                'label' => 'Végan',
+                'required' => false,
+            ])
+            ->add('glutenFree', CheckboxType::class, [
+                'label' => 'Sans gluten',
+                'required' => false,
             ])
             ->add('utensils', CollectionType::class, $collectionOptions + [
                 'entry_type' => TextType::class,
