@@ -3570,7 +3570,20 @@ html.dark-mode {
 }
 
 .recipe-information-tooltip-content {
+    width: min(260px, calc(100vw - 72px));
+    max-width: none;
     white-space: normal;
+}
+
+.recipe-dietary-option:last-child .recipe-information-tooltip-content {
+    right: -4px;
+    left: auto;
+    transform: translateY(4px);
+}
+
+.recipe-dietary-option:last-child .recipe-information-tooltip:hover .recipe-information-tooltip-content,
+.recipe-dietary-option:last-child .recipe-information-tooltip:focus .recipe-information-tooltip-content {
+    transform: translateY(0);
 }
 
 .dark-mode .recipe-dietary-option,
