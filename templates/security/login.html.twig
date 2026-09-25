@@ -4,6 +4,7 @@
 
 {% block javascripts %}
     <script src="{{ asset('js/password-visibility.js') }}?v=20260924-1" defer></script>
+    <script src="{{ asset('js/remember-me.js') }}?v=20260925-1" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -40,12 +41,20 @@
                 </button>
             </div>
 
+            <label class="remember-me-option" for="remember-me">
+                <input id="remember-me" type="checkbox" name="_remember_me" value="1" data-remember-me>
+                <span>
+                    Rester connecté
+                    <small>Même après la fermeture du navigateur, pendant 30 jours.</small>
+                </span>
+            </label>
+
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
             <button class="button" type="submit">Se connecter</button>
         </form>
 
         <div class="auth-separator"><span>ou</span></div>
-        <a class="button button-google" href="{{ path('app_google_connect') }}">Continuer avec Google</a>
+        <a class="button button-google" href="{{ path('app_google_connect') }}" data-google-connect>Continuer avec Google</a>
         <p>Pas encore de compte ? <a href="{{ path('app_register') }}">S’inscrire</a></p>
     </section>
 </main>

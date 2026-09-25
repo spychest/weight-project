@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -41,6 +42,10 @@ final class GoogleAuthenticator extends OAuth2Authenticator
     {
         $googleClient = $this->clientRegistry->getClient('google');
         $accessToken = $this->fetchAccessToken($googleClient);
+        $rememberMeBadge = new RememberMeBadge();
+        if ($request->getSession()->remove('google_remember_me', false) === true) {
+            $rememberMeBadge->enable();
+        }
 
         return new SelfValidatingPassport(new UserBadge(
             'google_'.$accessToken->getToken(),
@@ -54,7 +59,7 @@ final class GoogleAuthenticator extends OAuth2Authenticator
 
                 return $this->findOrCreateUserFromGoogle($googleUser, $request);
             },
-        ));
+        ), [$rememberMeBadge]);
     }
 
     public function onAuthenticationSuccess(

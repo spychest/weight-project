@@ -14,6 +14,10 @@ final class GoogleAuthenticationController extends AbstractController
     #[Route('/connect/google', name: 'app_google_connect')]
     public function connect(ClientRegistry $clientRegistry, Request $request): Response
     {
+        $request->getSession()->set(
+            'google_remember_me',
+            $request->query->getBoolean('_remember_me'),
+        );
         $authenticatedUser = $this->getUser();
         if ($authenticatedUser instanceof User && $authenticatedUser->getId() !== null) {
             $request->getSession()->set('google_identity_link_user_id', $authenticatedUser->getId());
