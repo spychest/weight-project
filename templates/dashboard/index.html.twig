@@ -104,6 +104,61 @@
             </div>
         </section>
 
+        <section class="dashboard-section dashboard-weight-projection-section">
+            <div class="dashboard-section-header">
+                <div>
+                    <span class="dashboard-card-label">Tendance du poids</span>
+                    <h2>Projection indicative</h2>
+                </div>
+            </div>
+
+            <div class="dashboard-weight-projection-card">
+                {% if dashboard.weightProjection and dashboard.weightProjection.available %}
+                    <div class="dashboard-weight-projection-introduction">
+                        <div>
+                            <strong>Si la tendance récente se prolonge</strong>
+                            <p>
+                                Calcul effectué à partir de {{ dashboard.weightProjection.measurementCount }} pesées
+                                réparties sur {{ dashboard.weightProjection.observationPeriodInDays }} jours.
+                            </p>
+                        </div>
+                        <span class="dashboard-weight-projection-trend">
+                            {{ dashboard.weightProjection.weeklyWeightChange|abs|number_format(2, ',', ' ') }} kg/semaine
+                        </span>
+                    </div>
+
+                    <div class="dashboard-weight-projection-goals">
+                        {% for goalProjection in dashboard.weightProjection.goals %}
+                            <article class="dashboard-weight-projection-goal{{ goalProjection.finalTarget ? ' dashboard-weight-projection-goal-final' : '' }}">
+                                <span>{{ goalProjection.finalTarget ? 'Objectif final' : 'Jalon' }}</span>
+                                <strong>{{ goalProjection.label }}</strong>
+                                <p>{{ goalProjection.targetWeight }} kg</p>
+                                <time datetime="{{ goalProjection.projectedDate|date('Y-m-d') }}">
+                                    Vers le {{ goalProjection.projectedDate|date('d/m/Y') }}
+                                </time>
+                                {% if goalProjection.milestoneId %}
+                                    <a href="{{ path('app_milestone_show', {id: goalProjection.milestoneId}) }}">Voir le jalon</a>
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="dashboard-weight-projection-unavailable">
+                        <span aria-hidden="true">⌛</span>
+                        <div>
+                            <strong>Projection indisponible pour le moment</strong>
+                            <p>{{ dashboard.weightProjection ? dashboard.weightProjection.unavailableReason : 'Les données disponibles ne permettent pas encore de calculer une projection.' }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <p class="dashboard-weight-projection-disclaimer">
+                    Cette date est une <strong>projection indicative</strong> obtenue en prolongeant mathématiquement la tendance récente.
+                    Ce n’est pas une prédiction, une promesse de résultat ni un avis médical. L’évolution réelle peut être différente.
+                </p>
+            </div>
+        </section>
+
         <section class="dashboard-section">
             <div class="dashboard-section-header">
                 <h2>Prochain jalon</h2>

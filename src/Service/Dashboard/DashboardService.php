@@ -20,6 +20,7 @@ use App\Repository\DrinkEntryRepository;
 use App\Repository\FoodEventRepository;
 use App\Repository\WeightEntryRepository;
 use App\Service\Milestone\MilestoneService;
+use App\Service\Weight\WeightProjectionService;
 use App\DTO\SleepEntryData;
 use App\Repository\SleepEntryRepository;
 use App\DTO\ActivityData;
@@ -35,6 +36,7 @@ final readonly class DashboardService
         private DailyCheckinRepository $dailyCheckinRepository,
         private SleepEntryRepository $sleepEntryRepository,
         private ActivityRepository $activityRepository,
+        private WeightProjectionService $weightProjectionService,
     ) {
     }
 
@@ -121,6 +123,10 @@ final readonly class DashboardService
         $startingBodyMassIndex = $this->calculateBodyMassIndex($profile, $profile->getStartingWeight());
         $currentBodyMassIndex = $this->calculateBodyMassIndex($profile, $currentWeight ?? $profile->getStartingWeight());
         $targetBodyMassIndex = $this->calculateBodyMassIndex($profile, $profile->getTargetWeight());
+        $weightProjection = $this->weightProjectionService->project(
+            $profile,
+            $this->weightEntryRepository->findRecentForProjection($profile, new \DateTimeImmutable('-90 days')),
+        );
 
         return new DashboardData(
             height: $profile->getHeight(),
@@ -141,6 +147,7 @@ final readonly class DashboardService
             imc: $startingBodyMassIndex,
             currentImc: $currentBodyMassIndex,
             targetImc: $targetBodyMassIndex,
+            weightProjection: $weightProjection,
         );
     }
 

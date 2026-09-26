@@ -24,6 +24,7 @@ final readonly class DashboardData
         public float $imc,
         public ?float $currentImc,
         public float $targetImc,
+        public ?WeightProjectionData $weightProjection = null,
     ) {
     }
 

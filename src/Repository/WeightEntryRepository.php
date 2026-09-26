@@ -59,6 +59,20 @@ class WeightEntryRepository extends AbstractPaginatedRepository
             ->getResult();
     }
 
+    /** @return list<WeightEntry> */
+    public function findRecentForProjection(Profile $profile, \DateTimeImmutable $startDate): array
+    {
+        return $this->createQueryBuilder('weightEntry')
+            ->andWhere('weightEntry.profile = :profile')
+            ->andWhere('weightEntry.measuredAt >= :startDate')
+            ->setParameter('profile', $profile)
+            ->setParameter('startDate', $startDate)
+            ->orderBy('weightEntry.measuredAt', 'ASC')
+            ->addOrderBy('weightEntry.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function paginateAllForProfileFromNewest(Profile $profile, int $page, int $itemsPerPage): \App\Pagination\PaginatedResult
     {
         $queryBuilder = $this->createQueryBuilder('weightEntry')
