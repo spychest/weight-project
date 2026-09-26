@@ -5,7 +5,7 @@ set -e
 cd "$(dirname "$0")"
 
 echo "Démarrage des conteneurs…"
-docker compose up -d
+docker compose up -d --build
 
 echo "Installation des dépendances…"
 docker compose exec -T php-fpm composer install
@@ -24,5 +24,8 @@ docker compose exec -T --user www-data php-fpm php bin/console project:shopping-
 
 echo "Vidage du cache…"
 docker compose exec -T --user www-data php-fpm php bin/console ca:cl
+
+echo "Redémarrage de PHP-FPM…"
+docker compose restart php-fpm
 
 echo "Déploiement terminé."

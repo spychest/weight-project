@@ -5,15 +5,18 @@ ENV TZ=Europe/Paris
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    libgmp-dev \
     libicu-dev \
     libzip-dev \
     tzdata \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
     && docker-php-ext-install \
+        gmp \
         intl \
         pdo_mysql \
         zip \
+    && rm -rf /var/lib/apt/lists/* \
     && echo "date.timezone=${TZ}" > /usr/local/etc/php/conf.d/timezone.ini
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

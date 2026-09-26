@@ -2625,6 +2625,18 @@ body:has(.milestone-celebration-modal[open]) {
     opacity: 0.55;
 }
 
+.notification-preference-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.account-action-button-secondary {
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg-light);
+    color: var(--color-text-primary);
+}
+
 .dark-mode .account-setting-warning {
     border-color: #80661f;
     background: #352f1e;

@@ -100,7 +100,12 @@
                 <p class="account-setting-status" data-push-notification-status>
                     {{ account.notificationsEnabled ? 'Rappels actifs sur les appareils autorisés.' : 'Rappels désactivés.' }}
                 </p>
-                <button class="account-action-button" type="submit">Enregistrer mes préférences</button>
+                <div class="notification-preference-actions">
+                    <button class="account-action-button" type="submit">Enregistrer mes préférences</button>
+                    <button class="account-action-button account-action-button-secondary" type="button" data-push-notification-test>
+                        Tester une notification sur cet appareil
+                    </button>
+                </div>
             {{ form_end(notificationPreferenceForm) }}
         {% else %}
             <p class="account-setting-warning">Les notifications doivent encore être configurées sur le serveur.</p>

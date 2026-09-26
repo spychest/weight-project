@@ -10,6 +10,7 @@
     const enabledCheckbox = form?.querySelector('input[type="checkbox"]');
     const frequencySelect = form?.querySelector('select');
     const status = settings.querySelector('[data-push-notification-status]');
+    const testNotificationButton = settings.querySelector('[data-push-notification-test]');
     const publicKey = settings.dataset.publicKey || '';
     const subscriptionUrl = settings.dataset.subscriptionUrl || '';
     const csrfToken = settings.dataset.csrfToken || '';
@@ -84,6 +85,34 @@
 
     enabledCheckbox?.addEventListener('change', updateFrequencyAvailability);
     updateFrequencyAvailability();
+
+    testNotificationButton?.addEventListener('click', async () => {
+        if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+            if (status) {
+                status.textContent = 'Les notifications ne sont pas compatibles avec ce navigateur.';
+            }
+            return;
+        }
+
+        const permission = Notification.permission === 'granted'
+            ? 'granted'
+            : await Notification.requestPermission();
+        if (permission !== 'granted') {
+            if (status) {
+                status.textContent = 'Les notifications sont bloquées dans les paramètres du navigateur.';
+            }
+            return;
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        await registration.showNotification('Notification de test', {
+            body: 'Les notifications de Mon suivi bien-être fonctionnent sur cet appareil.',
+            tag: `tracking-test-${Date.now()}`
+        });
+        if (status) {
+            status.textContent = 'Notification de test déclenchée. Vérifie aussi le centre de notifications de Windows.';
+        }
+    });
 
     form?.addEventListener('submit', async (event) => {
         event.preventDefault();
