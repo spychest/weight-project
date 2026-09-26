@@ -16,6 +16,10 @@
         {% if shoppingList %}
             <div class="recipe-page-actions">
                 <a class="dashboard-button" href="{{ path('app_shopping_list_pdf') }}">Télécharger en PDF</a>
+                <form method="post" action="{{ path('app_shopping_list_cancel') }}" onsubmit="return confirm('Annuler définitivement cette liste ? Elle ne sera pas archivée et ne pourra pas être récupérée.');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cancel-shopping-list-' ~ shoppingList.id) }}">
+                    <button class="dashboard-button shopping-list-cancel-button" type="submit">Annuler la liste</button>
+                </form>
                 <form method="post" action="{{ path('app_shopping_list_complete') }}" onsubmit="return confirm('Terminer et archiver cette liste ?');">
                     <input type="hidden" name="_token" value="{{ csrf_token('complete-shopping-list-' ~ shoppingList.id) }}">
                     <button class="dashboard-button dashboard-button-primary" type="submit">Terminer la liste</button>

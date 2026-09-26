@@ -243,6 +243,31 @@ final class ShoppingListController extends AbstractController
         return $this->redirectToRoute('app_shopping_list_show');
     }
 
+    #[Route('/cancel', name: 'app_shopping_list_cancel', methods: ['POST'])]
+    public function cancel(
+        Request $request,
+        ShoppingListRepository $repository,
+        CurrentUserProfileProvider $profileProvider,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $shoppingList = $repository->findActiveForProfile($profileProvider->getRequiredProfile());
+        if ($shoppingList === null) {
+            throw $this->createNotFoundException('Aucune liste active à annuler.');
+        }
+        if (!$this->isCsrfTokenValid(
+            'cancel-shopping-list-'.$shoppingList->getId(),
+            (string) $request->request->get('_token'),
+        )) {
+            throw $this->createAccessDeniedException('Jeton de sécurité invalide.');
+        }
+
+        $entityManager->remove($shoppingList);
+        $entityManager->flush();
+        $this->addFlash('success', 'La liste de courses en cours a été annulée et supprimée.');
+
+        return $this->redirectToRoute('app_shopping_list_show');
+    }
+
     #[Route('/pdf', name: 'app_shopping_list_pdf', methods: ['GET'])]
     public function downloadPdf(
         ShoppingListRepository $repository,

@@ -2879,6 +2879,9 @@ button {
 .dark-mode .shopping-list-category > h2 { background: #183b32; color: #a9e3d2; }
 .dark-mode .shopping-list-small-button { border-color: #47776a; color: #a9e3d2; }
 .dark-mode .shopping-list-remove-button { border-color: #855252; color: #f0aaaa; }
+.shopping-list-cancel-button { border-color: #d7a09d; color: #a33d3d; }
+.shopping-list-cancel-button:hover { border-color: #b95751; background: #fff4f3; color: #8d2f29; }
+.dark-mode .shopping-list-cancel-button { border-color: #855252; background: #352120; color: #ffb3ad; }
 
 @media (max-width: 900px) {
     .shopping-list-layout { grid-template-columns: 1fr; }
@@ -3652,13 +3655,10 @@ html.dark-mode {
 }
 
 .recipe-filter-suggestion-list {
-    position: absolute;
-    z-index: 2;
-    top: calc(100% + 4px);
-    right: 0;
-    left: 0;
+    position: static;
     overflow-y: auto;
-    max-height: 220px;
+    max-height: 260px;
+    margin-top: 5px;
     padding: 4px;
     border: 1px solid var(--color-border-input);
     border-radius: var(--radius-lg);

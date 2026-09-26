@@ -63,6 +63,16 @@ final class ProfileRequiredRoutesTest extends WebTestCase
     }
 
     #[Test]
+    public function shoppingListCancellationRequiresAuthentication(): void
+    {
+        $browser = self::createClient();
+
+        $browser->request('POST', '/shopping-list/cancel');
+
+        self::assertResponseRedirects('http://localhost/login');
+    }
+
+    #[Test]
     public function landingLoginAndRegistrationPagesArePublic(): void
     {
         $browser = self::createClient();
