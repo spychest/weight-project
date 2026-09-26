@@ -2590,6 +2590,47 @@ body:has(.milestone-celebration-modal[open]) {
     color: #62746f;
 }
 
+.account-setting-status,
+.account-setting-warning {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.account-setting-warning {
+    padding: 0.9rem 1rem;
+    border: 1px solid #d5a843;
+    border-radius: var(--radius-lg);
+    background: #fff8e7;
+    color: #72520d;
+}
+
+.notification-preference-form {
+    gap: 1rem;
+}
+
+.notification-frequency-field select {
+    width: 100%;
+    max-width: 28rem;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    color: var(--color-text-primary);
+}
+
+.notification-frequency-field select:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.dark-mode .account-setting-warning {
+    border-color: #80661f;
+    background: #352f1e;
+    color: #f0d684;
+}
+
 .account-settings-card form {
     display: grid;
     gap: 0.9rem;

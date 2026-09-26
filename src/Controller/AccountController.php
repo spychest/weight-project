@@ -7,11 +7,13 @@ use App\Form\ChangeEmailType;
 use App\Form\ChangePasswordType;
 use App\Form\DeleteAccountType;
 use App\Form\ImportProfileDataType;
+use App\Form\NotificationPreferenceType;
 use App\Form\ThemePreferenceType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\CurrentUserProfileProvider;
 use App\Service\ProfileDataBackupService;
+use App\Service\Notification\WebPushNotificationSender;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +28,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 final class AccountController extends AbstractController
 {
     #[Route('/account', name: 'app_account')]
-    public function index(Request $request, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository, EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, CurrentUserProfileProvider $currentUserProfileProvider, ProfileDataBackupService $profileDataBackupService): Response
+    public function index(Request $request, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository, EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, CurrentUserProfileProvider $currentUserProfileProvider, ProfileDataBackupService $profileDataBackupService, WebPushNotificationSender $webPushNotificationSender): Response
     {
         $authenticatedUser = $this->getUser();
 
@@ -59,12 +61,37 @@ final class AccountController extends AbstractController
         ], [
             'action' => $this->generateUrl('app_account').'#appearance-settings',
         ]);
+        $notificationPreferenceForm = $this->createForm(NotificationPreferenceType::class, [
+            'notificationsEnabled' => $authenticatedUser->isNotificationsEnabled(),
+            'notificationFrequency' => $authenticatedUser->getNotificationFrequency(),
+        ], [
+            'action' => $this->generateUrl('app_account').'#notification-settings',
+        ]);
 
         $changeEmailForm->handleRequest($request);
         $changePasswordForm->handleRequest($request);
         $deleteAccountForm->handleRequest($request);
         $importProfileDataForm->handleRequest($request);
         $themePreferenceForm->handleRequest($request);
+        $notificationPreferenceForm->handleRequest($request);
+
+        if ($notificationPreferenceForm->isSubmitted() && $notificationPreferenceForm->isValid()) {
+            $notificationPreferenceData = $notificationPreferenceForm->getData();
+            $authenticatedUser
+                ->setNotificationsEnabled((bool) ($notificationPreferenceData['notificationsEnabled'] ?? false))
+                ->setNotificationFrequency((string) ($notificationPreferenceData['notificationFrequency'] ?? 'weekly'));
+            if (!$authenticatedUser->isNotificationsEnabled()) {
+                foreach ($authenticatedUser->getPushSubscriptions() as $pushSubscription) {
+                    $entityManager->remove($pushSubscription);
+                }
+            }
+            $entityManager->flush();
+            $this->addFlash('success', $authenticatedUser->isNotificationsEnabled()
+                ? 'Tes rappels ont été activés avec la fréquence choisie.'
+                : 'Tes rappels ont été désactivés.');
+
+            return $this->redirect($this->generateUrl('app_account').'#notification-settings');
+        }
 
         if ($themePreferenceForm->isSubmitted() && $themePreferenceForm->isValid()) {
             $themePreferenceData = $themePreferenceForm->getData();
@@ -136,6 +163,8 @@ final class AccountController extends AbstractController
             'deleteAccountForm' => $deleteAccountForm,
             'importProfileDataForm' => $importProfileDataForm,
             'themePreferenceForm' => $themePreferenceForm,
+            'notificationPreferenceForm' => $notificationPreferenceForm,
+            'webPushPublicKey' => $webPushNotificationSender->getPublicKey(),
         ]);
     }
 

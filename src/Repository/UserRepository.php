@@ -94,4 +94,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /** @return list<User> */
+    public function findUsersWithEnabledNotifications(): array
+    {
+        return $this->createQueryBuilder('user')
+            ->innerJoin('user.pushSubscriptions', 'pushSubscription')
+            ->addSelect('pushSubscription')
+            ->andWhere('user.notificationsEnabled = true')
+            ->andWhere('user.suspendedAt IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -40,6 +40,22 @@ final class UserTest extends TestCase
     }
 
     #[Test]
+    public function notificationsAreDisabledByDefaultAndCanBeConfigured(): void
+    {
+        $user = new User();
+
+        self::assertFalse($user->isNotificationsEnabled());
+        self::assertSame('weekly', $user->getNotificationFrequency());
+
+        $user
+            ->setNotificationsEnabled(true)
+            ->setNotificationFrequency('daily');
+
+        self::assertTrue($user->isNotificationsEnabled());
+        self::assertSame('daily', $user->getNotificationFrequency());
+    }
+
+    #[Test]
     public function itCanBeSuspendedAndReactivatedWithoutDeletingItsData(): void
     {
         $user = (new User())->suspend('Non-respect des règles');

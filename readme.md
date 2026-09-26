@@ -15,6 +15,7 @@ L’application aide à observer ses tendances et à mesurer sa progression dans
 - Bilans quotidiens pour regrouper les informations d’une journée.
 - Création de jalons et validation automatique lors de l’ajout d’une pesée.
 - Tableau de bord synthétique.
+- Projections indicatives de l’objectif et des jalons à partir de la tendance récente.
 - Graphiques dédiés au poids, à l’hydratation, au sommeil, aux repas et aux bilans quotidiens.
 - Génération de rapports sur une période donnée.
 - Export des rapports aux formats JSON et PDF.
@@ -23,6 +24,8 @@ L’application aide à observer ses tendances et à mesurer sa progression dans
 - Gestion du compte : modification de l’adresse e-mail et du mot de passe, puis suppression du compte.
 - Mode sombre enregistré dans les préférences de l’utilisateur.
 - Interface responsive avec navigation adaptée aux appareils mobiles.
+- Application web installable sur téléphone et ordinateur (PWA), avec écran hors connexion respectueux des données personnelles.
+- Rappels Web Push facultatifs, désactivés par défaut et configurables par fréquence.
 - Suite de tests automatisés avec génération d’un rapport HTML.
 
 ## Déploiement
@@ -36,9 +39,18 @@ GOOGLE_CLIENT_ID=votre-identifiant-google
 GOOGLE_CLIENT_SECRET=votre-secret-google
 GOOGLE_REDIRECT_URI=https://votre-domaine/connect/google/check
 TRUSTED_PROXIES=127.0.0.1,REMOTE_ADDR
+WEB_PUSH_VAPID_SUBJECT=https://votre-domaine
+WEB_PUSH_VAPID_PUBLIC_KEY=votre-cle-publique
+WEB_PUSH_VAPID_PRIVATE_KEY=votre-cle-privee
 ```
 
 L’URI indiquée dans `GOOGLE_REDIRECT_URI` doit être ajoutée à la liste des URI de redirection autorisés du client OAuth dans Google Cloud.
+
+Les clés Web Push doivent être générées une seule fois, puis conservées dans le `.env` du serveur. La clé privée ne doit jamais être ajoutée à Git :
+
+```bash
+docker compose exec -T php-fpm php bin/console project:notifications:generate-keys
+```
 
 Une fois le fichier `.env` de production configuré, lancer le script de déploiement depuis la racine du projet :
 
@@ -57,13 +69,17 @@ Le script :
 
 Lorsque l’application est placée derrière un reverse proxy HTTPS, celui-ci doit transmettre les en-têtes `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Proto` et `X-Forwarded-Port`.
 
+Pour envoyer les rappels arrivés à échéance, exécuter la commande suivante toutes les heures avec le planificateur du serveur :
+
+```bash
+docker compose exec -T --user www-data php-fpm php bin/console project:notifications:send --quiet
+```
+
 ## Fonctionnalités envisagées
 
-- Notifications et rappels personnalisables pour les saisies quotidiennes.
 - Objectifs plus détaillés avec indicateurs de progression.
 - Comparaison de plusieurs périodes dans les graphiques et les rapports.
 - Statistiques complémentaires pour mieux visualiser les tendances à long terme.
-- Expérience mobile enrichie, avec la possibilité d’installer l’application sur son appareil.
 
 Cette feuille de route est indicative et pourra évoluer avec les besoins du projet.
 

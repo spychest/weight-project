@@ -1,0 +1,19 @@
+{
+    "name": "Mon suivi bien-être",
+    "short_name": "Mon suivi",
+    "description": "Suivi personnel du poids, de l’alimentation et du bien-être.",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#f7f3e8",
+    "theme_color": "#174f3c",
+    "lang": "fr-FR",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}

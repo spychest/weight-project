@@ -62,6 +62,51 @@
         {{ form_end(themePreferenceForm) }}
     </section>
 
+    <section id="application-settings" class="account-settings-card">
+        <div class="account-settings-introduction">
+            <h2>Installer l’application</h2>
+            <p>Ajoute l’application à ton écran d’accueil pour y accéder comme à une application classique.</p>
+        </div>
+        <button class="account-action-button" type="button" data-pwa-install hidden>Installer sur cet appareil</button>
+        <p class="account-setting-status" data-pwa-install-status>L’installation dépend du navigateur et de l’appareil utilisés.</p>
+    </section>
+
+    <section
+        id="notification-settings"
+        class="account-settings-card"
+        data-push-notification-settings
+        data-public-key="{{ webPushPublicKey }}"
+        data-subscription-url="{{ path('app_push_subscription_save') }}"
+        data-csrf-token="{{ csrf_token('push_subscription') }}"
+    >
+        <div class="account-settings-introduction">
+            <h2>Rappels de suivi</h2>
+            <p>
+                Les notifications sont désactivées par défaut. Si tu les actives, un rappel neutre sera envoyé selon
+                la fréquence sélectionnée ci-dessous. Tu peux les désactiver ici à tout moment.
+            </p>
+            <p>Sur iPhone et iPad, installe d’abord l’application sur l’écran d’accueil pour autoriser les notifications.</p>
+        </div>
+        {% if webPushPublicKey %}
+            {{ form_start(notificationPreferenceForm, {attr: {class: 'notification-preference-form'}}) }}
+                <div class="theme-toggle-row">
+                    {{ form_widget(notificationPreferenceForm.notificationsEnabled, {attr: {class: 'theme-toggle-input'}}) }}
+                    {{ form_label(notificationPreferenceForm.notificationsEnabled, null, {label_attr: {class: 'theme-toggle-label'}}) }}
+                </div>
+                {{ form_errors(notificationPreferenceForm.notificationsEnabled) }}
+                <div class="notification-frequency-field">
+                    {{ form_row(notificationPreferenceForm.notificationFrequency) }}
+                </div>
+                <p class="account-setting-status" data-push-notification-status>
+                    {{ account.notificationsEnabled ? 'Rappels actifs sur les appareils autorisés.' : 'Rappels désactivés.' }}
+                </p>
+                <button class="account-action-button" type="submit">Enregistrer mes préférences</button>
+            {{ form_end(notificationPreferenceForm) }}
+        {% else %}
+            <p class="account-setting-warning">Les notifications doivent encore être configurées sur le serveur.</p>
+        {% endif %}
+    </section>
+
     <section id="email-settings" class="account-settings-card">
         <div class="account-settings-introduction">
             <h2>Changer mon adresse e-mail</h2>

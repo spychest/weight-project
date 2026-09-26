@@ -34,6 +34,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $darkModeEnabled = false;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $notificationsEnabled = false;
+
+    #[ORM\Column(length: 20, options: ['default' => 'weekly'])]
+    private string $notificationFrequency = 'weekly';
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastNotificationSentAt = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -53,10 +62,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: UserIdentity::class, mappedBy: 'user', cascade: ['persist'], orphanRemoval: true)]
     private Collection $identities;
 
+    /** @var Collection<int, PushSubscription> */
+    #[ORM\OneToMany(targetEntity: PushSubscription::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $pushSubscriptions;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->identities = new ArrayCollection();
+        $this->pushSubscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -72,6 +86,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmailVerified(bool $emailVerified): static { $this->emailVerified = $emailVerified; return $this; }
     public function isDarkModeEnabled(): bool { return $this->darkModeEnabled; }
     public function setDarkModeEnabled(bool $darkModeEnabled): static { $this->darkModeEnabled = $darkModeEnabled; return $this; }
+    public function isNotificationsEnabled(): bool { return $this->notificationsEnabled; }
+    public function setNotificationsEnabled(bool $notificationsEnabled): static { $this->notificationsEnabled = $notificationsEnabled; return $this; }
+    public function getNotificationFrequency(): string { return $this->notificationFrequency; }
+    public function setNotificationFrequency(string $notificationFrequency): static { $this->notificationFrequency = $notificationFrequency; return $this; }
+    public function getLastNotificationSentAt(): ?\DateTimeImmutable { return $this->lastNotificationSentAt; }
+    public function markNotificationSentAt(\DateTimeImmutable $sentAt): static { $this->lastNotificationSentAt = $sentAt; return $this; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getLastLoginAt(): ?\DateTimeImmutable { return $this->lastLoginAt; }
     public function markLoginNow(): void { $this->lastLoginAt = new \DateTimeImmutable(); }
@@ -97,4 +117,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /** @return Collection<int, UserIdentity> */
     public function getIdentities(): Collection { return $this->identities; }
     public function addIdentity(UserIdentity $identity): static { if (!$this->identities->contains($identity)) { $this->identities->add($identity); $identity->setUser($this); } return $this; }
+    /** @return Collection<int, PushSubscription> */
+    public function getPushSubscriptions(): Collection { return $this->pushSubscriptions; }
+    public function addPushSubscription(PushSubscription $pushSubscription): static
+    {
+        if (!$this->pushSubscriptions->contains($pushSubscription)) {
+            $this->pushSubscriptions->add($pushSubscription);
+            $pushSubscription->setUser($this);
+        }
+
+        return $this;
+    }
 }
