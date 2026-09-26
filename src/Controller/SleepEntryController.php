@@ -24,10 +24,11 @@ final class SleepEntryController extends AbstractController
         ?SleepEntry $sleepEntry = null,
     ): Response {
         $isEditMode = $sleepEntry !== null;
-        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($sleepEntry?->getProfile())) { throw $this->createNotFoundException(); }
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($sleepEntry->getProfile())) {
+            throw $this->createNotFoundException();
+        }
 
         if ($sleepEntry === null) {
-
             $sleepEntry = new SleepEntry();
 
             $sleepEntry
@@ -62,8 +63,8 @@ final class SleepEntryController extends AbstractController
             $request->query->getInt('page', 1),
             PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
         );
+
         return $this->render('sleep_entry/index.html.twig', [
-            'controller_name' => 'SleepEntryController',
             'sleepEntries' => $pagination->items,
             'pagination' => $pagination,
         ]);
@@ -72,7 +73,10 @@ final class SleepEntryController extends AbstractController
     #[Route('/sleep/show/{id}', name: 'app_sleep_show')]
     public function show(SleepEntry $sleepEntry, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        if (!$currentUserProfileProvider->ownsProfile($sleepEntry->getProfile())) { throw $this->createNotFoundException(); }
+        if (!$currentUserProfileProvider->ownsProfile($sleepEntry->getProfile())) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('sleep_entry/show.html.twig', [
             'sleepEntry' => $sleepEntry,
         ]);

@@ -24,7 +24,9 @@ final class DailyCheckinController extends AbstractController
         ?DailyCheckin $dailyCheckin = null,
     ): Response {
         $isEditMode = $dailyCheckin !== null;
-        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($dailyCheckin?->getProfile())) { throw $this->createNotFoundException(); }
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($dailyCheckin->getProfile())) {
+            throw $this->createNotFoundException();
+        }
 
         if ($dailyCheckin === null) {
             $dailyCheckin = new DailyCheckin();
@@ -39,7 +41,6 @@ final class DailyCheckinController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $entityManager->persist($dailyCheckin);
             $entityManager->flush();
 
@@ -63,6 +64,7 @@ final class DailyCheckinController extends AbstractController
             $request->query->getInt('page', 1),
             PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
         );
+
         return $this->render('daily_checkin/index.html.twig', [
             'dailyCheckins' => $pagination->items,
             'pagination' => $pagination,
@@ -72,7 +74,10 @@ final class DailyCheckinController extends AbstractController
     #[Route('/daily-checkin/show/{id}', name: 'app_daily_checkin_show')]
     public function show(DailyCheckin $dailyCheckin, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        if (!$currentUserProfileProvider->ownsProfile($dailyCheckin->getProfile())) { throw $this->createNotFoundException(); }
+        if (!$currentUserProfileProvider->ownsProfile($dailyCheckin->getProfile())) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('daily_checkin/show.html.twig', [
             'dailyCheckin' => $dailyCheckin,
         ]);

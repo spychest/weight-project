@@ -56,6 +56,11 @@ class UserIdentity
         return $this->providerUserId;
     }
 
+    public function getProviderEmail(): ?string
+    {
+        return $this->providerEmail;
+    }
+
     public function getProviderAvatarUrl(): ?string
     {
         return $this->providerAvatarUrl;
@@ -78,5 +83,10 @@ class UserIdentity
         $this->user = $user;
 
         return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 }

@@ -126,7 +126,7 @@ final class IngredientClassifier
             array_shift($tokens);
         }
 
-        return array_values($tokens);
+        return $tokens;
     }
 
     private function singularizeToken(string $token): string

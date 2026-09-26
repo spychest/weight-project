@@ -13,6 +13,7 @@ use League\OAuth2\Client\Provider\GoogleUser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -33,7 +34,7 @@ final class GoogleAuthenticator extends OAuth2Authenticator
     ) {
     }
 
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
         return $request->attributes->get('_route') === 'app_google_check';
     }
@@ -43,7 +44,7 @@ final class GoogleAuthenticator extends OAuth2Authenticator
         $googleClient = $this->clientRegistry->getClient('google');
         $accessToken = $this->fetchAccessToken($googleClient);
         $rememberMeBadge = new RememberMeBadge();
-        if ($request->getSession()->remove('google_remember_me', false) === true) {
+        if ($request->getSession()->remove('google_remember_me') === true) {
             $rememberMeBadge->enable();
         }
 
@@ -66,7 +67,7 @@ final class GoogleAuthenticator extends OAuth2Authenticator
         Request $request,
         TokenInterface $token,
         string $firewallName,
-    ): ?Response {
+    ): Response {
         $user = $token->getUser();
         $routeName = $user instanceof User && $user->getProfile() === null
             ? 'app_profile_new'
@@ -78,8 +79,11 @@ final class GoogleAuthenticator extends OAuth2Authenticator
     public function onAuthenticationFailure(
         Request $request,
         AuthenticationException $exception,
-    ): ?Response {
-        $request->getSession()->getFlashBag()->add('error', $exception->getMessageKey());
+    ): Response {
+        $session = $request->getSession();
+        if ($session instanceof FlashBagAwareSessionInterface) {
+            $session->getFlashBag()->add('error', $exception->getMessageKey());
+        }
 
         return new RedirectResponse($this->urlGenerator->generate('app_login'));
     }

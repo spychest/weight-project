@@ -27,7 +27,9 @@ final class WeightEntryController extends AbstractController
     ): Response {
         $isEditMode = $weightEntry !== null;
 
-        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($weightEntry?->getProfile())) { throw $this->createNotFoundException(); }
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($weightEntry->getProfile())) {
+            throw $this->createNotFoundException();
+        }
 
         if ($weightEntry === null) {
             $weightEntry = new WeightEntry();
@@ -87,8 +89,8 @@ final class WeightEntryController extends AbstractController
             $request->query->getInt('page', 1),
             PaginatedResult::DEFAULT_ITEMS_PER_PAGE,
         );
+
         return $this->render('weight_entry/index.html.twig', [
-            'controller_name' => 'WeightEntryController',
             'weightEntries' => $pagination->items,
             'pagination' => $pagination,
         ]);
@@ -97,7 +99,10 @@ final class WeightEntryController extends AbstractController
     #[Route('/weight/show/{id}', name: 'app_weight_show')]
     public function show(WeightEntry $weightEntry, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        if (!$currentUserProfileProvider->ownsProfile($weightEntry->getProfile())) { throw $this->createNotFoundException(); }
+        if (!$currentUserProfileProvider->ownsProfile($weightEntry->getProfile())) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('weight_entry/show.html.twig', [
             'weightEntry' => $weightEntry,
         ]);

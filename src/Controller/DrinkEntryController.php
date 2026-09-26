@@ -24,7 +24,9 @@ final class DrinkEntryController extends AbstractController
         ?DrinkEntry $drinkEntry = null,
     ): Response {
         $isEditMode = $drinkEntry !== null;
-        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($drinkEntry?->getProfile())) { throw $this->createNotFoundException(); }
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($drinkEntry->getProfile())) {
+            throw $this->createNotFoundException();
+        }
 
         if ($drinkEntry === null) {
             $drinkEntry = new DrinkEntry();
@@ -39,7 +41,6 @@ final class DrinkEntryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $entityManager->persist($drinkEntry);
             $entityManager->flush();
             if (!$isEditMode) {
@@ -57,7 +58,10 @@ final class DrinkEntryController extends AbstractController
     #[Route('/drink/show/{id}', name: 'app_drink_show')]
     public function show(DrinkEntry $drinkEntry, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        if (!$currentUserProfileProvider->ownsProfile($drinkEntry->getProfile())) { throw $this->createNotFoundException(); }
+        if (!$currentUserProfileProvider->ownsProfile($drinkEntry->getProfile())) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('drink_entry/show.html.twig', [
             'drinkEntry' => $drinkEntry,
         ]);
@@ -73,7 +77,6 @@ final class DrinkEntryController extends AbstractController
         );
 
         return $this->render('drink_entry/index.html.twig', [
-            'controller_name' => 'DrinkEntryController',
             'drinkEntries' => $pagination->items,
             'pagination' => $pagination,
         ]);

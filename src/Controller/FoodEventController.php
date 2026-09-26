@@ -27,7 +27,9 @@ final class FoodEventController extends AbstractController
         ?FoodEvent $foodEvent = null,
     ): Response {
         $isEditMode = $foodEvent !== null;
-        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($foodEvent?->getProfile())) { throw $this->createNotFoundException(); }
+        if ($isEditMode && !$currentUserProfileProvider->ownsProfile($foodEvent->getProfile())) {
+            throw $this->createNotFoundException();
+        }
 
         if ($foodEvent === null) {
             $foodEvent = new FoodEvent();
@@ -78,7 +80,10 @@ final class FoodEventController extends AbstractController
     #[Route('/food/show/{id}', name: 'app_food_show')]
     public function show(FoodEvent $foodEvent, CurrentUserProfileProvider $currentUserProfileProvider): Response
     {
-        if (!$currentUserProfileProvider->ownsProfile($foodEvent->getProfile())) { throw $this->createNotFoundException(); }
+        if (!$currentUserProfileProvider->ownsProfile($foodEvent->getProfile())) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('food_event/show.html.twig', [
             'foodEvent' => $foodEvent,
         ]);
