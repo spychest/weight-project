@@ -3536,9 +3536,8 @@ html.dark-mode {
 .recipe-ingredient-filter-dialog-content {
     display: grid;
     gap: 18px;
-    max-height: calc(100vh - 230px);
     padding: 22px 26px;
-    overflow-y: auto;
+    overflow: visible;
 }
 
 .recipe-ingredient-filter-group {
@@ -3657,13 +3656,15 @@ html.dark-mode {
 .recipe-filter-suggestion-list {
     position: static;
     overflow-y: auto;
-    max-height: 260px;
+    max-height: min(220px, 28dvh);
     margin-top: 5px;
     padding: 4px;
     border: 1px solid var(--color-border-input);
     border-radius: var(--radius-lg);
     background: var(--color-white);
     box-shadow: var(--shadow-md);
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
 
 .recipe-filter-suggestion {
