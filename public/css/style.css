@@ -3395,6 +3395,21 @@ html.dark-mode {
     gap: 8px;
 }
 
+.recipe-tab-panel {
+    transition: opacity 140ms ease;
+}
+
+.recipe-tab-panel.is-filtering {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .recipe-tab-panel {
+        transition: none;
+    }
+}
+
 .recipe-card,
 .recipe-detail-card,
 .recipe-management-row {

@@ -16,7 +16,7 @@
         {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
 
         <section class="recipe-tab-panel" data-recipe-tab-panel="community"{{ activeRecipeTab != 'community' ? ' hidden' : '' }}>
-            <form class="recipe-filters" method="get" action="{{ path('app_recipe_index') }}">
+            <form class="recipe-filters" method="get" action="{{ path('app_recipe_index') }}" data-recipe-filters>
                 <input type="hidden" name="tab" value="community">
                 <label>
                     <span>Proposée par</span>
@@ -32,12 +32,11 @@
                     <label><input type="checkbox" name="vegan" value="1"{{ recipeFilters.vegan ? ' checked' : '' }}> Végan</label>
                     <label><input type="checkbox" name="glutenFree" value="1"{{ recipeFilters.glutenFree ? ' checked' : '' }}> Sans gluten</label>
                 </fieldset>
-                <div class="recipe-filter-actions">
-                    <button type="submit" class="dashboard-button dashboard-button-primary">Filtrer</button>
-                    {% if recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree %}
-                        <a href="{{ path('app_recipe_index') }}" class="dashboard-button">Réinitialiser</a>
-                    {% endif %}
-                </div>
+                {% if recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree %}
+                    <div class="recipe-filter-actions">
+                        <a href="{{ path('app_recipe_index', {tab: 'community'}) }}" class="dashboard-button" data-recipe-filters-reset>Réinitialiser</a>
+                    </div>
+                {% endif %}
             </form>
             {% if communityRecipesPagination.items is empty %}
                 {% set hasRecipeFilter = recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree %}
