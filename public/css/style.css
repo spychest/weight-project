@@ -392,6 +392,11 @@
     font-size: 0.85rem;
 }
 
+.dashboard-progress-weight time {
+    color: var(--color-text-muted);
+    font-size: 0.74rem;
+}
+
 .dashboard-progress-bar {
     width: 100%;
     height: 12px;
@@ -1187,144 +1192,6 @@ body:has(.milestone-celebration-modal[open]) {
 .graph-card h2 {
     margin: 0;
     font-size: 1.3rem;
-}
-
-.dashboard-weight-projection-card {
-    padding: 24px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-2xl);
-    background: var(--color-white);
-    box-shadow: var(--shadow-sm);
-}
-
-.dashboard-weight-projection-introduction {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.dashboard-weight-projection-introduction strong,
-.dashboard-weight-projection-unavailable strong {
-    color: var(--color-text-primary);
-    font-size: 1rem;
-}
-
-.dashboard-weight-projection-introduction p,
-.dashboard-weight-projection-unavailable p {
-    margin: 5px 0 0;
-    color: var(--color-text-secondary);
-    font-size: 0.84rem;
-}
-
-.dashboard-weight-projection-trend {
-    flex: 0 0 auto;
-    padding: 7px 11px;
-    border-radius: 999px;
-    background: #e2f2ec;
-    color: #175b47;
-    font-size: 0.78rem;
-    font-weight: 800;
-}
-
-.dashboard-weight-projection-goals {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.dashboard-weight-projection-goal {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    padding: 16px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    background: var(--color-bg-lighter);
-}
-
-.dashboard-weight-projection-goal-final {
-    border-color: #8fc9b7;
-    background: #edf8f4;
-}
-
-.dashboard-weight-projection-goal > span {
-    color: #247d66;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.dashboard-weight-projection-goal > strong {
-    margin-top: 7px;
-    overflow-wrap: anywhere;
-    color: var(--color-text-primary);
-}
-
-.dashboard-weight-projection-goal p {
-    margin: 4px 0 13px;
-    color: var(--color-text-secondary);
-    font-size: 0.8rem;
-}
-
-.dashboard-weight-projection-goal time {
-    margin-top: auto;
-    color: var(--color-text-primary);
-    font-size: 0.88rem;
-    font-weight: 800;
-}
-
-.dashboard-weight-projection-goal a {
-    margin-top: 9px;
-    color: #247d66;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-.dashboard-weight-projection-unavailable {
-    display: flex;
-    align-items: flex-start;
-    gap: 13px;
-}
-
-.dashboard-weight-projection-unavailable > span {
-    font-size: 1.45rem;
-}
-
-.dashboard-weight-projection-disclaimer {
-    margin: 20px 0 0;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-    font-size: 0.76rem;
-    line-height: 1.55;
-}
-
-.dark-mode .dashboard-weight-projection-trend {
-    background: #24483d;
-    color: #b8ead9;
-}
-
-.dark-mode .dashboard-weight-projection-goal-final {
-    border-color: #356b5b;
-    background: #1d342d;
-}
-
-@media (max-width: 600px) {
-    .dashboard-weight-projection-card {
-        padding: 18px;
-    }
-
-    .dashboard-weight-projection-introduction {
-        flex-direction: column;
-    }
-
-    .dashboard-weight-projection-goals {
-        grid-template-columns: 1fr;
-    }
 }
 
 .graph-card h1 {
@@ -2199,6 +2066,23 @@ body:has(.milestone-celebration-modal[open]) {
 
 .dashboard-milestone-marker-tooltip span {
     color: var(--color-text-muted);
+}
+
+.dashboard-milestone-marker-tooltip time {
+    margin-top: 0.2rem;
+    color: var(--color-text-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.dashboard-progress-projection-note {
+    margin: 18px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.45;
+    text-align: center;
 }
 
 .dashboard-milestone-marker:hover .dashboard-milestone-marker-tooltip,

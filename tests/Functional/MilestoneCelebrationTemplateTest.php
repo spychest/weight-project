@@ -60,6 +60,6 @@ final class MilestoneCelebrationTemplateTest extends KernelTestCase
         self::assertStringContainsString('Félicitations, un jalon vient d’être franchi.', $renderedDashboard);
         self::assertStringContainsString('js/milestone-celebration.js', $renderedDashboard);
         self::assertStringContainsString('Projection indicative', $renderedDashboard);
-        self::assertStringContainsString('Ce n’est pas une prédiction', $renderedDashboard);
+        self::assertStringContainsString('dashboard-progress-projection-note', $renderedDashboard);
     }
 }
