@@ -4,7 +4,7 @@
 
 {% block javascripts %}
     <script src="{{ asset('js/admin-catalog.js') }}?v=20260924-1" defer></script>
-    <script src="{{ asset('js/admin-navigation.js') }}?v=20260924-2" defer></script>
+    <script src="{{ asset('js/admin-navigation.js') }}?v=20260926-1" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -14,6 +14,7 @@
     data-api-url="{{ path('app_admin_ingredient_list') }}"
     data-users-api-url="{{ path('app_admin_user_list') }}"
     data-csrf-token="{{ catalogCsrfToken }}"
+    data-users-csrf-token="{{ userAdministrationCsrfToken }}"
 >
     <header class="admin-heading">
         <div>
@@ -67,18 +68,68 @@
                 <span>Rechercher par nom</span>
                 <input type="search" name="search" placeholder="Nom d’affichage…" autocomplete="off">
             </label>
+            <label>
+                <span>Rôle</span>
+                <select name="role"><option value="">Tous</option><option value="user">Utilisateurs</option><option value="admin">Administrateurs</option></select>
+            </label>
+            <label>
+                <span>État</span>
+                <select name="status"><option value="">Tous</option><option value="active">Actifs</option><option value="suspended">Suspendus</option></select>
+            </label>
             <button class="dashboard-button" type="reset">Réinitialiser</button>
         </form>
         <p class="admin-catalog-feedback" data-users-feedback aria-live="polite"></p>
         <div class="admin-catalog-loading" data-users-loading hidden>Chargement des utilisateurs…</div>
         <div class="admin-catalog-table-wrapper" data-users-table-wrapper hidden>
             <table class="admin-catalog-table admin-users-table">
-                <thead><tr><th>Compte</th><th>Statut</th><th>Inscription</th><th>Dernière connexion</th></tr></thead>
+                <thead><tr><th>Compte</th><th>Rôle et état</th><th>Inscription</th><th>Dernière connexion</th><th>Action</th></tr></thead>
                 <tbody data-users-body></tbody>
             </table>
         </div>
         <nav class="admin-catalog-pagination" data-users-pagination aria-label="Pagination des utilisateurs"></nav>
     </section>
+
+    <dialog class="admin-user-dialog" data-user-dialog aria-labelledby="admin-user-dialog-title">
+        <div class="admin-user-dialog-header">
+            <div>
+                <p class="recipe-page-kicker">Gestion du compte</p>
+                <h2 id="admin-user-dialog-title" data-user-dialog-name>Utilisateur</h2>
+                <p>Seules les informations nécessaires à l’administration sont visibles ici.</p>
+            </div>
+            <button type="button" class="shopping-list-dialog-close" data-user-dialog-close aria-label="Fermer">×</button>
+        </div>
+        <div class="admin-user-dialog-content">
+            <div class="admin-user-dialog-identity" data-user-dialog-identity></div>
+            <dl class="admin-user-technical-data">
+                <div><dt>Identifiant interne</dt><dd data-user-id></dd></div>
+                <div><dt>Inscription</dt><dd data-user-created-at></dd></div>
+                <div><dt>Dernière connexion</dt><dd data-user-last-login-at></dd></div>
+                <div><dt>Connexion</dt><dd data-user-auth-methods></dd></div>
+                <div><dt>Recettes publiques</dt><dd data-user-recipe-count></dd></div>
+                <div><dt>État</dt><dd data-user-status></dd></div>
+            </dl>
+            <section class="admin-user-management-section">
+                <h3>Rôle</h3>
+                <label class="admin-user-toggle"><input type="checkbox" data-user-administrator> Autoriser l’accès à l’administration</label>
+            </section>
+            <section class="admin-user-management-section admin-user-suspension-section">
+                <h3>Modération du compte</h3>
+                <p>Une suspension bloque immédiatement les prochaines authentifications sans supprimer les données.</p>
+                <label>Motif interne facultatif<textarea rows="3" maxlength="500" data-user-suspension-reason placeholder="Ce motif est uniquement visible par l’administration."></textarea></label>
+                <button type="button" class="dashboard-button" data-user-suspension-toggle></button>
+            </section>
+            <section class="admin-user-management-section admin-user-deletion-section">
+                <h3>Suppression définitive</h3>
+                <p>Cette action supprime le compte et toutes ses données. Saisis exactement le pseudo pour confirmer.</p>
+                <label>Confirmation<input type="text" autocomplete="off" data-user-deletion-confirmation></label>
+                <button type="button" class="dashboard-button is-danger" data-user-delete disabled>Supprimer définitivement le compte</button>
+            </section>
+            <p class="admin-dialog-error" data-user-dialog-error aria-live="polite"></p>
+        </div>
+        <div class="admin-user-dialog-footer">
+            <button type="button" class="dashboard-button" data-user-dialog-close>Fermer</button>
+        </div>
+    </dialog>
 
     <section id="admin-panel-products" class="admin-catalog-section admin-tab-panel" role="tabpanel" data-admin-panel="products" aria-labelledby="admin-catalog-title" hidden>
         <div class="admin-section-heading">

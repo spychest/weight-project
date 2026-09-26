@@ -40,6 +40,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $lastLoginAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $suspendedAt = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $suspensionReason = null;
+
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: Profile::class)]
     private ?Profile $profile = null;
 
@@ -69,6 +75,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getLastLoginAt(): ?\DateTimeImmutable { return $this->lastLoginAt; }
     public function markLoginNow(): void { $this->lastLoginAt = new \DateTimeImmutable(); }
+    public function isSuspended(): bool { return $this->suspendedAt !== null; }
+    public function getSuspendedAt(): ?\DateTimeImmutable { return $this->suspendedAt; }
+    public function getSuspensionReason(): ?string { return $this->suspensionReason; }
+    public function suspend(?string $reason = null): static
+    {
+        $this->suspendedAt = new \DateTimeImmutable();
+        $this->suspensionReason = ($trimmedReason = trim((string) $reason)) !== '' ? $trimmedReason : null;
+
+        return $this;
+    }
+    public function reactivate(): static
+    {
+        $this->suspendedAt = null;
+        $this->suspensionReason = null;
+
+        return $this;
+    }
     public function getProfile(): ?Profile { return $this->profile; }
     public function setProfile(?Profile $profile): static { $this->profile = $profile; if ($profile?->getUser() !== $this) { $profile?->setUser($this); } return $this; }
     /** @return Collection<int, UserIdentity> */

@@ -33,7 +33,13 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /** @return array{items: list<User>, total: int} */
-    public function searchPaginated(string $searchTerm, int $page, int $itemsPerPage = 100): array
+    public function searchPaginated(
+        string $searchTerm,
+        string $role,
+        string $status,
+        int $page,
+        int $itemsPerPage = 100,
+    ): array
     {
         $queryBuilder = $this->createQueryBuilder('user')
             ->leftJoin('user.profile', 'profile')
@@ -43,6 +49,22 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             $queryBuilder
                 ->andWhere('LOWER(profile.displayName) LIKE :searchTerm')
                 ->setParameter('searchTerm', '%'.mb_strtolower($searchTerm).'%');
+        }
+
+        if ($role === 'admin') {
+            $queryBuilder
+                ->andWhere('user.roles LIKE :administratorRole')
+                ->setParameter('administratorRole', '%ROLE_ADMIN%');
+        } elseif ($role === 'user') {
+            $queryBuilder
+                ->andWhere('user.roles NOT LIKE :administratorRole')
+                ->setParameter('administratorRole', '%ROLE_ADMIN%');
+        }
+
+        if ($status === 'active') {
+            $queryBuilder->andWhere('user.suspendedAt IS NULL');
+        } elseif ($status === 'suspended') {
+            $queryBuilder->andWhere('user.suspendedAt IS NOT NULL');
         }
 
         $countQueryBuilder = clone $queryBuilder;
@@ -60,5 +82,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getResult();
 
         return ['items' => $items, 'total' => $total];
+    }
+
+    public function countActiveAdministrators(): int
+    {
+        return (int) $this->createQueryBuilder('user')
+            ->select('COUNT(user.id)')
+            ->andWhere('user.roles LIKE :administratorRole')
+            ->andWhere('user.suspendedAt IS NULL')
+            ->setParameter('administratorRole', '%ROLE_ADMIN%')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

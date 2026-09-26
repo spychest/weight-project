@@ -38,4 +38,20 @@ final class UserTest extends TestCase
         $user->setDarkModeEnabled(true);
         self::assertTrue($user->isDarkModeEnabled());
     }
+
+    #[Test]
+    public function itCanBeSuspendedAndReactivatedWithoutDeletingItsData(): void
+    {
+        $user = (new User())->suspend('Non-respect des règles');
+
+        self::assertTrue($user->isSuspended());
+        self::assertNotNull($user->getSuspendedAt());
+        self::assertSame('Non-respect des règles', $user->getSuspensionReason());
+
+        $user->reactivate();
+
+        self::assertFalse($user->isSuspended());
+        self::assertNull($user->getSuspendedAt());
+        self::assertNull($user->getSuspensionReason());
+    }
 }
