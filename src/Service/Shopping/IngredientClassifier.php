@@ -114,6 +114,21 @@ final class IngredientClassifier
         return $bestCategory;
     }
 
+    public function resolveCanonicalName(string $ingredientName): string
+    {
+        $normalizedIngredientName = $this->normalizeForComparison($ingredientName);
+
+        foreach ($this->ingredientCatalogProvider->getCatalogEntries() as $catalogEntry) {
+            foreach ([$catalogEntry['canonicalName'], ...$catalogEntry['aliases']] as $catalogName) {
+                if ($this->normalizeForComparison($catalogName) === $normalizedIngredientName) {
+                    return $catalogEntry['canonicalName'];
+                }
+            }
+        }
+
+        return trim($ingredientName);
+    }
+
     /**
      * @param list<string> $tokens
      * @param list<string> $wordsToRemove

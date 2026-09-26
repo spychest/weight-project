@@ -74,6 +74,21 @@ final class IngredientClassifierTest extends TestCase
     }
 
     #[Test]
+    public function itResolvesAnAliasToItsCanonicalCatalogName(): void
+    {
+        $classifier = new IngredientClassifier(new InMemoryIngredientCatalogProvider([
+            [
+                'canonicalName' => 'Poulet',
+                'category' => 'Viandes et poissons',
+                'aliases' => ['Blanc de poulet'],
+            ],
+        ]));
+
+        self::assertSame('Poulet', $classifier->resolveCanonicalName('blancs de poulet'));
+        self::assertSame('Produit inconnu', $classifier->resolveCanonicalName('Produit inconnu'));
+    }
+
+    #[Test]
     public function everyCatalogNameAndAliasKeepsItsExpectedCategory(): void
     {
         $catalogContents = file_get_contents(dirname(__DIR__, 3).'/resources/ingredient_catalog.json');

@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'project:shopping-list:reclassify',
-    description: 'Reclasse les produits des listes actives sans écraser les corrections manuelles.',
+    description: 'Reconstruit et reclasse les listes actives sans écraser les corrections manuelles.',
 )]
 final class ReclassifyShoppingListsCommand extends Command
 {
@@ -29,7 +29,7 @@ final class ReclassifyShoppingListsCommand extends Command
     {
         $activeShoppingLists = $this->shoppingListRepository->findBy(['active' => true]);
         foreach ($activeShoppingLists as $shoppingList) {
-            $this->shoppingListBuilder->reclassifyGeneratedItems($shoppingList);
+            $this->shoppingListBuilder->rebuild($shoppingList);
         }
 
         $this->entityManager->flush();

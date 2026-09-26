@@ -6,21 +6,9 @@ use App\Entity\ShoppingList;
 
 final class ShoppingListBuilder
 {
-    /** @var array<string, array{unit: string, factor: float}> */
-    private const UNIT_CONVERSIONS = [
-        'kg' => ['unit' => 'g', 'factor' => 1000.0],
-        'g' => ['unit' => 'g', 'factor' => 1.0],
-        'l' => ['unit' => 'ml', 'factor' => 1000.0],
-        'cl' => ['unit' => 'ml', 'factor' => 10.0],
-        'ml' => ['unit' => 'ml', 'factor' => 1.0],
-        'pièce' => ['unit' => 'pièce', 'factor' => 1.0],
-        'pièces' => ['unit' => 'pièce', 'factor' => 1.0],
-        'piece' => ['unit' => 'pièce', 'factor' => 1.0],
-        'pieces' => ['unit' => 'pièce', 'factor' => 1.0],
-    ];
-
     public function __construct(
         private readonly IngredientClassifier $ingredientClassifier,
+        private readonly IngredientUnitNormalizer $ingredientUnitNormalizer,
     ) {
     }
 
@@ -37,6 +25,7 @@ final class ShoppingListBuilder
         }
 
         $generatedItemsByKey = [];
+        $legacyKeysByGeneratedKey = [];
         foreach ($shoppingList->getRecipeSelections() as $recipeSelection) {
             foreach ($recipeSelection->getIngredientSnapshot() as $ingredient) {
                 $name = trim($ingredient['name']);
@@ -44,19 +33,25 @@ final class ShoppingListBuilder
                 if ($name === '' || $quantity <= 0) {
                     continue;
                 }
-                [$unit, $conversionFactor] = $this->normalizeUnit($ingredient['unit']);
-                $normalizedName = $this->ingredientClassifier->normalizeName($name);
+                $normalizedUnit = $this->ingredientUnitNormalizer->normalize($ingredient['unit']);
+                $unit = $normalizedUnit['unit'];
+                $canonicalName = $this->ingredientClassifier->resolveCanonicalName($name);
+                $normalizedName = $this->ingredientClassifier->normalizeForComparison($canonicalName);
                 $key = hash('sha256', $normalizedName.'|'.$unit);
-                $calculatedQuantity = $quantity * $conversionFactor * $recipeSelection->getPreparationCount();
+                $legacyKey = $this->buildLegacyItemKey($name, $ingredient['unit']);
+                $calculatedQuantity = $quantity
+                    * $normalizedUnit['factor']
+                    * $recipeSelection->getPreparationCount();
+                $legacyKeysByGeneratedKey[$key][$legacyKey] = true;
 
                 if (!isset($generatedItemsByKey[$key])) {
                     $generatedItemsByKey[$key] = [
                         'key' => $key,
-                        'name' => $name,
+                        'name' => $canonicalName,
                         'quantity' => 0.0,
                         'calculatedQuantity' => 0.0,
                         'unit' => $unit,
-                        'category' => $this->ingredientClassifier->classify($name),
+                        'category' => $this->ingredientClassifier->classify($canonicalName),
                         'categoryOverridden' => false,
                         'checked' => false,
                         'manual' => false,
@@ -68,7 +63,10 @@ final class ShoppingListBuilder
         }
 
         foreach ($generatedItemsByKey as $key => &$generatedItem) {
-            $previousItem = $previousItemsByKey[$key] ?? null;
+            $previousItem = $previousItemsByKey[$key] ?? $this->findPreviousItemByLegacyKey(
+                $previousItemsByKey,
+                array_keys($legacyKeysByGeneratedKey[$key] ?? []),
+            );
             if ($previousItem === null) {
                 continue;
             }
@@ -86,8 +84,12 @@ final class ShoppingListBuilder
         }
         unset($generatedItem);
 
-        foreach ($shoppingList->getExcludedGeneratedItemKeys() as $excludedKey) {
-            unset($generatedItemsByKey[$excludedKey]);
+        $excludedGeneratedItemKeys = $shoppingList->getExcludedGeneratedItemKeys();
+        foreach (array_keys($generatedItemsByKey) as $generatedItemKey) {
+            $compatibleKeys = [$generatedItemKey, ...array_keys($legacyKeysByGeneratedKey[$generatedItemKey] ?? [])];
+            if (array_intersect($compatibleKeys, $excludedGeneratedItemKeys) !== []) {
+                unset($generatedItemsByKey[$generatedItemKey]);
+            }
         }
 
         $allItems = array_merge(array_values($generatedItemsByKey), $manualItems);
@@ -104,29 +106,42 @@ final class ShoppingListBuilder
         $shoppingList->setItems($allItems)->touch();
     }
 
-    public function reclassifyGeneratedItems(ShoppingList $shoppingList): void
+    private function buildLegacyItemKey(string $ingredientName, string $unit): string
     {
-        $items = $shoppingList->getItems();
-        foreach ($items as &$item) {
-            $categoryWasOverridden = $item['categoryOverridden'] ?? false;
-            if ($item['manual'] || $categoryWasOverridden) {
-                continue;
-            }
+        $legacyUnitConversions = [
+            'kg' => 'g',
+            'g' => 'g',
+            'l' => 'ml',
+            'cl' => 'ml',
+            'ml' => 'ml',
+            'pièce' => 'pièce',
+            'pièces' => 'pièce',
+            'piece' => 'pièce',
+            'pieces' => 'pièce',
+        ];
+        $normalizedLegacyUnit = mb_strtolower(trim($unit));
+        $normalizedLegacyUnit = $legacyUnitConversions[$normalizedLegacyUnit] ?? $normalizedLegacyUnit;
 
-            $item['category'] = $this->ingredientClassifier->classify($item['name']);
-            $item['categoryOverridden'] = false;
-        }
-        unset($item);
-
-        $shoppingList->setItems($items)->touch();
+        return hash(
+            'sha256',
+            $this->ingredientClassifier->normalizeName($ingredientName).'|'.$normalizedLegacyUnit,
+        );
     }
 
-    /** @return array{string, float} */
-    private function normalizeUnit(string $unit): array
+    /**
+     * @param array<string, array<string, mixed>> $previousItemsByKey
+     * @param list<string>                        $legacyKeys
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findPreviousItemByLegacyKey(array $previousItemsByKey, array $legacyKeys): ?array
     {
-        $normalizedUnit = mb_strtolower(trim($unit));
-        $conversion = self::UNIT_CONVERSIONS[$normalizedUnit] ?? null;
+        foreach ($legacyKeys as $legacyKey) {
+            if (isset($previousItemsByKey[$legacyKey])) {
+                return $previousItemsByKey[$legacyKey];
+            }
+        }
 
-        return $conversion === null ? [$normalizedUnit, 1.0] : [$conversion['unit'], $conversion['factor']];
+        return null;
     }
 }
