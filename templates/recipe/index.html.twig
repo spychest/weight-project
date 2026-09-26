@@ -46,49 +46,64 @@
                     <label><input type="checkbox" name="vegan" value="1"{{ recipeFilters.vegan ? ' checked' : '' }}> Végan</label>
                     <label><input type="checkbox" name="glutenFree" value="1"{{ recipeFilters.glutenFree ? ' checked' : '' }}> Sans gluten</label>
                 </fieldset>
-                <details class="recipe-ingredient-filter" data-recipe-ingredient-filter{{ ingredientFilterCount > 0 ? ' open' : '' }}>
-                    <summary>
+                <div class="recipe-ingredient-filter-trigger">
+                    <button type="button" class="recipe-ingredient-filter-button" data-recipe-ingredient-filter-open>
                         Ingrédients
                         {% if ingredientFilterCount > 0 %}<span class="recipe-filter-count">{{ ingredientFilterCount }}</span>{% endif %}
-                    </summary>
-                    <div class="recipe-ingredient-filter-panel">
-                        <div class="recipe-ingredient-filter-group">
-                            <span class="recipe-ingredient-filter-label">Doit contenir</span>
-                            <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="include">
-                                {% for ingredientName in recipeFilters.includeIngredients %}
-                                    <span class="recipe-ingredient-filter-chip">
-                                        {{ ingredientName }}
-                                        <button type="button" data-recipe-ingredient-remove aria-label="Retirer {{ ingredientName }}">×</button>
-                                        <input type="hidden" name="includeIngredients[]" value="{{ ingredientName }}">
-                                    </span>
-                                {% endfor %}
+                    </button>
+                    <dialog class="recipe-ingredient-filter-dialog" data-recipe-ingredient-filter-dialog aria-labelledby="recipe-ingredient-filter-title">
+                        <div class="recipe-ingredient-filter-dialog-header">
+                            <div>
+                                <p class="recipe-page-kicker">Affiner la recherche</p>
+                                <h2 id="recipe-ingredient-filter-title">Filtrer par ingrédients</h2>
+                                <p>Choisis ce que les recettes doivent contenir ou exclure.</p>
                             </div>
-                            <div class="recipe-ingredient-filter-search">
-                                <input type="search" placeholder="Ex. Poulet…" autocomplete="off" data-recipe-ingredient-search="include" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient obligatoire">
-                            </div>
+                            <button type="button" class="recipe-ingredient-filter-close" data-recipe-ingredient-filter-close aria-label="Fermer la sélection des ingrédients">×</button>
                         </div>
-                        <fieldset class="recipe-ingredient-match-mode">
-                            <legend>Correspondance</legend>
-                            <label><input type="radio" name="ingredientMode" value="all"{{ recipeFilters.ingredientMode == 'all' ? ' checked' : '' }}> Tous</label>
-                            <label><input type="radio" name="ingredientMode" value="any"{{ recipeFilters.ingredientMode == 'any' ? ' checked' : '' }}> Au moins un</label>
-                        </fieldset>
-                        <div class="recipe-ingredient-filter-group">
-                            <span class="recipe-ingredient-filter-label">Ne doit pas contenir</span>
-                            <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="exclude">
-                                {% for ingredientName in recipeFilters.excludeIngredients %}
-                                    <span class="recipe-ingredient-filter-chip recipe-ingredient-filter-chip-excluded">
-                                        {{ ingredientName }}
-                                        <button type="button" data-recipe-ingredient-remove aria-label="Retirer {{ ingredientName }}">×</button>
-                                        <input type="hidden" name="excludeIngredients[]" value="{{ ingredientName }}">
-                                    </span>
-                                {% endfor %}
-                            </div>
-                            <div class="recipe-ingredient-filter-search">
-                                <input type="search" placeholder="Ex. Coriandre…" autocomplete="off" data-recipe-ingredient-search="exclude" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient exclu">
-                            </div>
+                        <div class="recipe-ingredient-filter-dialog-content">
+                            <section class="recipe-ingredient-filter-group">
+                                <h3>La recette doit contenir</h3>
+                                <p>Ajoute un ou plusieurs ingrédients recherchés.</p>
+                                <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="include">
+                                    {% for ingredientName in recipeFilters.includeIngredients %}
+                                        <span class="recipe-ingredient-filter-chip">
+                                            {{ ingredientName }}
+                                            <button type="button" data-recipe-ingredient-remove aria-label="Retirer {{ ingredientName }}">×</button>
+                                            <input type="hidden" name="includeIngredients[]" value="{{ ingredientName }}">
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                                <div class="recipe-ingredient-filter-search">
+                                    <input type="search" placeholder="Ex. Poulet…" autocomplete="off" data-recipe-ingredient-search="include" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient obligatoire">
+                                </div>
+                            </section>
+                            <fieldset class="recipe-ingredient-match-mode">
+                                <legend>Quand plusieurs ingrédients sont sélectionnés</legend>
+                                <label><input type="radio" name="ingredientMode" value="all"{{ recipeFilters.ingredientMode == 'all' ? ' checked' : '' }}> La recette doit tous les contenir</label>
+                                <label><input type="radio" name="ingredientMode" value="any"{{ recipeFilters.ingredientMode == 'any' ? ' checked' : '' }}> La recette peut en contenir au moins un</label>
+                            </fieldset>
+                            <section class="recipe-ingredient-filter-group recipe-ingredient-filter-exclusion-group">
+                                <h3>La recette ne doit pas contenir</h3>
+                                <p>Ces ingrédients élimineront toujours une recette des résultats.</p>
+                                <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="exclude">
+                                    {% for ingredientName in recipeFilters.excludeIngredients %}
+                                        <span class="recipe-ingredient-filter-chip recipe-ingredient-filter-chip-excluded">
+                                            {{ ingredientName }}
+                                            <button type="button" data-recipe-ingredient-remove aria-label="Retirer {{ ingredientName }}">×</button>
+                                            <input type="hidden" name="excludeIngredients[]" value="{{ ingredientName }}">
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                                <div class="recipe-ingredient-filter-search">
+                                    <input type="search" placeholder="Ex. Coriandre…" autocomplete="off" data-recipe-ingredient-search="exclude" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient exclu">
+                                </div>
+                            </section>
                         </div>
-                    </div>
-                </details>
+                        <div class="recipe-ingredient-filter-dialog-footer">
+                            <button type="button" class="dashboard-button dashboard-button-primary" data-recipe-ingredient-filter-close>Voir les résultats</button>
+                        </div>
+                    </dialog>
+                </div>
                 {% if hasRecipeFilter %}
                     <div class="recipe-filter-actions">
                         <a href="{{ path('app_recipe_index', {tab: 'community'}) }}" class="dashboard-button" data-recipe-filters-reset>Réinitialiser</a>

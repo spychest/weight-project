@@ -137,7 +137,7 @@
         createIngredientChip(filterForm, input.dataset.recipeIngredientSearch, selectedSuggestion.name);
         input.value = '';
         closeIngredientSuggestions();
-        applyRecipeFilters(filterForm);
+        input.focus();
     };
 
     const highlightIngredientSuggestion = (suggestionIndex) => {
@@ -236,7 +236,7 @@
 
     document.addEventListener('change', (event) => {
         const filterForm = event.target.closest('[data-recipe-filters]');
-        if (filterForm && event.target.name) {
+        if (filterForm && event.target.name && !event.target.closest('[data-recipe-ingredient-filter-dialog]')) {
             window.clearTimeout(filterRequestDelay);
             applyRecipeFilters(filterForm);
         }
@@ -268,6 +268,24 @@
     });
 
     document.addEventListener('click', (event) => {
+        const openIngredientFilterButton = event.target.closest('[data-recipe-ingredient-filter-open]');
+        if (openIngredientFilterButton) {
+            openIngredientFilterButton
+                .closest('[data-recipe-filters]')
+                ?.querySelector('[data-recipe-ingredient-filter-dialog]')
+                ?.showModal();
+            return;
+        }
+
+        const closeIngredientFilterButton = event.target.closest('[data-recipe-ingredient-filter-close]');
+        if (closeIngredientFilterButton) {
+            const ingredientFilterDialog = closeIngredientFilterButton.closest('[data-recipe-ingredient-filter-dialog]');
+            const filterForm = closeIngredientFilterButton.closest('[data-recipe-filters]');
+            ingredientFilterDialog?.close();
+            applyRecipeFilters(filterForm);
+            return;
+        }
+
         const suggestionButton = event.target.closest('[data-recipe-ingredient-suggestion]');
         if (suggestionButton) {
             selectIngredientSuggestion(Number(suggestionButton.dataset.recipeIngredientSuggestion));
@@ -276,9 +294,22 @@
 
         const removeIngredientButton = event.target.closest('[data-recipe-ingredient-remove]');
         if (removeIngredientButton) {
-            const filterForm = removeIngredientButton.closest('[data-recipe-filters]');
             removeIngredientButton.closest('.recipe-ingredient-filter-chip')?.remove();
-            applyRecipeFilters(filterForm);
+            return;
+        }
+
+        const ingredientFilterDialog = event.target.closest('[data-recipe-ingredient-filter-dialog]');
+        if (ingredientFilterDialog && event.target === ingredientFilterDialog) {
+            const dialogBounds = ingredientFilterDialog.getBoundingClientRect();
+            const clickedInsideDialog = event.clientX >= dialogBounds.left
+                && event.clientX <= dialogBounds.right
+                && event.clientY >= dialogBounds.top
+                && event.clientY <= dialogBounds.bottom;
+            if (!clickedInsideDialog) {
+                const filterForm = ingredientFilterDialog.closest('[data-recipe-filters]');
+                ingredientFilterDialog.close();
+                applyRecipeFilters(filterForm);
+            }
             return;
         }
 
@@ -316,6 +347,17 @@
             closeIngredientSuggestions();
         }
     });
+
+    document.addEventListener('cancel', (event) => {
+        if (!event.target.matches('[data-recipe-ingredient-filter-dialog]')) {
+            return;
+        }
+
+        event.preventDefault();
+        const filterForm = event.target.closest('[data-recipe-filters]');
+        event.target.close();
+        applyRecipeFilters(filterForm);
+    }, true);
 
     document.addEventListener('focusout', (event) => {
         if (event.target.matches('[data-recipe-ingredient-search]')) {
