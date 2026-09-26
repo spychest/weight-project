@@ -9,6 +9,7 @@ use App\Pagination\PaginatedResult;
 use App\Repository\RecipeRepository;
 use App\Repository\RecipeViewRepository;
 use App\Service\CurrentUserProfileProvider;
+use App\Service\Recipe\RecipeIngredientMatcher;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -36,6 +37,15 @@ final class RecipeController extends AbstractController
         $vegetarianFilter = $request->query->getBoolean('vegetarian');
         $veganFilter = $request->query->getBoolean('vegan');
         $glutenFreeFilter = $request->query->getBoolean('glutenFree');
+        $requiredIngredientFilters = $this->sanitizeIngredientFilters(
+            $request->query->all('includeIngredients'),
+        );
+        $excludedIngredientFilters = $this->sanitizeIngredientFilters(
+            $request->query->all('excludeIngredients'),
+        );
+        $ingredientMatchingMode = $request->query->getString('ingredientMode') === RecipeIngredientMatcher::MATCH_ANY
+            ? RecipeIngredientMatcher::MATCH_ANY
+            : RecipeIngredientMatcher::MATCH_ALL;
 
         return $this->render('recipe/index.html.twig', [
             'communityRecipesPagination' => $recipeRepository->paginatePublished(
@@ -46,6 +56,9 @@ final class RecipeController extends AbstractController
                 $vegetarianFilter,
                 $veganFilter,
                 $glutenFreeFilter,
+                $requiredIngredientFilters,
+                $excludedIngredientFilters,
+                $ingredientMatchingMode,
             ),
             'personalRecipesPagination' => $recipeRepository->paginateForProfile(
                 $currentUserProfileProvider->getRequiredProfile(),
@@ -59,6 +72,9 @@ final class RecipeController extends AbstractController
                 'vegetarian' => $vegetarianFilter,
                 'vegan' => $veganFilter,
                 'glutenFree' => $glutenFreeFilter,
+                'includeIngredients' => $requiredIngredientFilters,
+                'excludeIngredients' => $excludedIngredientFilters,
+                'ingredientMode' => $ingredientMatchingMode,
             ],
         ]);
     }
@@ -237,6 +253,28 @@ final class RecipeController extends AbstractController
         }
 
         return $parsedDate;
+    }
+
+    /**
+     * @param array<array-key, mixed> $ingredientFilters
+     *
+     * @return list<string>
+     */
+    private function sanitizeIngredientFilters(array $ingredientFilters): array
+    {
+        $sanitizedIngredientFilters = [];
+        foreach ($ingredientFilters as $ingredientFilter) {
+            if (!is_string($ingredientFilter)) {
+                continue;
+            }
+
+            $ingredientName = mb_substr(trim($ingredientFilter), 0, 160);
+            if ($ingredientName !== '') {
+                $sanitizedIngredientFilters[mb_strtolower($ingredientName)] = $ingredientName;
+            }
+        }
+
+        return array_slice(array_values($sanitizedIngredientFilters), 0, 10);
     }
 
     /** @return array<string, string> */

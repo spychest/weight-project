@@ -5,16 +5,23 @@ namespace App\Repository;
 use App\Entity\Profile;
 use App\Entity\Recipe;
 use App\Pagination\PaginatedResult;
+use App\Service\Recipe\RecipeIngredientMatcher;
 use Doctrine\Persistence\ManagerRegistry;
 
 /** @extends AbstractPaginatedRepository<Recipe> */
 final class RecipeRepository extends AbstractPaginatedRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly RecipeIngredientMatcher $recipeIngredientMatcher,
+    ) {
         parent::__construct($registry, Recipe::class);
     }
 
+    /**
+     * @param list<string> $requiredIngredients
+     * @param list<string> $excludedIngredients
+     */
     public function paginatePublished(
         int $page,
         int $itemsPerPage,
@@ -23,6 +30,9 @@ final class RecipeRepository extends AbstractPaginatedRepository
         bool $vegetarianOnly = false,
         bool $veganOnly = false,
         bool $glutenFreeOnly = false,
+        array $requiredIngredients = [],
+        array $excludedIngredients = [],
+        string $ingredientMatchingMode = RecipeIngredientMatcher::MATCH_ALL,
     ): PaginatedResult {
         $queryBuilder = $this->createQueryBuilder('recipe')
             ->innerJoin('recipe.profile', 'profile')
@@ -51,6 +61,32 @@ final class RecipeRepository extends AbstractPaginatedRepository
         }
         if ($glutenFreeOnly) {
             $queryBuilder->andWhere('recipe.glutenFree = true');
+        }
+
+        if ($requiredIngredients !== [] || $excludedIngredients !== []) {
+            /** @var list<Recipe> $recipes */
+            $recipes = $queryBuilder->getQuery()->getResult();
+            $matchingRecipes = array_values(array_filter(
+                $recipes,
+                fn (Recipe $recipe): bool => $this->recipeIngredientMatcher->matches(
+                    $recipe,
+                    $requiredIngredients,
+                    $excludedIngredients,
+                    $ingredientMatchingMode,
+                ),
+            ));
+
+            $totalItems = count($matchingRecipes);
+            $totalPages = max(1, (int) ceil($totalItems / $itemsPerPage));
+            $currentPage = min(max(1, $page), $totalPages);
+
+            return new PaginatedResult(
+                array_slice($matchingRecipes, ($currentPage - 1) * $itemsPerPage, $itemsPerPage),
+                $currentPage,
+                $itemsPerPage,
+                $totalItems,
+                $totalPages,
+            );
         }
 
         return $this->paginate($queryBuilder, $page, $itemsPerPage);

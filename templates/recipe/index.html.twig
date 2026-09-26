@@ -15,6 +15,20 @@
 
         {% for message in app.flashes('success') %}<p class="account-success-message">{{ message }}</p>{% endfor %}
 
+        {% set ingredientFilterCount = recipeFilters.includeIngredients|length + recipeFilters.excludeIngredients|length %}
+        {% set hasRecipeFilter = recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree or ingredientFilterCount > 0 %}
+        {% set recipeFilterQueryParameters = {
+            tab: 'community',
+            author: recipeFilters.author,
+            publicationDate: recipeFilters.publicationDate,
+            vegetarian: recipeFilters.vegetarian ? 1 : 0,
+            vegan: recipeFilters.vegan ? 1 : 0,
+            glutenFree: recipeFilters.glutenFree ? 1 : 0,
+            includeIngredients: recipeFilters.includeIngredients,
+            excludeIngredients: recipeFilters.excludeIngredients,
+            ingredientMode: recipeFilters.ingredientMode
+        } %}
+
         <section class="recipe-tab-panel" data-recipe-tab-panel="community"{{ activeRecipeTab != 'community' ? ' hidden' : '' }}>
             <form class="recipe-filters" method="get" action="{{ path('app_recipe_index') }}" data-recipe-filters>
                 <input type="hidden" name="tab" value="community">
@@ -32,18 +46,60 @@
                     <label><input type="checkbox" name="vegan" value="1"{{ recipeFilters.vegan ? ' checked' : '' }}> Végan</label>
                     <label><input type="checkbox" name="glutenFree" value="1"{{ recipeFilters.glutenFree ? ' checked' : '' }}> Sans gluten</label>
                 </fieldset>
-                {% if recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree %}
+                <details class="recipe-ingredient-filter" data-recipe-ingredient-filter{{ ingredientFilterCount > 0 ? ' open' : '' }}>
+                    <summary>
+                        Ingrédients
+                        {% if ingredientFilterCount > 0 %}<span class="recipe-filter-count">{{ ingredientFilterCount }}</span>{% endif %}
+                    </summary>
+                    <div class="recipe-ingredient-filter-panel">
+                        <div class="recipe-ingredient-filter-group">
+                            <span class="recipe-ingredient-filter-label">Doit contenir</span>
+                            <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="include">
+                                {% for ingredientName in recipeFilters.includeIngredients %}
+                                    <span class="recipe-ingredient-filter-chip">
+                                        {{ ingredientName }}
+                                        <button type="button" data-recipe-ingredient-remove aria-label="Retirer {{ ingredientName }}">×</button>
+                                        <input type="hidden" name="includeIngredients[]" value="{{ ingredientName }}">
+                                    </span>
+                                {% endfor %}
+                            </div>
+                            <div class="recipe-ingredient-filter-search">
+                                <input type="search" placeholder="Ex. Poulet…" autocomplete="off" data-recipe-ingredient-search="include" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient obligatoire">
+                            </div>
+                        </div>
+                        <fieldset class="recipe-ingredient-match-mode">
+                            <legend>Correspondance</legend>
+                            <label><input type="radio" name="ingredientMode" value="all"{{ recipeFilters.ingredientMode == 'all' ? ' checked' : '' }}> Tous</label>
+                            <label><input type="radio" name="ingredientMode" value="any"{{ recipeFilters.ingredientMode == 'any' ? ' checked' : '' }}> Au moins un</label>
+                        </fieldset>
+                        <div class="recipe-ingredient-filter-group">
+                            <span class="recipe-ingredient-filter-label">Ne doit pas contenir</span>
+                            <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="exclude">
+                                {% for ingredientName in recipeFilters.excludeIngredients %}
+                                    <span class="recipe-ingredient-filter-chip recipe-ingredient-filter-chip-excluded">
+                                        {{ ingredientName }}
+                                        <button type="button" data-recipe-ingredient-remove aria-label="Retirer {{ ingredientName }}">×</button>
+                                        <input type="hidden" name="excludeIngredients[]" value="{{ ingredientName }}">
+                                    </span>
+                                {% endfor %}
+                            </div>
+                            <div class="recipe-ingredient-filter-search">
+                                <input type="search" placeholder="Ex. Coriandre…" autocomplete="off" data-recipe-ingredient-search="exclude" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient exclu">
+                            </div>
+                        </div>
+                    </div>
+                </details>
+                {% if hasRecipeFilter %}
                     <div class="recipe-filter-actions">
                         <a href="{{ path('app_recipe_index', {tab: 'community'}) }}" class="dashboard-button" data-recipe-filters-reset>Réinitialiser</a>
                     </div>
                 {% endif %}
             </form>
             {% if communityRecipesPagination.items is empty %}
-                {% set hasRecipeFilter = recipeFilters.author or recipeFilters.publicationDate or recipeFilters.vegetarian or recipeFilters.vegan or recipeFilters.glutenFree %}
                 <div class="recipe-empty-state"><span>🍽️</span><h2>Aucune recette trouvée</h2><p>{{ hasRecipeFilter ? 'Aucune recette ne correspond à ces filtres.' : 'Sois la première personne à en partager une.' }}</p>{% if not hasRecipeFilter %}<a href="{{ path('app_recipe_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter une recette</a>{% endif %}</div>
             {% else %}
                 <div class="recipe-grid">{% for recipe in communityRecipesPagination.items %}{% include 'recipe/_card.html.twig' with {recipe: recipe} only %}{% endfor %}</div>
-                {% include 'components/_pagination.html.twig' with {pagination: communityRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'communityPage', preservedQueryParameters: {tab: 'community', minePage: personalRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate, vegetarian: recipeFilters.vegetarian ? 1 : 0, vegan: recipeFilters.vegan ? 1 : 0, glutenFree: recipeFilters.glutenFree ? 1 : 0}} only %}
+                {% include 'components/_pagination.html.twig' with {pagination: communityRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'communityPage', preservedQueryParameters: recipeFilterQueryParameters|merge({minePage: personalRecipesPagination.currentPage})} only %}
             {% endif %}
         </section>
 
@@ -63,7 +119,7 @@
                         </article>
                     {% endfor %}
                 </div>
-                {% include 'components/_pagination.html.twig' with {pagination: personalRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'minePage', preservedQueryParameters: {tab: 'mine', communityPage: communityRecipesPagination.currentPage, author: recipeFilters.author, publicationDate: recipeFilters.publicationDate, vegetarian: recipeFilters.vegetarian ? 1 : 0, vegan: recipeFilters.vegan ? 1 : 0, glutenFree: recipeFilters.glutenFree ? 1 : 0}} only %}
+                {% include 'components/_pagination.html.twig' with {pagination: personalRecipesPagination, routeName: 'app_recipe_index', pageParameterName: 'minePage', preservedQueryParameters: recipeFilterQueryParameters|merge({tab: 'mine', communityPage: communityRecipesPagination.currentPage})} only %}
             {% endif %}
         </section>
     </main>

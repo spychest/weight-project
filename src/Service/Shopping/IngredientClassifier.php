@@ -117,16 +117,26 @@ final class IngredientClassifier
     public function resolveCanonicalName(string $ingredientName): string
     {
         $normalizedIngredientName = $this->normalizeForComparison($ingredientName);
+        $resolvedCanonicalName = null;
+        $longestMatchingTermLength = 0;
 
         foreach ($this->ingredientCatalogProvider->getCatalogEntries() as $catalogEntry) {
             foreach ([$catalogEntry['canonicalName'], ...$catalogEntry['aliases']] as $catalogName) {
-                if ($this->normalizeForComparison($catalogName) === $normalizedIngredientName) {
-                    return $catalogEntry['canonicalName'];
+                $normalizedCatalogName = $this->normalizeForComparison($catalogName);
+                $catalogNameLength = mb_strlen($normalizedCatalogName);
+                if (
+                    $normalizedCatalogName !== ''
+                    && $catalogNameLength > $longestMatchingTermLength
+                    && ($normalizedCatalogName === $normalizedIngredientName
+                        || str_contains(' '.$normalizedIngredientName.' ', ' '.$normalizedCatalogName.' '))
+                ) {
+                    $resolvedCanonicalName = $catalogEntry['canonicalName'];
+                    $longestMatchingTermLength = $catalogNameLength;
                 }
             }
         }
 
-        return trim($ingredientName);
+        return $resolvedCanonicalName ?? trim($ingredientName);
     }
 
     /**
