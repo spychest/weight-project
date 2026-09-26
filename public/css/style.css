@@ -3567,6 +3567,14 @@ html.dark-mode {
     font-size: 0.8rem;
 }
 
+.recipe-ingredient-filter-help {
+    display: block;
+    margin-top: 7px;
+    color: var(--color-text-secondary);
+    font-size: 0.7rem;
+    line-height: 1.4;
+}
+
 .recipe-ingredient-match-mode {
     display: flex;
     align-items: center;

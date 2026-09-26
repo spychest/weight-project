@@ -63,7 +63,7 @@
                         <div class="recipe-ingredient-filter-dialog-content">
                             <section class="recipe-ingredient-filter-group">
                                 <h3>La recette doit contenir</h3>
-                                <p>Ajoute un ou plusieurs ingrédients recherchés.</p>
+                                <p>Ajoute les ingrédients recherchés un par un.</p>
                                 <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="include">
                                     {% for ingredientName in recipeFilters.includeIngredients %}
                                         <span class="recipe-ingredient-filter-chip">
@@ -74,8 +74,9 @@
                                     {% endfor %}
                                 </div>
                                 <div class="recipe-ingredient-filter-search">
-                                    <input type="search" placeholder="Ex. Poulet…" autocomplete="off" data-recipe-ingredient-search="include" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient obligatoire">
+                                    <input type="search" placeholder="Rechercher un ingrédient…" autocomplete="off" data-recipe-ingredient-search="include" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient obligatoire" aria-describedby="required-ingredient-help">
                                 </div>
+                                <small id="required-ingredient-help" class="recipe-ingredient-filter-help">Écris au moins 2 lettres, sélectionne une suggestion, puis recommence pour ajouter un autre ingrédient. Pas besoin de virgule.</small>
                             </section>
                             <fieldset class="recipe-ingredient-match-mode">
                                 <legend>Quand plusieurs ingrédients sont sélectionnés</legend>
@@ -84,7 +85,7 @@
                             </fieldset>
                             <section class="recipe-ingredient-filter-group recipe-ingredient-filter-exclusion-group">
                                 <h3>La recette ne doit pas contenir</h3>
-                                <p>Ces ingrédients élimineront toujours une recette des résultats.</p>
+                                <p>Ajoute les ingrédients à exclure un par un.</p>
                                 <div class="recipe-ingredient-filter-chips" data-recipe-ingredient-chips="exclude">
                                     {% for ingredientName in recipeFilters.excludeIngredients %}
                                         <span class="recipe-ingredient-filter-chip recipe-ingredient-filter-chip-excluded">
@@ -95,8 +96,9 @@
                                     {% endfor %}
                                 </div>
                                 <div class="recipe-ingredient-filter-search">
-                                    <input type="search" placeholder="Ex. Coriandre…" autocomplete="off" data-recipe-ingredient-search="exclude" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient exclu">
+                                    <input type="search" placeholder="Rechercher un ingrédient à exclure…" autocomplete="off" data-recipe-ingredient-search="exclude" data-suggestions-url="{{ path('app_ingredient_suggestions') }}" aria-label="Ajouter un ingrédient exclu" aria-describedby="excluded-ingredient-help">
                                 </div>
+                                <small id="excluded-ingredient-help" class="recipe-ingredient-filter-help">Sélectionne une suggestion à la fois. Chaque ingrédient choisi apparaît juste au-dessus.</small>
                             </section>
                         </div>
                         <div class="recipe-ingredient-filter-dialog-footer">
