@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes motivations{% endblock %}
+
+{% block body %}
+    <main class="entry-index motivation-point-page">
+        <header class="entry-index-header">
+            <div>
+                <span class="entry-index-label">💚 Ce qui compte pour moi</span>
+                <h1>Mes motivations</h1>
+                <p>Classe tes raisons de la plus importante à la moins importante et relis-les quand tu en as besoin.</p>
+            </div>
+            <a href="{{ path('app_dashboard') }}" class="dashboard-button">Tableau de bord</a>
+            <a href="{{ path('app_motivation_point_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>+ Ajouter une motivation</a>
+        </header>
+
+        {% for successMessage in app.flashes('success') %}
+            <p class="account-success-message">{{ successMessage }}</p>
+        {% endfor %}
+
+        {% if motivationPoints is empty %}
+            <div class="entry-index-empty">
+                <span>💚</span>
+                <h2>Aucune motivation enregistrée</h2>
+                <p>Commence par la raison qui compte le plus pour toi.</p>
+                <a href="{{ path('app_motivation_point_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter ma première motivation</a>
+            </div>
+        {% else %}
+            <ol class="motivation-point-list">
+                {% for motivationPoint in motivationPoints %}
+                    <li class="motivation-point-item">
+                        <span class="motivation-point-rank" aria-label="Position {{ loop.index }}">{{ loop.index }}</span>
+                        <p>{{ motivationPoint.content }}</p>
+                        <div class="motivation-point-actions">
+                            <form method="post" action="{{ path('app_motivation_point_move', {id: motivationPoint.id, direction: 'up'}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('move-motivation-point-' ~ motivationPoint.id) }}">
+                                <button type="submit" title="Monter cette motivation" aria-label="Monter cette motivation" {{ loop.first ? 'disabled' : '' }}>↑</button>
+                            </form>
+                            <form method="post" action="{{ path('app_motivation_point_move', {id: motivationPoint.id, direction: 'down'}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('move-motivation-point-' ~ motivationPoint.id) }}">
+                                <button type="submit" title="Descendre cette motivation" aria-label="Descendre cette motivation" {{ loop.last ? 'disabled' : '' }}>↓</button>
+                            </form>
+                            <a href="{{ path('app_motivation_point_edit', {id: motivationPoint.id}) }}" data-modal-form>Modifier</a>
+                            <form method="post" action="{{ path('app_motivation_point_delete', {id: motivationPoint.id}) }}" onsubmit="return confirm('Supprimer cette motivation ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-motivation-point-' ~ motivationPoint.id) }}">
+                                <button type="submit" class="motivation-point-delete">Supprimer</button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ol>
+        {% endif %}
+    </main>
+{% endblock %}

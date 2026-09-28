@@ -25,6 +25,9 @@ final readonly class DashboardData
         public ?float $currentImc,
         public float $targetImc,
         public ?WeightProjectionData $weightProjection = null,
+        /** @var list<MotivationPointData> */
+        public array $motivationPoints = [],
+        public int $motivationPointCount = 0,
     ) {
     }
 

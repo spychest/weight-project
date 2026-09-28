@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ editMode ? 'Modifier la motivation' : 'Ajouter une motivation' }}{% endblock %}
+
+{% block body %}
+    <div class="form-page">
+        <div class="form-card motivation-point-form-card">
+            <header class="form-header">
+                <h1>{{ editMode ? 'Modifier ma motivation' : 'Ajouter une motivation' }} 💚</h1>
+                <p>Note une raison personnelle qui t’aide à garder le cap, indépendamment de tout chiffre.</p>
+            </header>
+
+            {{ form_start(form) }}
+                {{ form_row(form.content) }}
+                <div class="form-actions">
+                    <button type="submit" class="form-button form-button-primary">
+                        {{ editMode ? 'Enregistrer la modification' : 'Ajouter la motivation' }}
+                    </button>
+                    <a href="{{ path('app_motivation_point_index') }}" class="form-button form-button-secondary" data-modal-close>Annuler</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

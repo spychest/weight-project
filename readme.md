@@ -14,6 +14,7 @@ L’application aide à observer ses tendances et à mesurer sa progression dans
 - Suivi de l’hydratation, du sommeil, des repas et de l’activité physique.
 - Bilans quotidiens pour regrouper les informations d’une journée.
 - Création de jalons et validation automatique lors de l’ajout d’une pesée.
+- Motivations personnelles indépendantes des objectifs, classables par ordre d’importance.
 - Tableau de bord synthétique.
 - Projections indicatives de l’objectif et des jalons à partir de la tendance récente.
 - Graphiques dédiés au poids, à l’hydratation, au sommeil, aux repas et aux bilans quotidiens.

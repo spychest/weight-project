@@ -8,17 +8,20 @@ use App\DTO\DrinkEntryData;
 use App\DTO\FoodEventData;
 use App\DTO\MilestoneData;
 use App\DTO\MilestoneProgressMarkerData;
+use App\DTO\MotivationPointData;
 use App\Entity\Activity;
 use App\Entity\DailyCheckin;
 use App\Entity\DrinkEntry;
 use App\Entity\FoodEvent;
 use App\Entity\Milestone;
+use App\Entity\MotivationPoint;
 use App\Entity\Profile;
 use App\Entity\SleepEntry;
 use App\Repository\DailyCheckinRepository;
 use App\Repository\DrinkEntryRepository;
 use App\Repository\FoodEventRepository;
 use App\Repository\WeightEntryRepository;
+use App\Repository\MotivationPointRepository;
 use App\Service\Milestone\MilestoneService;
 use App\Service\Weight\WeightProjectionService;
 use App\DTO\SleepEntryData;
@@ -37,6 +40,7 @@ final readonly class DashboardService
         private SleepEntryRepository $sleepEntryRepository,
         private ActivityRepository $activityRepository,
         private WeightProjectionService $weightProjectionService,
+        private MotivationPointRepository $motivationPointRepository,
     ) {
     }
 
@@ -127,6 +131,14 @@ final readonly class DashboardService
             $profile,
             $this->weightEntryRepository->findRecentForProjection($profile, new \DateTimeImmutable('-90 days')),
         );
+        $motivationPoints = array_map(
+            static fn (MotivationPoint $motivationPoint): MotivationPointData => new MotivationPointData(
+                id: (int) $motivationPoint->getId(),
+                content: $motivationPoint->getContent(),
+                position: $motivationPoint->getPosition(),
+            ),
+            $this->motivationPointRepository->findForProfile($profile, 3),
+        );
 
         return new DashboardData(
             height: $profile->getHeight(),
@@ -148,6 +160,8 @@ final readonly class DashboardService
             currentImc: $currentBodyMassIndex,
             targetImc: $targetBodyMassIndex,
             weightProjection: $weightProjection,
+            motivationPoints: $motivationPoints,
+            motivationPointCount: $profile->getMotivationPoints()->count(),
         );
     }
 

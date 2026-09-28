@@ -57,6 +57,40 @@
 
         {% include 'dashboard/_profile_card.html.twig' %}
 
+        <section class="dashboard-section dashboard-motivation-section">
+            <div class="dashboard-section-header">
+                <div>
+                    <span class="dashboard-card-label">Ce qui compte pour moi</span>
+                    <h2>Mes motivations</h2>
+                </div>
+                <a href="{{ path('app_motivation_point_index') }}">
+                    {{ dashboard.motivationPointCount > 0 ? 'Gérer mes motivations' : 'Ajouter une motivation' }}
+                </a>
+            </div>
+
+            {% if dashboard.motivationPoints is not empty %}
+                <ol class="dashboard-motivation-list">
+                    {% for motivationPoint in dashboard.motivationPoints %}
+                        <li>
+                            <span>{{ motivationPoint.position }}</span>
+                            <p>{{ motivationPoint.content }}</p>
+                        </li>
+                    {% endfor %}
+                </ol>
+                {% if dashboard.motivationPointCount > dashboard.motivationPoints|length %}
+                    <a href="{{ path('app_motivation_point_index') }}" class="dashboard-motivation-more">
+                        Voir les {{ dashboard.motivationPointCount }} motivations
+                    </a>
+                {% endif %}
+            {% else %}
+                <div class="dashboard-motivation-empty">
+                    <span aria-hidden="true">💚</span>
+                    <p>Note les raisons personnelles qui te donnent envie de prendre soin de toi.</p>
+                    <a href="{{ path('app_motivation_point_new') }}" data-modal-form>Ajouter ma première motivation</a>
+                </div>
+            {% endif %}
+        </section>
+
         <section class="dashboard-section">
             {% set finalTargetProjection = dashboard.weightProjection and dashboard.weightProjection.available
                 ? dashboard.weightProjection.finalTargetProjection

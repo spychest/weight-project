@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Profile;
+use App\Entity\MotivationPoint;
 use App\Entity\WeightEntry;
 use App\Service\ProfileDataBackupService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,7 +17,7 @@ final class ProfileDataBackupServiceTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->method('wrapInTransaction')->willReturnCallback(static fn (callable $operation) => $operation());
-        $entityManager->expects(self::once())->method('persist')->with(self::isInstanceOf(WeightEntry::class));
+        $entityManager->expects(self::exactly(2))->method('persist');
 
         $sourceProfile = (new Profile())
             ->setDisplayName('Camille')
@@ -28,6 +29,9 @@ final class ProfileDataBackupServiceTest extends TestCase
         $sourceProfile->addWeightEntry(
             (new WeightEntry())->setWeight(99.4)->setMeasuredAt(new \DateTimeImmutable('2026-08-30 08:00:00'))->setNote('Sauvegarde'),
         );
+        $sourceProfile->addMotivationPoint(
+            (new MotivationPoint())->setContent('Me sentir plus libre')->setPosition(1),
+        );
 
         $backupService = new ProfileDataBackupService($entityManager);
         $backupJson = json_encode($backupService->exportProfile($sourceProfile), JSON_THROW_ON_ERROR);
@@ -35,7 +39,7 @@ final class ProfileDataBackupServiceTest extends TestCase
         $targetProfile = (new Profile())->setHeight(160)->setBirthDate(new \DateTimeImmutable('2000-01-01'))->setBiologicalGender('autre');
         $importedEntryCount = $backupService->importProfile($targetProfile, $backupJson);
 
-        self::assertSame(1, $importedEntryCount);
+        self::assertSame(2, $importedEntryCount);
         self::assertSame('Camille', $targetProfile->getDisplayName());
         self::assertSame(178.0, $targetProfile->getHeight());
         self::assertSame('1990-04-12', $targetProfile->getBirthDate()->format('Y-m-d'));

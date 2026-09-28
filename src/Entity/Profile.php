@@ -86,6 +86,11 @@ class Profile
     #[ORM\OneToMany(targetEntity: Milestone::class, mappedBy: 'profile')]
     private Collection $milestones;
 
+    /** @var Collection<int, MotivationPoint> */
+    #[ORM\OneToMany(targetEntity: MotivationPoint::class, mappedBy: 'profile', orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
+    private Collection $motivationPoints;
+
     /**
      * @var Collection<int, DrinkEntry>
      */
@@ -120,6 +125,7 @@ class Profile
         $this->victories = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->milestones = new ArrayCollection();
+        $this->motivationPoints = new ArrayCollection();
         $this->drinkEntries = new ArrayCollection();
         $this->sleepEntries = new ArrayCollection();
         $this->recipes = new ArrayCollection();
@@ -419,6 +425,29 @@ class Profile
                 $milestone->setProfile(null);
             }
         }
+
+        return $this;
+    }
+
+    /** @return Collection<int, MotivationPoint> */
+    public function getMotivationPoints(): Collection
+    {
+        return $this->motivationPoints;
+    }
+
+    public function addMotivationPoint(MotivationPoint $motivationPoint): static
+    {
+        if (!$this->motivationPoints->contains($motivationPoint)) {
+            $this->motivationPoints->add($motivationPoint);
+            $motivationPoint->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMotivationPoint(MotivationPoint $motivationPoint): static
+    {
+        $this->motivationPoints->removeElement($motivationPoint);
 
         return $this;
     }

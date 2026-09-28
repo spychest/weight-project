@@ -26,6 +26,9 @@ final class ProfileRequiredRoutesTest extends WebTestCase
         yield 'milestone history' => ['/milestones'];
         yield 'milestone details' => ['/milestone/1'];
         yield 'milestone editing' => ['/milestone/1/edit'];
+        yield 'motivation point management' => ['/motivation-points'];
+        yield 'motivation point creation' => ['/motivation-points/new'];
+        yield 'motivation point editing' => ['/motivation-points/1/edit'];
         yield 'account settings' => ['/account'];
         yield 'recipe catalogue' => ['/recipes'];
         yield 'recipe management' => ['/recipes/mine'];
