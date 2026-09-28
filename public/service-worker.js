@@ -1,9 +1,9 @@
-const CACHE_NAME = 'weight-project-shell-v2';
+const CACHE_NAME = 'weight-project-shell-v3';
 const STATIC_ASSETS = [
     '/offline.html',
     '/favicon.svg',
     '/manifest.webmanifest',
-    '/css/style.css?v=20260928-1'
+    '/css/style.css?v=20260928-2'
 ];
 
 self.addEventListener('install', (event) => {
