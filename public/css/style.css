@@ -391,7 +391,7 @@
 
 .motivation-point-item {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 16px;
     padding: 18px;
@@ -399,6 +399,70 @@
     border-radius: var(--radius-2xl);
     background: var(--color-white);
     box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.motivation-point-item-dragging {
+    z-index: 1;
+    border-color: #26785f;
+    box-shadow: 0 12px 30px rgb(38 120 95 / 18%);
+    transform: scale(1.01);
+}
+
+.motivation-point-drag-handle {
+    display: inline-flex;
+    width: 34px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: grab;
+    font: inherit;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.2em;
+    touch-action: none;
+}
+
+.motivation-point-drag-handle:active {
+    cursor: grabbing;
+}
+
+.motivation-point-drag-handle:focus-visible {
+    border-radius: var(--radius-lg);
+    outline: 2px solid #26785f;
+    outline-offset: 2px;
+}
+
+.motivation-point-reorder-help {
+    margin: 0 0 10px;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+.motivation-point-reorder-status {
+    min-height: 1.25em;
+    margin: 0 0 8px;
+    color: #26785f;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.motivation-point-reorder-status:empty {
+    display: none;
+}
+
+.motivation-point-reorder-status-error {
+    color: var(--color-error);
+}
+
+.motivation-point-add-button {
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .motivation-point-item > p {
@@ -556,7 +620,7 @@
 
 @media (max-width: 720px) {
     .motivation-point-item {
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns: auto auto minmax(0, 1fr);
     }
 
     .motivation-point-actions {

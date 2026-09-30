@@ -2,6 +2,10 @@
 
 {% block title %}Mes motivations{% endblock %}
 
+{% block javascripts %}
+    <script src="{{ asset('js/motivation-points.js') }}?v=20260930-1" defer></script>
+{% endblock %}
+
 {% block body %}
     <main class="entry-index motivation-point-page">
         <header class="entry-index-header">
@@ -10,8 +14,7 @@
                 <h1>Mes motivations</h1>
                 <p>Classe tes raisons de la plus importante à la moins importante et relis-les quand tu en as besoin.</p>
             </div>
-            <a href="{{ path('app_dashboard') }}" class="dashboard-button">Tableau de bord</a>
-            <a href="{{ path('app_motivation_point_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>+ Ajouter une motivation</a>
+            <a href="{{ path('app_motivation_point_new') }}" class="dashboard-button dashboard-button-primary motivation-point-add-button" data-modal-form>Ajouter une motivation</a>
         </header>
 
         {% for successMessage in app.flashes('success') %}
@@ -26,20 +29,26 @@
                 <a href="{{ path('app_motivation_point_new') }}" class="dashboard-button dashboard-button-primary" data-modal-form>Ajouter ma première motivation</a>
             </div>
         {% else %}
-            <ol class="motivation-point-list">
+            <p class="motivation-point-reorder-help">Fais glisser les poignées pour classer tes motivations.</p>
+            <p class="motivation-point-reorder-status" data-motivation-reorder-status aria-live="polite"></p>
+            <ol
+                class="motivation-point-list"
+                data-motivation-list
+                data-reorder-url="{{ path('app_motivation_point_reorder') }}"
+                data-reorder-token="{{ csrf_token('reorder-motivation-points') }}"
+            >
                 {% for motivationPoint in motivationPoints %}
-                    <li class="motivation-point-item">
+                    <li class="motivation-point-item" data-motivation-item data-motivation-id="{{ motivationPoint.id }}">
+                        <button
+                            type="button"
+                            class="motivation-point-drag-handle"
+                            data-motivation-drag-handle
+                            aria-label="Déplacer la motivation {{ loop.index }}"
+                            title="Faire glisser pour réordonner"
+                        >⋮⋮</button>
                         <span class="motivation-point-rank" aria-label="Position {{ loop.index }}">{{ loop.index }}</span>
                         <p>{{ motivationPoint.content }}</p>
                         <div class="motivation-point-actions">
-                            <form method="post" action="{{ path('app_motivation_point_move', {id: motivationPoint.id, direction: 'up'}) }}">
-                                <input type="hidden" name="_token" value="{{ csrf_token('move-motivation-point-' ~ motivationPoint.id) }}">
-                                <button type="submit" title="Monter cette motivation" aria-label="Monter cette motivation" {{ loop.first ? 'disabled' : '' }}>↑</button>
-                            </form>
-                            <form method="post" action="{{ path('app_motivation_point_move', {id: motivationPoint.id, direction: 'down'}) }}">
-                                <input type="hidden" name="_token" value="{{ csrf_token('move-motivation-point-' ~ motivationPoint.id) }}">
-                                <button type="submit" title="Descendre cette motivation" aria-label="Descendre cette motivation" {{ loop.last ? 'disabled' : '' }}>↓</button>
-                            </form>
                             <a href="{{ path('app_motivation_point_edit', {id: motivationPoint.id}) }}" data-modal-form>Modifier</a>
                             <form method="post" action="{{ path('app_motivation_point_delete', {id: motivationPoint.id}) }}" onsubmit="return confirm('Supprimer cette motivation ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-motivation-point-' ~ motivationPoint.id) }}">

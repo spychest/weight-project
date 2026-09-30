@@ -9,6 +9,8 @@
     }
 
     let currentFormUrl = null;
+    let returnPageUrl = null;
+    let backdropPointerDown = false;
     const prefetchedFormCards = new Map();
     const formPrefetchRequests = new Map();
 
@@ -153,6 +155,7 @@
         }
 
         event.preventDefault();
+        returnPageUrl = window.location.href;
         loadForm(link.href);
     });
 
@@ -199,11 +202,20 @@
             const response = await fetch(submissionUrl, {
                 method: (form.method || 'POST').toUpperCase(),
                 body: formData,
-                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-Modal-Form': '1',
+                },
             });
 
+            const modalRedirectUrl = response.headers.get('X-Modal-Redirect');
+            if (response.status === 204 && modalRedirectUrl) {
+                window.location.assign(returnPageUrl ?? modalRedirectUrl);
+                return;
+            }
+
             if (response.redirected) {
-                window.location.assign(response.url);
+                window.location.assign(returnPageUrl ?? response.url);
                 return;
             }
 
@@ -229,18 +241,29 @@
         }
     });
 
+    modal.addEventListener('pointerdown', (event) => {
+        backdropPointerDown = event.target === modal;
+    });
+
     modal.addEventListener('click', (event) => {
         if (event.target.closest('[data-form-modal-close]')) {
             modal.close();
             return;
         }
 
-        if (event.target === modal) {
+        const textSelection = window.getSelection();
+        const hasSelectedText = textSelection !== null && !textSelection.isCollapsed;
+
+        if (event.target === modal && backdropPointerDown && !hasSelectedText) {
             modal.close();
         }
+
+        backdropPointerDown = false;
     });
     modal.addEventListener('close', () => {
         currentFormUrl = null;
+        returnPageUrl = null;
+        backdropPointerDown = false;
         modalContent.replaceChildren();
         modal.removeAttribute('aria-labelledby');
         modal.setAttribute('aria-label', 'Formulaire');

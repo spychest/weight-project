@@ -43,20 +43,4 @@ final class MotivationPointRepository extends ServiceEntityRepository
         return ((int) $highestPosition) + 1;
     }
 
-    public function findAdjacent(MotivationPoint $motivationPoint, string $direction): ?MotivationPoint
-    {
-        $comparison = $direction === 'up' ? '<' : '>';
-        $sortDirection = $direction === 'up' ? 'DESC' : 'ASC';
-
-        return $this->createQueryBuilder('adjacentPoint')
-            ->andWhere('adjacentPoint.profile = :profile')
-            ->andWhere(sprintf('adjacentPoint.position %s :position', $comparison))
-            ->setParameter('profile', $motivationPoint->getProfile())
-            ->setParameter('position', $motivationPoint->getPosition())
-            ->orderBy('adjacentPoint.position', $sortDirection)
-            ->addOrderBy('adjacentPoint.id', $sortDirection)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
 }

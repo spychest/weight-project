@@ -8,6 +8,7 @@ use App\Repository\MotivationPointRepository;
 use App\Service\CurrentUserProfileProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -64,29 +65,47 @@ final class MotivationPointController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/move/{direction}', name: 'app_motivation_point_move', requirements: ['id' => '\d+', 'direction' => 'up|down'], methods: ['POST'])]
-    public function move(
-        MotivationPoint $motivationPoint,
-        string $direction,
+    #[Route('/reorder', name: 'app_motivation_point_reorder', methods: ['POST'])]
+    public function reorder(
         Request $request,
         CurrentUserProfileProvider $currentUserProfileProvider,
         MotivationPointRepository $motivationPointRepository,
         EntityManagerInterface $entityManager,
-    ): Response {
-        $this->assertOwnership($motivationPoint, $currentUserProfileProvider);
-        if (!$this->isCsrfTokenValid('move-motivation-point-'.$motivationPoint->getId(), (string) $request->request->get('_token'))) {
+    ): JsonResponse {
+        if (!$this->isCsrfTokenValid('reorder-motivation-points', (string) $request->headers->get('X-CSRF-TOKEN'))) {
             throw $this->createAccessDeniedException('Jeton de sécurité invalide.');
         }
 
-        $adjacentPoint = $motivationPointRepository->findAdjacent($motivationPoint, $direction);
-        if ($adjacentPoint !== null) {
-            $currentPosition = $motivationPoint->getPosition();
-            $motivationPoint->setPosition($adjacentPoint->getPosition());
-            $adjacentPoint->setPosition($currentPosition);
-            $entityManager->flush();
+        $submittedIdentifiers = $request->toArray()['orderedIds'] ?? null;
+        if (!is_array($submittedIdentifiers)) {
+            return $this->json(['message' => 'Ordre invalide.'], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->redirectToRoute('app_motivation_point_index');
+        $motivationPoints = $motivationPointRepository->findForProfile(
+            $currentUserProfileProvider->getRequiredProfile(),
+        );
+        $motivationPointsByIdentifier = [];
+        foreach ($motivationPoints as $motivationPoint) {
+            $motivationPointsByIdentifier[(int) $motivationPoint->getId()] = $motivationPoint;
+        }
+
+        $orderedIdentifiers = array_map(static fn (mixed $identifier): int => (int) $identifier, $submittedIdentifiers);
+        $expectedIdentifiers = array_keys($motivationPointsByIdentifier);
+        $identifiersToValidate = $orderedIdentifiers;
+        sort($expectedIdentifiers);
+        sort($identifiersToValidate);
+
+        if ($identifiersToValidate !== $expectedIdentifiers || count(array_unique($orderedIdentifiers)) !== count($orderedIdentifiers)) {
+            return $this->json(['message' => 'La liste des motivations est invalide.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        foreach ($orderedIdentifiers as $position => $identifier) {
+            $motivationPointsByIdentifier[$identifier]->setPosition($position + 1);
+        }
+
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Ordre enregistré.']);
     }
 
     #[Route('/{id}/delete', name: 'app_motivation_point_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
