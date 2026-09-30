@@ -246,14 +246,20 @@
 }
 
 .dashboard-button {
-    display: inline-block;
+    display: inline-flex;
+    min-height: 44px;
     padding: 11px 16px;
+    box-sizing: border-box;
     border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-lg);
+    align-items: center;
+    justify-content: center;
     background: var(--color-white);
     color: var(--color-text-primary);
     text-decoration: none;
+    font: inherit;
     font-weight: 500;
+    line-height: 1.2;
     transition: background var(--transition-base), border-color var(--transition-base), transform var(--transition-base);
 }
 
@@ -479,13 +485,16 @@
 }
 
 .motivation-point-actions form {
+    display: flex;
+    align-items: center;
     margin: 0;
 }
 
 .motivation-point-actions button,
 .motivation-point-actions a {
     display: inline-flex;
-    min-height: 34px;
+    box-sizing: border-box;
+    height: 36px;
     padding: 7px 10px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
@@ -497,6 +506,7 @@
     font: inherit;
     font-size: 0.78rem;
     font-weight: 700;
+    line-height: 1;
     text-decoration: none;
 }
 
