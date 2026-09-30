@@ -108,7 +108,7 @@
                 </div>
                 {% if hasRecipeFilter %}
                     <div class="recipe-filter-actions">
-                        <a href="{{ path('app_recipe_index', {tab: 'community'}) }}" class="dashboard-button" data-recipe-filters-reset>Réinitialiser</a>
+                        <a href="{{ path('app_recipe_index', {tab: 'community'}) }}" class="dashboard-button dashboard-button-secondary" data-recipe-filters-reset>Réinitialiser</a>
                     </div>
                 {% endif %}
             </form>
@@ -132,7 +132,7 @@
                                 <p>Proposée le {{ recipe.createdAt|date('d/m/Y') }} · Mise à jour le {{ recipe.updatedAt|date('d/m/Y') }} · {{ recipe.uniqueViewCount }} vue{{ recipe.uniqueViewCount > 1 ? 's' : '' }}</p>
                                 {% include 'recipe/_dietary_badges.html.twig' with {recipe: recipe} only %}
                             </div>
-                            <div class="recipe-management-actions"><a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="dashboard-button">Voir</a><a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a></div>
+                            <div class="recipe-management-actions"><a href="{{ path('app_recipe_show', {id: recipe.id}) }}" class="dashboard-button dashboard-button-secondary">Voir</a><a href="{{ path('app_recipe_edit', {id: recipe.id}) }}" class="dashboard-button dashboard-button-primary" data-modal-form>Modifier</a></div>
                         </article>
                     {% endfor %}
                 </div>
