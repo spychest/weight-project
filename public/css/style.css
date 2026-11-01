@@ -3104,10 +3104,15 @@ body:has(.milestone-celebration-modal[open]) {
 /* Responsive audit — shared safeguards */
 html {
     color-scheme: light;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 body {
+    width: 100%;
     min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     margin: 0;
     overflow-x: hidden;
     background: var(--color-bg-subtle);
@@ -3500,7 +3505,9 @@ button {
 @media (max-width: 720px) {
     .site-header-authenticated {
         position: relative;
+        width: 100%;
         min-height: 58px;
+        box-sizing: border-box;
         align-items: center;
         padding: 0.65rem 1rem;
     }
@@ -3512,6 +3519,7 @@ button {
     .mobile-navigation {
         display: block;
         width: 100%;
+        min-width: 0;
     }
 
     .mobile-navigation-toggle {
@@ -3581,6 +3589,12 @@ button {
         border-radius: 0;
         background: var(--color-white);
         box-shadow: var(--shadow-md);
+    }
+
+    .site-header .mobile-navigation-panel {
+        right: -1rem;
+        left: -1rem;
+        width: auto;
     }
 
     .mobile-navigation-panel a {
