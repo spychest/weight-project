@@ -29,8 +29,15 @@ final class RecipeType extends AbstractType
                 'label' => 'Photo',
                 'mapped' => false,
                 'required' => false,
-                'constraints' => [new Image(maxSize: '5M', mimeTypesMessage: 'Sélectionne une image valide.')],
-                'attr' => ['accept' => 'image/*'],
+                'help' => 'JPG, PNG ou WebP, 5 Mo maximum. Une nouvelle photo remplace l’ancienne.',
+                'constraints' => [new Image(
+                    maxSize: '5M',
+                    mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                    maxSizeMessage: 'La photo ne doit pas dépasser 5 Mo.',
+                    mimeTypesMessage: 'Sélectionne une image JPG, PNG ou WebP valide.',
+                    uploadIniSizeErrorMessage: 'La photo dépasse la taille maximale autorisée de 5 Mo.',
+                )],
+                'attr' => ['accept' => 'image/jpeg,image/png,image/webp'],
             ])
             ->add('vegetarian', CheckboxType::class, [
                 'label' => 'Végétarien',
