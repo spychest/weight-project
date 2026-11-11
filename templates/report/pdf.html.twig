@@ -1,713 +1,130 @@
-<title>Compte-rendu</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport de suivi pondéral</title>
+    <style>
+        @page { size: A4 portrait; margin: 8mm 9mm 9mm; }
+        * { box-sizing: border-box; }
+        body { margin: 0; color: #1d2924; font-family: DejaVu Sans, sans-serif; font-size: 8.4px; line-height: 1.32; }
+        h1, h2, p { margin-top: 0; }
+        .header { margin-bottom: 8px; padding-bottom: 7px; border-bottom: 1px solid #a9b8b1; }
+        .header h1 { margin: 0 0 3px; color: #173f33; font-size: 20px; line-height: 1.1; }
+        .header-meta { color: #53645d; font-size: 7.6px; }
+        .header-meta span { margin-right: 13px; white-space: nowrap; }
+        .kpis { width: 100%; margin-bottom: 5px; border-collapse: separate; border-spacing: 4px 0; table-layout: fixed; }
+        .kpis td { width: 25%; height: 58px; padding: 7px 8px; border: 1px solid #dce5e1; border-radius: 5px; background: #f4f7f5; vertical-align: top; }
+        .kpi-label { display: block; margin-bottom: 4px; color: #60716a; font-size: 6.9px; font-weight: bold; letter-spacing: .45px; text-transform: uppercase; }
+        .kpi-value { display: block; color: #173f33; font-size: 15px; font-weight: bold; line-height: 1.05; }
+        .kpi-detail { display: block; margin-top: 3px; color: #66766f; font-size: 6.8px; }
+        .secondary { width: 100%; margin-bottom: 7px; border-collapse: collapse; table-layout: fixed; }
+        .secondary td { width: 33.333%; padding: 4px 7px; border-right: 1px solid #d9e2de; background: #fafbfa; }
+        .secondary td:last-child { border-right: 0; }
+        .secondary span { display: block; color: #65756e; font-size: 6.7px; }
+        .secondary strong { color: #263832; font-size: 9px; }
+        .section-title { margin: 0 0 4px; color: #234f41; font-size: 10px; }
+        .chart-shell { margin-bottom: 5px; padding: 5px 5px 2px; border: 1px solid #d4dfda; border-radius: 6px; page-break-inside: avoid; }
+        .chart-shell img { display: block; width: 100%; height: 270px; }
+        .chart-caption { margin: 2px 3px 0; color: #68776f; font-size: 6.5px; }
+        .summary-grid { width: 100%; border-collapse: separate; border-spacing: 5px 0; table-layout: fixed; }
+        .summary-grid > tbody > tr > td { padding: 7px 8px; border: 1px solid #dce5e1; border-radius: 5px; vertical-align: top; }
+        .summary-grid h2 { margin: 0 0 4px; color: #234f41; font-size: 9px; }
+        .summary-grid p { margin: 0; color: #35463f; font-size: 7.4px; white-space: pre-line; }
+        .summary-grid .empty { color: #7b8983; font-style: italic; }
+        .food-metrics { width: 100%; border-collapse: collapse; }
+        .food-metrics td { padding: 2px 0; border-bottom: 1px solid #edf1ef; }
+        .food-metrics td:last-child { text-align: right; font-weight: bold; }
+        .notice { margin: 5px 2px 0; color: #68776f; font-size: 6.3px; }
+        .footer { position: fixed; right: 0; bottom: -5mm; left: 0; padding-top: 4px; border-top: 1px solid #bcc9c3; color: #65756e; font-size: 6.2px; }
+        .footer-right { float: right; }
+        .negative { color: #17664f; }
+        .positive { color: #9a4d32; }
+        .neutral { color: #45564f; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Rapport de suivi pondéral</h1>
+        <div class="header-meta">
+            <span>Généré le {{ report.generatedAt|date('d/m/Y') }}</span>
+            <span>Suivi du {{ report.trackingStartDate|date('d/m/Y') }} au {{ report.trackingEndDate|date('d/m/Y') }}</span>
+            <span>Âge : {{ report.age }} ans</span>
+            <span>Taille : {{ report.height|number_format(0, ',', ' ') }} cm</span>
+        </div>
+    </header>
 
-<style>
-    @page {
-        margin: 20mm 15mm 20mm 15mm;
-    }
-
-    body {
-        font-family: DejaVu Sans, sans-serif;
-        font-size: 10px;
-        line-height: 1.4;
-        color: #222;
-    }
-
-    h1 {
-        font-size: 24px;
-        margin: 0 0 5px;
-    }
-
-    h2 {
-        font-size: 16px;
-        margin-top: 25px;
-        padding-bottom: 5px;
-        border-bottom: 2px solid #333;
-    }
-
-    h3 {
-        font-size: 12px;
-        margin-top: 15px;
-    }
-
-    p {
-        margin: 5px 0;
-    }
-
-    ul {
-        margin-top: 5px;
-        padding-left: 20px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 8px;
-        margin-bottom: 15px;
-    }
-
-    th,
-    td {
-        border: 1px solid #ccc;
-        padding: 5px;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    th {
-        font-weight: bold;
-        background: #eee;
-    }
-
-    tr {
-        page-break-inside: avoid;
-    }
-
-    .header {
-        margin-bottom: 20px;
-    }
-
-    .period {
-        font-size: 12px;
-        color: #555;
-    }
-
-    .summary {
-        margin-top: 15px;
-        padding: 10px;
-        border: 1px solid #ccc;
-    }
-
-    .summary ul {
-        margin-bottom: 0;
-    }
-
-    .section {
-        page-break-inside: avoid;
-    }
-
-    .muted {
-        color: #777;
-    }
-</style>
-
-<div class="header">
-    <h1>Compte-rendu</h1>
-    <div class="period">
-        Période :
-        <strong>
-            {{ report.startDate|date('d/m/Y') }}
-            →
-            {{ report.endDate|date('d/m/Y') }}
-        </strong>
-    </div>
-
-</div>
-
-<h2>Résumé</h2>
-
-<ul>
-    <li>
-        <strong>Poids :</strong>
-        {{ report.weight.entryCount }} mesure(s)
-    </li>
-    <li>
-        <strong>Hydratation :</strong>
-        {{ report.hydration.totalQuantity|number_format(0, ',', ' ') }} ml
-    </li>
-
-    <li>
-        <strong>Alimentation :</strong>
-        {{ report.food.entryCount }} repas
-    </li>
-
-    <li>
-        <strong>Sommeil :</strong>
-        {{ report.sleep.nightsWithEntries }}
-        / {{ report.sleep.totalDays }} nuit(s)
-    </li>
-
-    <li>
-        <strong>Activité :</strong>
-        {{ report.activity.entryCount }} activité(s)
-    </li>
-
-    <li>
-        <strong>Bien-être :</strong>
-        {{ report.checkin.daysWithEntries }}
-        / {{ report.checkin.totalDays }} jour(s)
-    </li>
-
-</ul>
-
-{# ============================================================
-POIDS
-============================================================ #}
-
-<h2>Poids</h2>
-
-<table>
-    <thead>
-    <tr>
-        <th>Indicateur</th>
-        <th>Valeur</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Nombre de mesures</td>
-        <td>{{ report.weight.entryCount }}</td>
-    </tr>
-
-    <tr>
-        <td>Poids initial</td>
+    <table class="kpis"><tr>
         <td>
-            {% if report.weight.initialWeight is not null %}
-                {{ report.weight.initialWeight|number_format(1, ',', ' ') }} kg
-            {% else %}
-                —
-            {% endif %}
+            <span class="kpi-label">Poids initial déclaré</span>
+            <span class="kpi-value">{{ report.startingWeight is not null ? report.startingWeight|number_format(1, ',', ' ') ~ ' kg' : 'Non disponible' }}</span>
+            <span class="kpi-detail">Référence du profil au {{ report.trackingStartDate|date('d/m/Y') }}</span>
         </td>
-    </tr>
-
-    <tr>
-        <td>Poids final</td>
         <td>
-            {% if report.weight.finalWeight is not null %}
-                {{ report.weight.finalWeight|number_format(1, ',', ' ') }} kg
-            {% else %}
-                —
-            {% endif %}
+            <span class="kpi-label">Dernier poids</span>
+            <span class="kpi-value">{{ report.latestWeight is not null ? report.latestWeight|number_format(1, ',', ' ') ~ ' kg' : 'Non disponible' }}</span>
+            {% if report.latestWeightDate %}<span class="kpi-detail">{{ report.latestWeightIsDeclared ? 'Valeur déclarée' : 'Pesée' }} du {{ report.latestWeightDate|date('d/m/Y') }}</span>{% endif %}
         </td>
-    </tr>
-
-    <tr>
-        <td>Évolution</td>
         <td>
-            {% if report.weight.change is not null %}
-                {{ report.weight.change|number_format(1, ',', ' ') }} kg
-            {% else %}
-                —
-            {% endif %}
+            <span class="kpi-label">Évolution totale</span>
+            {% if report.totalChange is not null %}
+                <span class="kpi-value {{ report.totalChange < 0 ? 'negative' : (report.totalChange > 0 ? 'positive' : 'neutral') }}">{{ report.totalChange > 0 ? '+' : '' }}{{ report.totalChange|number_format(1, ',', ' ') }} kg</span>
+                <span class="kpi-detail">{{ report.totalChangePercentage > 0 ? '+' : '' }}{{ report.totalChangePercentage|number_format(1, ',', ' ') }} % du poids initial</span>
+            {% else %}<span class="kpi-value">Non disponible</span>{% endif %}
         </td>
-    </tr>
-    </tbody>
+        <td>
+            <span class="kpi-label">Rythme moyen</span>
+            {% if report.averageWeeklyChange is not null %}
+                <span class="kpi-value {{ report.averageWeeklyChange < 0 ? 'negative' : (report.averageWeeklyChange > 0 ? 'positive' : 'neutral') }}">{{ report.averageWeeklyChange > 0 ? '+' : '' }}{{ report.averageWeeklyChange|number_format(2, ',', ' ') }}</span>
+                <span class="kpi-detail">kg/semaine, sur le temps réel écoulé</span>
+            {% else %}<span class="kpi-value">Non disponible</span>{% endif %}
+        </td>
+    </tr></table>
 
-</table>
+    <table class="secondary"><tr>
+        <td><span>Durée du suivi</span><strong>{{ report.trackingDurationDays is not null ? report.trackingDurationDays ~ ' jours' : 'Non disponible' }}</strong></td>
+        <td><span>Depuis la pesée précédente</span><strong>{% if report.previousMeasurementChange is not null %}{{ report.previousMeasurementChange > 0 ? '+' : '' }}{{ report.previousMeasurementChange|number_format(1, ',', ' ') }} kg{% else %}Non disponible{% endif %}</strong></td>
+        <td><span>Variation autour des 30 jours</span><strong>{% if report.thirtyDayChange is not null %}{{ report.thirtyDayChange > 0 ? '+' : '' }}{{ report.thirtyDayChange|number_format(1, ',', ' ') }} kg{% else %}Non disponible{% endif %}</strong></td>
+    </tr></table>
 
-{% if report.weight.entries is not empty %}
-    <h3>Mesures</h3>
+    <h2 class="section-title">Évolution complète du poids</h2>
+    <section class="chart-shell">
+        <img src="{{ report.chartDataUri }}" alt="Graphique de l’évolution du poids">
+        <p class="chart-caption">
+            {{ report.measurementCount }} pesée{{ report.measurementCount > 1 ? 's' : '' }} de suivi.
+            Le losange représente le poids initial déclaré. Les tendances sont descriptives et ne constituent pas des prédictions.
+        </p>
+    </section>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Poids</th>
-            <th>Note</th>
-        </tr>
-        </thead>
+    {% set showFood = report.foodEntryCount > 0 %}
+    {% set columnCount = (report.habitSummary ? 1 : 0) + (report.medicalNotes ? 1 : 0) + (showFood ? 1 : 0) %}
+    {% set columnCount = columnCount > 0 ? columnCount : 1 %}
+    <table class="summary-grid"><tr>
+        {% if report.habitSummary %}<td style="width: {{ 100 / columnCount }}%"><h2>Évolution des habitudes</h2><p>{{ report.habitSummary }}</p></td>{% endif %}
+        {% if report.medicalNotes %}<td style="width: {{ 100 / columnCount }}%"><h2>Informations complémentaires</h2><p>{{ report.medicalNotes }}</p></td>{% endif %}
+        {% if showFood %}
+            <td style="width: {{ 100 / columnCount }}%">
+                <h2>Indicateurs alimentaires</h2>
+                <table class="food-metrics">
+                    <tr><td>Prises enregistrées</td><td>{{ report.foodEntryCount }}</td></tr>
+                    {% if report.averageHungerLevel is not null %}<tr><td>Faim moyenne avant repas</td><td>{{ report.averageHungerLevel|number_format(1, ',', ' ') }}/10</td></tr>{% endif %}
+                    {% if report.averagePleasureLevel is not null %}<tr><td>Plaisir moyen</td><td>{{ report.averagePleasureLevel|number_format(1, ',', ' ') }}/10</td></tr>{% endif %}
+                </table>
+                <p class="chart-caption">Période : {{ foodPeriodStart|date('d/m/Y') }} - {{ foodPeriodEnd|date('d/m/Y') }}.</p>
+            </td>
+        {% endif %}
+        {% if not report.habitSummary and not report.medicalNotes and not showFood %}
+            <td><h2>Synthèse complémentaire</h2><p class="empty">Aucune information facultative renseignée.</p></td>
+        {% endif %}
+    </tr></table>
 
-        <tbody>
-        {% for entry in report.weight.entries %}
-            <tr>
-                <td>{{ entry.measuredAt|date('d/m/Y') }}</td>
-
-                <td>
-                    {{ entry.weight|number_format(1, ',', ' ') }} kg
-                </td>
-
-                <td>{{ entry.note ?? '—' }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="muted">
-        Aucune mesure de poids sur cette période.
+    <p class="notice">
+        Variation sur 30 jours : comparaison avec la dernière mesure disponible située entre 30 et 37 jours avant la dernière pesée.
+        {% if report.invalidMeasurementCount > 0 %}{{ report.invalidMeasurementCount }} mesure{{ report.invalidMeasurementCount > 1 ? 's' : '' }} invalide{{ report.invalidMeasurementCount > 1 ? 's' : '' }} exclue{{ report.invalidMeasurementCount > 1 ? 's' : '' }} du calcul et signalée{{ report.invalidMeasurementCount > 1 ? 's' : '' }} ici.{% endif %}
     </p>
-{% endif %}
 
-{# ============================================================
-HYDRATATION
-============================================================ #}
-
-<h2>Hydratation</h2>
-
-<table>
-    <thead>
-    <tr>
-        <th>Indicateur</th>
-        <th>Valeur</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Quantité totale</td>
-        <td>
-            {{ report.hydration.totalQuantity|number_format(0, ',', ' ') }} ml
-        </td>
-    </tr>
-
-    <tr>
-        <td>Moyenne quotidienne</td>
-        <td>
-            {{ report.hydration.averageDailyQuantity|number_format(0, ',', ' ') }} ml
-        </td>
-    </tr>
-
-    <tr>
-        <td>Jours avec des entrées</td>
-        <td>
-            {{ report.hydration.daysWithEntries }}
-            / {{ report.hydration.totalDays }}
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-{% if report.hydration.entries is not empty %}
-    <h3>Consommations</h3>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Quantité</th>
-            <th>Description</th>
-            <th>Note</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for entry in report.hydration.entries %}
-            <tr>
-                <td>{{ entry.date|date('d/m/Y') }}</td>
-
-                <td>{{ entry.drinkType.label }}</td>
-
-                <td>{{ entry.quantity }} ml</td>
-
-                <td>{{ entry.description ?? '—' }}</td>
-
-                <td>{{ entry.note ?? '—' }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="muted">
-        Aucune consommation enregistrée sur cette période.
-    </p>
-{% endif %}
-
-<h2>Alimentation</h2>
-
-<table>
-    <thead>
-    <tr>
-        <th>Indicateur</th>
-        <th>Valeur</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    <tr>
-        <td>Nombre de repas</td>
-        <td>{{ report.food.entryCount }}</td>
-    </tr>
-
-    <tr>
-        <td>Faim moyenne</td>
-        <td>
-            {% if report.food.averageHungerLevel is not null %}
-                {{ report.food.averageHungerLevel|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Plaisir moyen</td>
-        <td>
-            {% if report.food.averagePleasureLevel is not null %}
-                {{ report.food.averagePleasureLevel|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-{% if report.food.mealTypeCounts is not empty %}
-    <h3>Répartition des repas</h3>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Type de repas</th>
-            <th>Nombre</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for mealType, count in report.food.mealTypeCounts %}
-            <tr>
-                <td>{{ mealType }}</td>
-                <td>{{ count }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-{% endif %}
-
-{% if report.food.entries is not empty %}
-    <h3>Repas enregistrés</h3>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Faim</th>
-            <th>Plaisir</th>
-            <th>Cause</th>
-            <th>Note</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for entry in report.food.entries %}
-            <tr>
-                <td>{{ entry.date|date('d/m/Y H:i') }}</td>
-
-                <td>{{ entry.mealType }}</td>
-
-                <td>{{ entry.description }}</td>
-
-                <td>
-                    {% if entry.hungerLevel is not null %}
-                        {{ entry.hungerLevel }}/10
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-
-                <td>
-                    {% if entry.pleasureLevel is not null %}
-                        {{ entry.pleasureLevel }}/10
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-
-                <td>{{ entry.cause ?? '—' }}</td>
-
-                <td>{{ entry.note ?? '—' }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-{% else %}
-    <p class="muted">
-        Aucun repas enregistré sur cette période.
-    </p>
-{% endif %}
-
-{# ============================================================
-SOMMEIL
-============================================================ #}
-
-<h2>Sommeil</h2>
-
-<table>
-    <thead>
-    <tr>
-        <th>Indicateur</th>
-        <th>Valeur</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Nuits avec des entrées</td>
-        <td>
-            {{ report.sleep.nightsWithEntries }}
-            / {{ report.sleep.totalDays }}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Durée moyenne</td>
-        <td>
-            {% if report.sleep.averageDurationInMinutes is not null %}
-                {{ (report.sleep.averageDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Qualité moyenne</td>
-        <td>
-            {% if report.sleep.averageQuality is not null %}
-                {{ report.sleep.averageQuality|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Nuit la plus courte</td>
-        <td>
-            {% if report.sleep.shortestDurationInMinutes is not null %}
-                {{ (report.sleep.shortestDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Nuit la plus longue</td>
-        <td>
-            {% if report.sleep.longestDurationInMinutes is not null %}
-                {{ (report.sleep.longestDurationInMinutes / 60)|number_format(1, ',', ' ') }} h
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-{% if report.sleep.entries is not empty %}
-    <h3>Nuits enregistrées</h3>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Coucher</th>
-            <th>Réveil</th>
-            <th>Durée</th>
-            <th>Qualité</th>
-            <th>Note</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for entry in report.sleep.entries %}
-            <tr>
-                <td>{{ entry.date|date('d/m/Y') }}</td>
-
-                <td>{{ entry.bedTime|date('d/m/Y H:i') }}</td>
-
-                <td>{{ entry.wakeUpTime|date('d/m/Y H:i') }}</td>
-
-                <td>
-                    {{ (entry.durationInMinutes / 60)|number_format(1, ',', ' ') }} h
-                </td>
-
-                <td>{{ entry.quality }}/10</td>
-
-                <td>{{ entry.note ?? '—' }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="muted">
-        Aucune nuit enregistrée sur cette période.
-    </p>
-{% endif %}
-
-{# ============================================================
-ACTIVITÉ
-============================================================ #}
-
-<h2>Activité</h2>
-
-<table>
-    <thead>
-    <tr>
-        <th>Indicateur</th>
-        <th>Valeur</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Nombre d'activités</td>
-        <td>{{ report.activity.entryCount }}</td>
-    </tr>
-
-    <tr>
-        <td>Douleur moyenne</td>
-        <td>
-            {% if report.activity.averagePainLevel is not null %}
-                {{ report.activity.averagePainLevel|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-{% if report.activity.entries is not empty %}
-    <h3>Activités enregistrées</h3>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Douleur</th>
-            <th>Note</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for entry in report.activity.entries %}
-            <tr>
-                <td>{{ entry.date|date('d/m/Y') }}</td>
-
-                <td>{{ entry.description }}</td>
-
-                <td>
-                    {% if entry.painLevel is not null %}
-                        {{ entry.painLevel }}/10
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-
-                <td>{{ entry.note ?? '—' }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="muted">
-        Aucune activité enregistrée sur cette période.
-    </p>
-{% endif %}
-
-{# ============================================================
-BIEN-ÊTRE ET RESSENTI
-============================================================ #}
-
-<h2>Bien-être et ressenti</h2>
-
-<table>
-    <thead>
-    <tr>
-        <th>Indicateur</th>
-        <th>Valeur</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Jours avec un check-in</td>
-        <td>
-            {{ report.checkin.daysWithEntries }}
-            / {{ report.checkin.totalDays }}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Humeur moyenne</td>
-        <td>
-            {% if report.checkin.averageMoodLevel is not null %}
-                {{ report.checkin.averageMoodLevel|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Énergie moyenne</td>
-        <td>
-            {% if report.checkin.averageEnergyLevel is not null %}
-                {{ report.checkin.averageEnergyLevel|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Frustration moyenne</td>
-        <td>
-            {% if report.checkin.averageFrustrationLevel is not null %}
-                {{ report.checkin.averageFrustrationLevel|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <td>Douleur moyenne</td>
-        <td>
-            {% if report.checkin.averagePainLevel is not null %}
-                {{ report.checkin.averagePainLevel|number_format(1, ',', ' ') }}/10
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-{% if report.checkin.entries is not empty %}
-
-    <h3>Observations quotidiennes</h3>
-
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Humeur</th>
-            <th>Énergie</th>
-            <th>Frustration</th>
-            <th>Douleur</th>
-            <th>Note</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for entry in report.checkin.entries %}
-            <tr>
-                <td>{{ entry.date|date('d/m/Y') }}</td>
-
-                <td>{{ entry.moodLevel }}/10</td>
-
-                <td>{{ entry.energyLevel }}/10</td>
-
-                <td>{{ entry.frustrationLevel }}/10</td>
-
-                <td>
-                    {% if entry.painLevel is not null %}
-                        {{ entry.painLevel }}/10
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
-
-                <td>{{ entry.note ?? '—' }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="muted">
-        Aucun check-in enregistré sur cette période.
-    </p>
-{% endif %}
+    <footer class="footer">
+        Document de synthèse généré à partir des données saisies par l’utilisateur. Il ne constitue ni un diagnostic ni une recommandation médicale.
+        <span class="footer-right">weight.spychest.fr</span>
+    </footer>
+</body>
+</html>

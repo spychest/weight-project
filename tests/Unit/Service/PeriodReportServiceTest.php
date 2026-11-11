@@ -59,7 +59,7 @@ final class PeriodReportServiceTest extends TestCase
     #[Test]
     public function itCalculatesEverySectionOfAPeriodReport(): void
     {
-        $profile = new Profile();
+        $profile = (new Profile())->setStartingWeight(105.0);
         $startDate = new \DateTimeImmutable('2026-08-01');
         $endDate = new \DateTimeImmutable('2026-08-03');
 
@@ -96,9 +96,9 @@ final class PeriodReportServiceTest extends TestCase
         $report = $this->periodReportService->generate($profile, $startDate, $endDate);
 
         self::assertSame(2, $report->weight->entryCount);
-        self::assertSame(100.0, $report->weight->initialWeight);
+        self::assertSame(105.0, $report->weight->initialWeight);
         self::assertSame(98.5, $report->weight->finalWeight);
-        self::assertSame(-1.5, $report->weight->change);
+        self::assertSame(-6.5, $report->weight->change);
 
         self::assertSame(2400, $report->hydration->totalQuantity);
         self::assertSame(800.0, $report->hydration->averageDailyQuantity);
@@ -131,12 +131,13 @@ final class PeriodReportServiceTest extends TestCase
         $this->milestoneRepository->method('findForProfile')->willReturn([]);
 
         $report = $this->periodReportService->generate(
-            new Profile(),
+            (new Profile())->setStartingWeight(105.0),
             new \DateTimeImmutable('2026-08-01'),
             new \DateTimeImmutable('2026-08-03'),
         );
 
         self::assertSame(0, $report->weight->entryCount);
+        self::assertSame(105.0, $report->weight->initialWeight);
         self::assertNull($report->weight->change);
         self::assertSame(0, $report->hydration->totalQuantity);
         self::assertSame(0.0, $report->hydration->averageDailyQuantity);

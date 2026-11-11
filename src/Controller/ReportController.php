@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Form\ReportPeriodType;
 use App\Service\CurrentUserProfileProvider;
+use App\Service\Report\MedicalWeightReportService;
 use App\Service\Report\PeriodReportService;
+use App\Service\Report\ReportDataExporter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Service\Report\ReportDataExporter;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -42,6 +44,8 @@ final class ReportController extends AbstractController
 
             return $this->render('report/result.html.twig', [
                 'report' => $report,
+                'habitSummary' => $reportPeriod['habitSummary'] ?? null,
+                'medicalNotes' => $reportPeriod['medicalNotes'] ?? null,
             ]);
         }
 
@@ -96,12 +100,14 @@ final class ReportController extends AbstractController
         );
     }
 
-    #[Route('/report/pdf/{startDate}/{endDate}', name: 'app_report_pdf')]
+    #[Route('/report/pdf/{startDate}/{endDate}', name: 'app_report_pdf', methods: ['GET', 'POST'])]
     public function exportPdf(
         string $startDate,
         string $endDate,
+        Request $request,
         CurrentUserProfileProvider $currentUserProfileProvider,
         PeriodReportService $periodReportService,
+        MedicalWeightReportService $medicalWeightReportService,
     ): Response {
         $profile = $currentUserProfileProvider->getProfile();
 
@@ -129,8 +135,19 @@ final class ReportController extends AbstractController
             $endDateObject,
         );
 
+        $habitSummary = $this->validatedOptionalReportText($request->request->get('habitSummary'));
+        $medicalNotes = $this->validatedOptionalReportText($request->request->get('medicalNotes'));
+        $medicalReport = $medicalWeightReportService->generate(
+            $profile,
+            $report->food,
+            $habitSummary,
+            $medicalNotes,
+        );
+
         $reportHtml = $this->renderView('report/pdf.html.twig', [
-            'report' => $report,
+            'report' => $medicalReport,
+            'foodPeriodStart' => $startDateObject,
+            'foodPeriodEnd' => $endDateObject,
         ]);
 
         $options = new Options();
@@ -150,5 +167,15 @@ final class ReportController extends AbstractController
                 'Content-Disposition' => 'attachment; filename="rapport.pdf"',
             ],
         );
+    }
+
+    private function validatedOptionalReportText(mixed $value): ?string
+    {
+        $text = trim(is_string($value) ? $value : '');
+        if (mb_strlen($text) > 350) {
+            throw new BadRequestHttpException('Les textes du rapport sont limités à 350 caractères.');
+        }
+
+        return $text === '' ? null : $text;
     }
 }

@@ -97,11 +97,12 @@ class PeriodReportService
         );
 
         $entryCount = count($entries);
+        $declaredStartingWeight = $profile->getStartingWeight();
 
         if ($entryCount === 0) {
             return new WeightReportData(
                 entryCount: 0,
-                initialWeight: null,
+                initialWeight: $declaredStartingWeight,
                 finalWeight: null,
                 change: null,
                 entries: [],
@@ -118,14 +119,13 @@ class PeriodReportService
             );
         }
 
-        $initialWeight = $entries[0]->getWeight();
         $finalWeight = $entries[$entryCount - 1]->getWeight();
 
         return new WeightReportData(
             entryCount: $entryCount,
-            initialWeight: $initialWeight,
+            initialWeight: $declaredStartingWeight,
             finalWeight: $finalWeight,
-            change: $finalWeight - $initialWeight,
+            change: $declaredStartingWeight === null ? null : $finalWeight - $declaredStartingWeight,
             entries: $reportEntries,
         );
     }

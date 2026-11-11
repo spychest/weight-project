@@ -1,27 +1,34 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ReportController!{% endblock %}
+{% block title %}Préparer le rapport médical{% endblock %}
 
 {% block body %}
-    <div class="form-page">
-        <div class="form-card">
+    <div class="form-page report-form-page">
+        <div class="form-card report-form-card">
             <header class="form-header">
-                <h1>Générer compte-rendu</h1>
+                <span class="entry-index-label">📄 Synthèse médicale</span>
+                <h1>Préparer le rapport pondéral</h1>
+                <p>Le poids utilisera tout ton historique. La période choisie sert uniquement aux indicateurs alimentaires facultatifs.</p>
             </header>
 
             {{ form_start(form) }}
+                <div class="form-grid">
+                    {{ form_row(form.startDate) }}
+                    {{ form_row(form.endDate) }}
+                </div>
 
-            <div class="form-grid">
-                {{ form_row(form.startDate) }}
-                {{ form_row(form.endDate) }}
-            </div>
+                <div class="report-form-textareas">
+                    {{ form_row(form.habitSummary) }}
+                    {{ form_row(form.medicalNotes) }}
+                </div>
 
-            <div class="form-actions">
-                <button type="submit" class="form-button form-button-primary">
-                    Générer le compte-rendu
-                </button>
-            </div>
+                <p class="report-form-privacy-note">
+                    Ces textes sont facultatifs et ne servent qu’à composer le document que tu télécharges.
+                </p>
 
+                <div class="form-actions">
+                    <button type="submit" class="form-button form-button-primary">Prévisualiser le rapport</button>
+                </div>
             {{ form_end(form) }}
         </div>
     </div>
