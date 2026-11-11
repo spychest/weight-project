@@ -48,7 +48,9 @@ final class MedicalWeightReportServiceTest extends TestCase
         self::assertSame(-3.0, $report->previousMeasurementChange);
         self::assertSame(2, $report->measurementCount);
         self::assertFalse($report->latestWeightIsDeclared);
-        self::assertTrue($report->hasGeneralTrend);
+        self::assertEqualsWithDelta(32.65, $report->startingBmi, 0.01);
+        self::assertEqualsWithDelta(31.02, $report->currentBmi, 0.01);
+        self::assertTrue($report->hasAllTimeTrend);
         self::assertStringStartsWith('data:image/svg+xml;base64,', $report->chartDataUri);
     }
 
@@ -73,8 +75,9 @@ final class MedicalWeightReportServiceTest extends TestCase
         self::assertNull($report->averageWeeklyChange);
         self::assertNull($report->trackingDurationDays);
         self::assertNull($report->thirtyDayChange);
-        self::assertFalse($report->hasGeneralTrend);
-        self::assertFalse($report->hasRecentTrend);
+        self::assertFalse($report->hasAllTimeTrend);
+        self::assertFalse($report->hasFourWeekTrend);
+        self::assertFalse($report->hasEightWeekTrend);
     }
 
     #[Test]
@@ -97,11 +100,12 @@ final class MedicalWeightReportServiceTest extends TestCase
         );
 
         self::assertSame(-3.0, $report->thirtyDayChange);
-        self::assertTrue($report->hasRecentTrend);
+        self::assertTrue($report->hasFourWeekTrend);
+        self::assertTrue($report->hasEightWeekTrend);
     }
 
     #[Test]
-    public function itDoesNotInventARecentTrendFromTooFewDistinctDates(): void
+    public function itCalculatesTheFourWeekTrendFromTwoDistinctMeasurementDates(): void
     {
         $profile = $this->createProfile(100.0, '2026-01-01');
         $this->weightEntryRepository->method('findAllForProfile')->willReturn([
@@ -118,7 +122,7 @@ final class MedicalWeightReportServiceTest extends TestCase
             new \DateTimeImmutable('2026-02-01'),
         );
 
-        self::assertFalse($report->hasRecentTrend);
+        self::assertTrue($report->hasFourWeekTrend);
     }
 
     #[Test]
@@ -145,6 +149,36 @@ final class MedicalWeightReportServiceTest extends TestCase
         self::assertIsString($chart);
         self::assertSame(1, substr_count($chart, 'transform="rotate(45'));
         self::assertSame(2, $report->measurementCount);
+    }
+
+    #[Test]
+    public function itAlwaysPlacesTheDeclaredWeightBeforeMeasurementsOnTheChart(): void
+    {
+        $profile = $this->createProfile(100.0, '2026-02-01');
+        $this->weightEntryRepository->method('findAllForProfile')->willReturn([
+            $this->createWeightEntry(99.0, '2026-01-10'),
+            $this->createWeightEntry(98.0, '2026-02-10'),
+        ]);
+
+        $report = $this->service->generate(
+            $profile,
+            $this->createFoodReport(),
+            null,
+            null,
+            new \DateTimeImmutable('2026-02-11'),
+        );
+        $chart = base64_decode(
+            substr($report->chartDataUri, strlen('data:image/svg+xml;base64,')),
+            true,
+        );
+
+        self::assertIsString($chart);
+        self::assertMatchesRegularExpression('/transform="rotate\(45 ([\d.]+) /', $chart);
+        self::assertMatchesRegularExpression('/<circle cx="([\d.]+)"/', $chart);
+        preg_match('/transform="rotate\(45 ([\d.]+) /', $chart, $initialPointMatch);
+        preg_match('/<circle cx="([\d.]+)"/', $chart, $firstMeasurementMatch);
+
+        self::assertLessThan((float) $firstMeasurementMatch[1], (float) $initialPointMatch[1]);
     }
 
     private function createProfile(float $startingWeight, string $createdAt): Profile

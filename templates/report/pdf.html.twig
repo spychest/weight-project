@@ -57,12 +57,15 @@
         <td>
             <span class="kpi-label">Poids initial déclaré</span>
             <span class="kpi-value">{{ report.startingWeight is not null ? report.startingWeight|number_format(1, ',', ' ') ~ ' kg' : 'Non disponible' }}</span>
-            <span class="kpi-detail">Référence du profil au {{ report.trackingStartDate|date('d/m/Y') }}</span>
+            <span class="kpi-detail">IMC initial : {{ report.startingBmi is not null ? report.startingBmi|number_format(1, ',', ' ') : 'Non disponible' }} · Référence du profil</span>
         </td>
         <td>
             <span class="kpi-label">Dernier poids</span>
             <span class="kpi-value">{{ report.latestWeight is not null ? report.latestWeight|number_format(1, ',', ' ') ~ ' kg' : 'Non disponible' }}</span>
-            {% if report.latestWeightDate %}<span class="kpi-detail">{{ report.latestWeightIsDeclared ? 'Valeur déclarée' : 'Pesée' }} du {{ report.latestWeightDate|date('d/m/Y') }}</span>{% endif %}
+            <span class="kpi-detail">
+                IMC actuel : {{ report.currentBmi is not null ? report.currentBmi|number_format(1, ',', ' ') : 'Non disponible' }}
+                {% if report.latestWeightDate %} · {{ report.latestWeightIsDeclared ? 'Valeur déclarée' : 'Pesée' }} du {{ report.latestWeightDate|date('d/m/Y') }}{% endif %}
+            </span>
         </td>
         <td>
             <span class="kpi-label">Évolution totale</span>
@@ -91,7 +94,7 @@
         <img src="{{ report.chartDataUri }}" alt="Graphique de l’évolution du poids">
         <p class="chart-caption">
             {{ report.measurementCount }} pesée{{ report.measurementCount > 1 ? 's' : '' }} de suivi.
-            Le losange représente le poids initial déclaré. Les tendances sont descriptives et ne constituent pas des prédictions.
+            Le losange représente le poids initial déclaré, placé en ouverture de la série. Les tendances à 4 semaines, 8 semaines et depuis le début sont descriptives et ne constituent pas des prédictions.
         </p>
     </section>
 

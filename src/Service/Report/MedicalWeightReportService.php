@@ -9,6 +9,8 @@ use App\Repository\WeightEntryRepository;
 
 final readonly class MedicalWeightReportService
 {
+    private const FOUR_WEEK_PERIOD_DAYS = 28;
+    private const EIGHT_WEEK_PERIOD_DAYS = 56;
     private const RECENT_PERIOD_DAYS = 30;
     private const THIRTY_DAY_REFERENCE_TOLERANCE_DAYS = 7;
 
@@ -56,19 +58,15 @@ final readonly class MedicalWeightReportService
                 $startingWeight,
             );
 
-            if ($duplicateIndex === null) {
-                array_unshift($chartPoints, [
-                    'date' => $referenceDate,
-                    'weight' => $startingWeight,
-                    'initial' => true,
-                ]);
-                usort(
-                    $chartPoints,
-                    static fn (array $left, array $right): int => $left['date'] <=> $right['date'],
-                );
-            } else {
-                $chartPoints[$duplicateIndex]['initial'] = true;
+            if ($duplicateIndex !== null) {
+                array_splice($chartPoints, $duplicateIndex, 1);
             }
+
+            array_unshift($chartPoints, [
+                'date' => $referenceDate,
+                'weight' => $startingWeight,
+                'initial' => true,
+            ]);
         }
 
         $latestEntry = $validEntries === [] ? null : $validEntries[array_key_last($validEntries)];
@@ -92,17 +90,15 @@ final readonly class MedicalWeightReportService
             ? null
             : $this->calculateThirtyDayChange($chartPoints, $latestEntry);
 
-        $generalTrend = $this->linearRegression($chartPoints);
-        $recentCutoff = $latestWeightDate?->modify('-'.self::RECENT_PERIOD_DAYS.' days');
-        $recentPoints = $recentCutoff === null
-            ? []
-            : array_values(array_filter(
-                $chartPoints,
-                static fn (array $point): bool => !$point['initial'] && $point['date'] >= $recentCutoff,
-            ));
-        $recentTrend = $this->hasAtLeastDistinctDates($recentPoints, 3)
-            ? $this->linearRegression($recentPoints)
-            : null;
+        $allTimeTrend = $this->linearRegression($validEntries);
+        $fourWeekTrend = $this->linearRegression($this->pointsWithinLatestPeriod(
+            $validEntries,
+            self::FOUR_WEEK_PERIOD_DAYS,
+        ));
+        $eightWeekTrend = $this->linearRegression($this->pointsWithinLatestPeriod(
+            $validEntries,
+            self::EIGHT_WEEK_PERIOD_DAYS,
+        ));
 
         return new MedicalWeightReportData(
             generatedAt: $generatedAt,
@@ -111,7 +107,9 @@ final readonly class MedicalWeightReportService
             age: $profile->getBirthDate()->diff($generatedAt)->y,
             height: $profile->getHeight(),
             startingWeight: $startingWeight,
+            startingBmi: $this->calculateBmi($startingWeight, $profile->getHeight()),
             latestWeight: $latestWeight,
+            currentBmi: $this->calculateBmi($latestWeight, $profile->getHeight()),
             latestWeightDate: $latestWeightDate,
             latestWeightIsDeclared: $latestEntry === null && $startingWeight !== null,
             totalChange: $totalChange,
@@ -122,9 +120,15 @@ final readonly class MedicalWeightReportService
             thirtyDayChange: $thirtyDayChange,
             measurementCount: count($validEntries),
             invalidMeasurementCount: $invalidMeasurementCount,
-            chartDataUri: $this->buildChartDataUri($chartPoints, $generalTrend, $recentTrend),
-            hasGeneralTrend: $generalTrend !== null,
-            hasRecentTrend: $recentTrend !== null,
+            chartDataUri: $this->buildChartDataUri(
+                $chartPoints,
+                $fourWeekTrend,
+                $eightWeekTrend,
+                $allTimeTrend,
+            ),
+            hasFourWeekTrend: $fourWeekTrend !== null,
+            hasEightWeekTrend: $eightWeekTrend !== null,
+            hasAllTimeTrend: $allTimeTrend !== null,
             foodEntryCount: $foodReport->entryCount,
             averageHungerLevel: $foodReport->averageHungerLevel,
             averagePleasureLevel: $foodReport->averagePleasureLevel,
@@ -136,6 +140,36 @@ final readonly class MedicalWeightReportService
     private function validWeight(?float $weight): ?float
     {
         return $weight !== null && is_finite($weight) && $weight > 0 ? $weight : null;
+    }
+
+    private function calculateBmi(?float $weight, float $heightInCentimeters): ?float
+    {
+        if ($weight === null || $heightInCentimeters <= 0) {
+            return null;
+        }
+
+        $heightInMeters = $heightInCentimeters / 100;
+
+        return $weight / ($heightInMeters ** 2);
+    }
+
+    /**
+     * @param list<array{date: \DateTimeImmutable, weight: float, initial: bool}> $points
+     * @return list<array{date: \DateTimeImmutable, weight: float, initial: bool}>
+     */
+    private function pointsWithinLatestPeriod(array $points, int $periodInDays): array
+    {
+        if ($points === []) {
+            return [];
+        }
+
+        $latestDate = $points[array_key_last($points)]['date'];
+        $cutoffDate = $latestDate->modify(sprintf('-%d days', $periodInDays));
+
+        return array_values(array_filter(
+            $points,
+            static fn (array $point): bool => $point['date'] >= $cutoffDate,
+        ));
     }
 
     /** @param list<array{date: \DateTimeImmutable, weight: float, initial: bool}> $entries */
@@ -234,10 +268,16 @@ final readonly class MedicalWeightReportService
 
     /**
      * @param list<array{date: \DateTimeImmutable, weight: float, initial: bool}> $points
-     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $generalTrend
-     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $recentTrend
+     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $fourWeekTrend
+     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $eightWeekTrend
+     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $allTimeTrend
      */
-    private function buildChartDataUri(array $points, ?array $generalTrend, ?array $recentTrend): string
+    private function buildChartDataUri(
+        array $points,
+        ?array $fourWeekTrend,
+        ?array $eightWeekTrend,
+        ?array $allTimeTrend,
+    ): string
     {
         $width = 760;
         $height = 300;
@@ -260,6 +300,7 @@ final readonly class MedicalWeightReportService
             return 'data:image/svg+xml;base64,'.base64_encode($svg);
         }
 
+        $points = $this->placeDeclaredWeightAtChartStart($points);
         $timestamps = array_map(static fn (array $point): int => $point['date']->getTimestamp(), $points);
         $weights = array_column($points, 'weight');
         $minimumTimestamp = min($timestamps);
@@ -296,8 +337,9 @@ final readonly class MedicalWeightReportService
             $svgParts[] = sprintf('<polyline points="%s" fill="none" stroke="#17664f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>', implode(' ', $polylinePoints));
         }
 
-        $this->appendTrendLine($svgParts, $generalTrend, $x, $y, '#526a99', '7 5');
-        $this->appendTrendLine($svgParts, $recentTrend, $x, $y, '#b36a23', '3 4');
+        $this->appendTrendLine($svgParts, $allTimeTrend, $x, $y, '#526a99', '7 5');
+        $this->appendTrendLine($svgParts, $eightWeekTrend, $x, $y, '#7a5a91', '10 3 2 3');
+        $this->appendTrendLine($svgParts, $fourWeekTrend, $x, $y, '#b36a23', '3 4');
 
         foreach ($points as $point) {
             $pointX = $x($point['date']->getTimestamp());
@@ -318,16 +360,42 @@ final readonly class MedicalWeightReportService
 
         $legendX = $left;
         $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#17664f" stroke-width="2.5"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Poids réel</text>', $legendX, $legendX + 22, $legendX + 27);
-        if ($generalTrend !== null) {
-            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#526a99" stroke-width="2" stroke-dasharray="7 5"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Tendance générale</text>', $legendX + 100, $legendX + 122, $legendX + 127);
+        if ($fourWeekTrend !== null) {
+            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#b36a23" stroke-width="2" stroke-dasharray="3 4"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Tendance 4 semaines</text>', $legendX + 92, $legendX + 114, $legendX + 119);
         }
-        if ($recentTrend !== null) {
-            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#b36a23" stroke-width="2" stroke-dasharray="3 4"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Tendance 30 jours</text>', $legendX + 240, $legendX + 262, $legendX + 267);
+        if ($eightWeekTrend !== null) {
+            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#7a5a91" stroke-width="2" stroke-dasharray="10 3 2 3"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Tendance 8 semaines</text>', $legendX + 242, $legendX + 264, $legendX + 269);
+        }
+        if ($allTimeTrend !== null) {
+            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#526a99" stroke-width="2" stroke-dasharray="7 5"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Depuis le début</text>', $legendX + 394, $legendX + 416, $legendX + 421);
         }
 
         $svgParts[] = '</svg>';
 
         return 'data:image/svg+xml;base64,'.base64_encode(implode('', $svgParts));
+    }
+
+    /**
+     * The declared starting weight is a profile reference, not a dated follow-up measurement.
+     * When imported measurements predate the profile creation date, it gets a small visual slot
+     * before the first real measurement without changing the dates used by any calculation.
+     *
+     * @param list<array{date: \DateTimeImmutable, weight: float, initial: bool}> $points
+     * @return list<array{date: \DateTimeImmutable, weight: float, initial: bool}>
+     */
+    private function placeDeclaredWeightAtChartStart(array $points): array
+    {
+        if (count($points) < 2 || !$points[0]['initial'] || $points[0]['date'] < $points[1]['date']) {
+            return $points;
+        }
+
+        $firstMeasurementTimestamp = $points[1]['date']->getTimestamp();
+        $lastMeasurementTimestamp = $points[array_key_last($points)]['date']->getTimestamp();
+        $measurementRange = max(86400, $lastMeasurementTimestamp - $firstMeasurementTimestamp);
+        $visualOffset = min(7 * 86400, max(86400, (int) round($measurementRange * 0.03)));
+        $points[0]['date'] = $points[1]['date']->modify(sprintf('-%d seconds', $visualOffset));
+
+        return $points;
     }
 
     /**
