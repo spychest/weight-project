@@ -24,8 +24,12 @@
         .secondary strong { color: #263832; font-size: 9px; }
         .section-title { margin: 0 0 4px; color: #234f41; font-size: 10px; }
         .chart-shell { margin-bottom: 5px; padding: 5px 5px 2px; border: 1px solid #d4dfda; border-radius: 6px; page-break-inside: avoid; }
-        .chart-shell img { display: block; width: 100%; height: 270px; }
+        .chart-shell img { display: block; width: 100%; height: 240px; }
         .chart-caption { margin: 2px 3px 0; color: #68776f; font-size: 6.5px; }
+        .trend-cards { width: 100%; margin: 0 0 5px; border-collapse: separate; border-spacing: 5px 0; table-layout: fixed; }
+        .trend-cards td { width: 33.333%; padding: 5px 8px; border: 1px solid #dce5e1; border-radius: 5px; background: #f4f7f5; text-align: center; }
+        .trend-cards span { display: block; margin-bottom: 2px; color: #65756e; font-size: 6.8px; }
+        .trend-cards strong { color: #263832; font-size: 10px; }
         .summary-grid { width: 100%; border-collapse: separate; border-spacing: 5px 0; table-layout: fixed; }
         .summary-grid > tbody > tr > td { padding: 7px 8px; border: 1px solid #dce5e1; border-radius: 5px; vertical-align: top; }
         .summary-grid h2 { margin: 0 0 4px; color: #234f41; font-size: 9px; }
@@ -94,9 +98,24 @@
         <img src="{{ report.chartDataUri }}" alt="Graphique de l’évolution du poids">
         <p class="chart-caption">
             {{ report.measurementCount }} pesée{{ report.measurementCount > 1 ? 's' : '' }} de suivi.
-            Le losange représente le poids initial déclaré, placé en ouverture de la série. Les tendances à 4 semaines, 8 semaines et depuis le début sont descriptives et ne constituent pas des prédictions.
+            Le losange représente le poids initial déclaré, placé en ouverture de la série.
         </p>
     </section>
+
+    <table class="trend-cards"><tr>
+        <td>
+            <span>4 semaines</span>
+            <strong>{% if report.fourWeekTrend is not null %}{{ report.fourWeekTrend > 0 ? '+' : '' }}{{ report.fourWeekTrend|number_format(2, ',', ' ') }} kg/sem.{% else %}Non disponible{% endif %}</strong>
+        </td>
+        <td>
+            <span>8 semaines</span>
+            <strong>{% if report.eightWeekTrend is not null %}{{ report.eightWeekTrend > 0 ? '+' : '' }}{{ report.eightWeekTrend|number_format(2, ',', ' ') }} kg/sem.{% else %}Non disponible{% endif %}</strong>
+        </td>
+        <td>
+            <span>Depuis le début</span>
+            <strong>{% if report.allTimeTrend is not null %}{{ report.allTimeTrend > 0 ? '+' : '' }}{{ report.allTimeTrend|number_format(2, ',', ' ') }} kg/sem.{% else %}Non disponible{% endif %}</strong>
+        </td>
+    </tr></table>
 
     {% set showFood = report.foodEntryCount > 0 %}
     {% set columnCount = (report.habitSummary ? 1 : 0) + (report.medicalNotes ? 1 : 0) + (showFood ? 1 : 0) %}

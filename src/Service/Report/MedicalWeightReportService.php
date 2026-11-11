@@ -120,15 +120,10 @@ final readonly class MedicalWeightReportService
             thirtyDayChange: $thirtyDayChange,
             measurementCount: count($validEntries),
             invalidMeasurementCount: $invalidMeasurementCount,
-            chartDataUri: $this->buildChartDataUri(
-                $chartPoints,
-                $fourWeekTrend,
-                $eightWeekTrend,
-                $allTimeTrend,
-            ),
-            hasFourWeekTrend: $fourWeekTrend !== null,
-            hasEightWeekTrend: $eightWeekTrend !== null,
-            hasAllTimeTrend: $allTimeTrend !== null,
+            chartDataUri: $this->buildChartDataUri($chartPoints),
+            fourWeekTrend: $this->weeklyRate($fourWeekTrend),
+            eightWeekTrend: $this->weeklyRate($eightWeekTrend),
+            allTimeTrend: $this->weeklyRate($allTimeTrend),
             foodEntryCount: $foodReport->entryCount,
             averageHungerLevel: $foodReport->averageHungerLevel,
             averagePleasureLevel: $foodReport->averagePleasureLevel,
@@ -170,6 +165,12 @@ final readonly class MedicalWeightReportService
             $points,
             static fn (array $point): bool => $point['date'] >= $cutoffDate,
         ));
+    }
+
+    /** @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $trend */
+    private function weeklyRate(?array $trend): ?float
+    {
+        return $trend === null ? null : $trend['slope'] * 7;
     }
 
     /** @param list<array{date: \DateTimeImmutable, weight: float, initial: bool}> $entries */
@@ -268,16 +269,8 @@ final readonly class MedicalWeightReportService
 
     /**
      * @param list<array{date: \DateTimeImmutable, weight: float, initial: bool}> $points
-     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $fourWeekTrend
-     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $eightWeekTrend
-     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $allTimeTrend
      */
-    private function buildChartDataUri(
-        array $points,
-        ?array $fourWeekTrend,
-        ?array $eightWeekTrend,
-        ?array $allTimeTrend,
-    ): string
+    private function buildChartDataUri(array $points): string
     {
         $width = 760;
         $height = 300;
@@ -337,10 +330,6 @@ final readonly class MedicalWeightReportService
             $svgParts[] = sprintf('<polyline points="%s" fill="none" stroke="#17664f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>', implode(' ', $polylinePoints));
         }
 
-        $this->appendTrendLine($svgParts, $allTimeTrend, $x, $y, '#526a99', '7 5');
-        $this->appendTrendLine($svgParts, $eightWeekTrend, $x, $y, '#7a5a91', '10 3 2 3');
-        $this->appendTrendLine($svgParts, $fourWeekTrend, $x, $y, '#b36a23', '3 4');
-
         foreach ($points as $point) {
             $pointX = $x($point['date']->getTimestamp());
             $pointY = $y($point['weight']);
@@ -360,15 +349,6 @@ final readonly class MedicalWeightReportService
 
         $legendX = $left;
         $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#17664f" stroke-width="2.5"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Poids réel</text>', $legendX, $legendX + 22, $legendX + 27);
-        if ($fourWeekTrend !== null) {
-            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#b36a23" stroke-width="2" stroke-dasharray="3 4"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Tendance 4 semaines</text>', $legendX + 92, $legendX + 114, $legendX + 119);
-        }
-        if ($eightWeekTrend !== null) {
-            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#7a5a91" stroke-width="2" stroke-dasharray="10 3 2 3"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Tendance 8 semaines</text>', $legendX + 242, $legendX + 264, $legendX + 269);
-        }
-        if ($allTimeTrend !== null) {
-            $svgParts[] = sprintf('<line x1="%d" y1="14" x2="%d" y2="14" stroke="#526a99" stroke-width="2" stroke-dasharray="7 5"/><text x="%d" y="17" fill="#34423d" font-family="DejaVu Sans" font-size="9">Depuis le début</text>', $legendX + 394, $legendX + 416, $legendX + 421);
-        }
 
         $svgParts[] = '</svg>';
 
@@ -396,31 +376,6 @@ final readonly class MedicalWeightReportService
         $points[0]['date'] = $points[1]['date']->modify(sprintf('-%d seconds', $visualOffset));
 
         return $points;
-    }
-
-    /**
-     * @param list<string> $svgParts
-     * @param array{slope: float, intercept: float, origin: int, start: int, end: int}|null $trend
-     * @param \Closure(int): float $x
-     * @param \Closure(float): float $y
-     */
-    private function appendTrendLine(array &$svgParts, ?array $trend, \Closure $x, \Closure $y, string $color, string $dash): void
-    {
-        if ($trend === null) {
-            return;
-        }
-
-        $startDays = ($trend['start'] - $trend['origin']) / 86400;
-        $endDays = ($trend['end'] - $trend['origin']) / 86400;
-        $svgParts[] = sprintf(
-            '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="2" stroke-dasharray="%s"/>',
-            $x($trend['start']),
-            $y($trend['intercept'] + ($trend['slope'] * $startDays)),
-            $x($trend['end']),
-            $y($trend['intercept'] + ($trend['slope'] * $endDays)),
-            $color,
-            $dash,
-        );
     }
 
     /** @param array{date: \DateTimeImmutable, weight: float, initial: bool} $point */

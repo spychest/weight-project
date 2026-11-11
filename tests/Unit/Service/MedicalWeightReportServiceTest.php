@@ -50,7 +50,9 @@ final class MedicalWeightReportServiceTest extends TestCase
         self::assertFalse($report->latestWeightIsDeclared);
         self::assertEqualsWithDelta(32.65, $report->startingBmi, 0.01);
         self::assertEqualsWithDelta(31.02, $report->currentBmi, 0.01);
-        self::assertTrue($report->hasAllTimeTrend);
+        self::assertEqualsWithDelta(-1.235, $report->fourWeekTrend, 0.001);
+        self::assertEqualsWithDelta(-1.235, $report->eightWeekTrend, 0.001);
+        self::assertEqualsWithDelta(-1.235, $report->allTimeTrend, 0.001);
         self::assertStringStartsWith('data:image/svg+xml;base64,', $report->chartDataUri);
     }
 
@@ -75,9 +77,9 @@ final class MedicalWeightReportServiceTest extends TestCase
         self::assertNull($report->averageWeeklyChange);
         self::assertNull($report->trackingDurationDays);
         self::assertNull($report->thirtyDayChange);
-        self::assertFalse($report->hasAllTimeTrend);
-        self::assertFalse($report->hasFourWeekTrend);
-        self::assertFalse($report->hasEightWeekTrend);
+        self::assertNull($report->allTimeTrend);
+        self::assertNull($report->fourWeekTrend);
+        self::assertNull($report->eightWeekTrend);
     }
 
     #[Test]
@@ -100,8 +102,8 @@ final class MedicalWeightReportServiceTest extends TestCase
         );
 
         self::assertSame(-3.0, $report->thirtyDayChange);
-        self::assertTrue($report->hasFourWeekTrend);
-        self::assertTrue($report->hasEightWeekTrend);
+        self::assertNotNull($report->fourWeekTrend);
+        self::assertNotNull($report->eightWeekTrend);
     }
 
     #[Test]
@@ -122,7 +124,7 @@ final class MedicalWeightReportServiceTest extends TestCase
             new \DateTimeImmutable('2026-02-01'),
         );
 
-        self::assertTrue($report->hasFourWeekTrend);
+        self::assertNotNull($report->fourWeekTrend);
     }
 
     #[Test]
