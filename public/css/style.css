@@ -240,14 +240,31 @@ button:disabled,
 }
 
 .report-form-textareas {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+    align-items: start;
+    margin-top: 24px;
 }
 
 .report-form-textareas > div {
     min-width: 0;
+}
+
+.report-form-textareas textarea {
+    min-height: 132px;
+    line-height: 1.45;
+    resize: vertical;
+}
+
+.report-form-textareas .form-text {
+    display: block;
+    margin-top: 8px;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.report-form-textareas textarea:focus-visible,
+.report-form-date-fields input:focus-visible {
+    outline: 2px solid transparent;
 }
 
 .report-form-privacy-note {
@@ -327,9 +344,32 @@ button:disabled,
 }
 
 @media (max-width: 720px) {
+    .report-form-date-fields,
     .report-form-textareas,
     .report-preview-summary {
         grid-template-columns: 1fr;
+    }
+
+    .report-form-card .form-header {
+        margin-bottom: 24px;
+    }
+
+    .report-form-card .form-header h1 {
+        font-size: clamp(1.6rem, 8vw, 2rem);
+        line-height: 1.15;
+    }
+
+    .report-form-textareas {
+        margin-top: 20px;
+    }
+
+    .report-form-textareas textarea {
+        min-height: 120px;
+    }
+
+    .report-form-card .form-actions,
+    .report-form-card .form-button {
+        width: 100%;
     }
 
     .report-export-actions,
